@@ -1,0 +1,22 @@
+#Ruta: backend-ssam/.gitignore
+#Propósito: Especifica qué archivos y carpetas NO deben ser rastreados por Git (para no subir cosas pesadas o secretas a GitHub).
+
+# Este archivo le dice a Git qué archivos ignorar
+
+# Dependencias de Node.js (se pueden reinstalar con npm install)
+node_modules/
+
+# Variables de entorno (contienen contraseñas, no deben subirse)
+.env
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de logs
+*.log
+npm-debug.log*
+
+# Archivos de compilación o empaquetado
+dist/
+build/

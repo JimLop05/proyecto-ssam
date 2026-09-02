@@ -1,0 +1,39 @@
+# Node.js
+node_modules/
+npm-debug.log
+package-lock.json
+yarn.lock
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+env/
+.env
+
+# Variables de entorno
+.env
+.env.local
+.env.production
+
+# Base de datos
+*.sqlite
+*.db
+*.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Archivos temporales
+tmp/
+temp/
+*.tmp
