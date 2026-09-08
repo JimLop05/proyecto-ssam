@@ -383,6 +383,42 @@ const registrarMaestroCompleto = async (req, res) => {
         client.release();
     }
 };
+
+// Obtener perfil del usuario autenticado
+const getPerfil = async (req, res) => {
+    try {
+        const id_usuario = req.user.id_usuario;
+        
+        const query = await pool.query(
+            `SELECT u.id_usuario, u.username, u.nombre, u.apellido1, u.apellido2, 
+                    u.email, u.estado, u.fecha_creacion, u.fecha_ultimo_acceso,
+                    u.rol
+             FROM USUARIO u
+             WHERE u.id_usuario = $1`,
+            [id_usuario]
+        );
+        
+        if (query.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Usuario no encontrado'
+            });
+        }
+        
+        res.json({
+            success: true,
+            data: query.rows[0]
+        });
+        
+    } catch (error) {
+        console.error('Error en getPerfil:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener perfil',
+            error: error.message
+        });
+    }
+};
 module.exports = {
     register,
     login,

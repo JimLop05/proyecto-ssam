@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './DashboardMaestro.css';
+import PlanificacionGestion from './PlanificacionGestion';
 
 function DashboardMaestro() {
     const navigate = useNavigate();
@@ -13,6 +14,7 @@ function DashboardMaestro() {
     const [mensaje, setMensaje] = useState('');
     const [clases, setClases] = useState([]);
     const [showSubmenu, setShowSubmenu] = useState(false);
+    const [showPlanificacion, setShowPlanificacion] = useState(false);
     
     // Estado para los datos del formulario
     const [formData, setFormData] = useState({
@@ -184,32 +186,42 @@ function DashboardMaestro() {
     };
 
     const renderContent = () => {
-        switch(activeSection) {
-            case 'perfil':
-                return <MiPerfil user={user} />;
-            case 'clases':
-                return <MisClases 
-                    user={user}
-                    clases={clases}
-                    setClaseSeleccionada={setClaseSeleccionada}
-                    setActiveSection={setActiveSection}
-                />;
-            case 'detalleClase':
-                return <DetalleClase 
-                    clase={claseSeleccionada}
-                    volver={() => {
-                        setClaseSeleccionada(null);
-                        setActiveSection('clases');
-                    }}
-                />;
-            case 'estudiantes':
-                return <MisEstudiantes />;
-            case 'planificacion':
-                return <MiPlanificacion />;
-            case 'reportes':
-                return <MisReportes />;
-            default:
-                return <MiPerfil user={user} />;
+    // Si está en modo planificación, mostrar el componente de planificación
+    if (showPlanificacion) {
+        return <PlanificacionGestion 
+            user={user}
+            volver={() => setShowPlanificacion(false)}
+        />;
+    }
+
+    switch(activeSection) {
+        case 'perfil':
+            return <MiPerfil user={user} />;
+        case 'clases':
+            return <MisClases 
+                user={user}
+                clases={clases}
+                setClaseSeleccionada={setClaseSeleccionada}
+                setActiveSection={setActiveSection}
+            />;
+        case 'detalleClase':
+            return <DetalleClase 
+                clase={claseSeleccionada}
+                volver={() => {
+                    setClaseSeleccionada(null);
+                    setActiveSection('clases');
+                }}
+            />;
+        case 'estudiantes':
+            return <MisEstudiantes />;
+        case 'planificacion':
+            return <MiPlanificacion 
+                onPlanificar={() => setShowPlanificacion(true)}
+            />;
+        case 'reportes':
+            return <MisReportes />;
+        default:
+            return <MiPerfil user={user} />;
         }
     };
 
@@ -541,14 +553,66 @@ function MisEstudiantes() {
     );
 }
 
-function MiPlanificacion() {
+function MiPlanificacion({ onPlanificar }) {
     return (
-        <div className="section">
-            <h2>📋 Mi Planificación</h2>
-            <p>Aquí podrás gestionar tu planificación académica.</p>
-            <p style={{ color: '#6c757d', fontStyle: 'italic' }}>
-                Próximamente: creación de planificaciones, unidades temáticas, etc.
-            </p>
+        <div className="section planificacion-bienvenida">
+            <div className="planificacion-hero" style={{
+                backgroundImage: 'url(https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1000&h=500&fit=crop)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                position: 'relative'
+            }}>
+                {/* Overlay oscuro + blanco para contraste */}
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.85) 100%)',
+                    borderRadius: '20px'
+                }}></div>
+
+                {/* Contenido */}
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                    <div className="hero-icon">📋</div>
+                    <h2>¡Bienvenido a tu Planificación Académica!</h2>
+                    <p className="hero-subtitle">
+                        Organiza tus clases, distribuye los contenidos por semanas 
+                        y mantén un seguimiento claro de tu enseñanza.
+                    </p>
+                    
+                    <div className="hero-beneficios">
+                        <div className="beneficio-item">
+                            <span className="beneficio-icon">✅</span>
+                            <p>Planifica por trimestres y semanas</p>
+                        </div>
+                        <div className="beneficio-item">
+                            <span className="beneficio-icon">📚</span>
+                            <p>Asigna unidades temáticas a cada semana</p>
+                        </div>
+                        <div className="beneficio-item">
+                            <span className="beneficio-icon">📊</span>
+                            <p>Visualiza el avance de tu planificación</p>
+                        </div>
+                        <div className="beneficio-item">
+                            <span className="beneficio-icon">🔄</span>
+                            <p>Clona planificaciones de años anteriores</p>
+                        </div>
+                    </div>
+
+                    <button 
+                        className="btn-planificar-gestion"
+                        onClick={onPlanificar}
+                    >
+                        🚀 PLANIFICAR GESTIÓN
+                    </button>
+                    
+                    <p className="hero-footer">
+                        ⏱️ Organiza tu año académico de manera eficiente
+                    </p>
+                </div>
+            </div>
         </div>
     );
 }

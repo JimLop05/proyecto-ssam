@@ -16,6 +16,8 @@ const estudianteRoutes = require('./routes/estudianteRoutes');
 const configRoutes = require('./routes/configRoutes');
 // Importar rutas de clases
 const claseRoutes = require('./routes/claseRoutes');
+// Agregar esta línea con las otras rutas
+const planificacionRoutes = require('./routes/planificacionRoutes');
 
 dotenv.config();
 
@@ -30,6 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/estudiantes', estudianteRoutes);
 // Para pantalla principal de la pagina
 app.use('/api/config', configRoutes);
+app.use('/api/planificacion', planificacionRoutes);
 
 // ================== RUTAS ====================================
 app.get('/api/test', (req, res) => {
