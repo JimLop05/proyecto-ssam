@@ -17,12 +17,6 @@ const DraggableItem = ({ item, estaAsignado }) => {
             isDragging: !!monitor.isDragging(),
         }),
         canDrag: !estaAsignado,
-        begin: (monitor) => {
-            console.log('🔄 Comenzando arrastre:', item.nombreitem);
-        },
-        end: (item, monitor) => {
-            console.log('✅ Arrastre terminado:', item.nombre);
-        }
     }));
 
     return (
@@ -35,10 +29,6 @@ const DraggableItem = ({ item, estaAsignado }) => {
                 userSelect: 'none' // 👈 Evita que el texto se seleccione
             }}
             // 👇 Eventos para touchpad
-            onMouseDown={(e) => {
-                e.preventDefault();
-                console.log('🖱️ Mouse down en:', item.nombreitem);
-            }}
             onTouchStart={(e) => {
                 console.log('👆 Touch start en:', item.nombreitem);
             }}
@@ -62,8 +52,6 @@ const SemanaDropZone = ({ semana, itemsAsignados, onDropItem, onRemoveItem, trim
             canDrop: !!monitor.canDrop(),
         }),
     }));
-    // 👇 AGREGAR ESTO PARA DEPURACIÓN
-    console.log(`📅 Semana ${semana.numero_semana}: isOver=${isOver}, canDrop=${canDrop}`);
 
     const itemsDeSemana = itemsAsignados[semana.id_semana] || [];
 
@@ -127,6 +115,7 @@ function PlanificacionGestion({ user, volver }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [progreso, setProgreso] = useState(0);
     const [totalSemanas, setTotalSemanas] = useState(0);
+    const [trimestreActivo, setTrimestreActivo] = useState(null);
 
     // Cargar clases del maestro al iniciar
     useEffect(() => {
@@ -170,6 +159,9 @@ function PlanificacionGestion({ user, volver }) {
             
             if (data.success) {
                 setTrimestres(data.data.trimestres || []);
+                if (data.data.trimestres && data.data.trimestres.length > 0) {
+                    setTrimestreActivo(data.data.trimestres[0].id_trimestre);
+                }
                 setUnidadesTematicas(data.data.unidades || []);
                 // Extraer todos los items de las unidades
                 const allItems = data.data.unidades.flatMap(u => u.items || []);
@@ -377,82 +369,99 @@ function PlanificacionGestion({ user, volver }) {
                 {/* CUERPO PRINCIPAL */}
                 {!loading && (
                     <div className="planificacion-body">
-                        {/* COLUMNA IZQUIERDA: TRIMESTRES */}
-                        <div className="planificacion-trimestres">
-                            {trimestres.length > 0 ? (
-                                trimestres.map((trimestre, index) => (
-                                    <div key={trimestre.id_trimestre} className="trimestre-card">
-                                        <h3 className="trimestre-titulo">
-                                            📅 Trimestre {index + 1}
-                                            <span className="trimestre-fechas">
-                                                ({new Date(trimestre.fecha_inicio).toLocaleDateString()} - {new Date(trimestre.fecha_fin).toLocaleDateString()})
-                                            </span>
-                                        </h3>
-                                        <div className="semanas-grid">
-                                            {trimestre.semanas?.map((semana) => (
-                                                <SemanaDropZone
-                                                    key={semana.id_semana}
-                                                    semana={semana}
-                                                    trimestre={`T${index + 1}`}
-                                                    itemsAsignados={itemsAsignados}
-                                                    onDropItem={handleDropItem}
-                                                    onRemoveItem={handleRemoveItem}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))
+    {/* COLUMNA IZQUIERDA: UNIDADES TEMÁTICAS */}
+    <div className="planificacion-unidades">
+        <div className="unidades-header">
+            <h3>📚 Unidades Temáticas</h3>
+            <div className="search-box">
+                <input
+                    type="text"
+                    placeholder="🔍 Buscar item..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+        </div>
+
+        <div className="unidades-scroll">
+            {unidadesTematicas.length > 0 ? (
+                unidadesTematicas.map(unidad => (
+                    <div key={unidad.id_unid_tem} className="unidad-card">
+                        <h4 className="unidad-titulo">{unidad.nombreut}</h4>
+                        <p className="unidad-objetivo">{unidad.objetivo || 'Sin objetivo'}</p>
+                        <div className="items-lista">
+                            {unidad.items?.length > 0 ? (
+                                unidad.items.map(item => {
+                                    const estaAsignado = Object.values(itemsAsignados).some(
+                                        items => items.includes(item.id_item)
+                                    );
+                                    return (
+                                        <DraggableItem
+                                            key={item.id_item}
+                                            item={item}
+                                            estaAsignado={estaAsignado}
+                                        />
+                                    );
+                                })
                             ) : (
-                                <div className="empty-state">
-                                    <p>📭 No hay trimestres configurados para esta clase</p>
-                                    <p className="empty-hint">Contacta al administrador para configurar el año académico</p>
-                                </div>
+                                <p style={{ color: '#6c757d', fontSize: '0.8rem' }}>Sin items</p>
                             )}
                         </div>
-
-                        {/* COLUMNA DERECHA: UNIDADES TEMÁTICAS */}
-                        <div className="planificacion-unidades">
-                            <div className="unidades-header">
-                                <h3>📚 Unidades Temáticas</h3>
-                                <div className="search-box">
-                                    <input
-                                        type="text"
-                                        placeholder="🔍 Buscar item..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="unidades-scroll">
-                                {/* TEMPORAL: Mostrar todas las unidades sin filtrar */}
-                                {unidadesTematicas.length > 0 ? (
-                                    unidadesTematicas.map(unidad => (
-                                        <div key={unidad.id_unid_tem} className="unidad-card">
-                                            <h4 className="unidad-titulo">{unidad.nombreut}</h4>
-                                            <p className="unidad-objetivo">{unidad.objetivo || 'Sin objetivo'}</p>
-                                            <div className="items-lista">
-                                                {unidad.items?.length > 0 ? (
-                                                    unidad.items.map(item => (
-                                                        <div key={item.id_item} className="item-unidad disponible">
-                                                            <span>🔹 {item.nombreitem}</span>
-                                                            <span className="item-estado disponible">📌 Disponible</span>
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <p style={{ color: '#6c757d', fontSize: '0.8rem' }}>Sin items</p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="empty-state">
-                                        <p>📚 No hay unidades temáticas disponibles</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
                     </div>
+                ))
+            ) : (
+                <div className="empty-state">
+                    <p>📚 No hay unidades temáticas disponibles</p>
+                </div>
+            )}
+        </div>
+    </div>
+
+    {/* COLUMNA DERECHA: TRIMESTRES */}
+    <div className="planificacion-trimestres">
+        {trimestres.length > 0 ? (
+            trimestres.map((trimestre, index) => (
+                <div key={trimestre.id_trimestre} className="trimestre-card">
+                    <h3 
+                        className={`trimestre-titulo ${trimestreActivo === trimestre.id_trimestre ? 'activo' : ''}`}
+                        onClick={() => setTrimestreActivo(
+                            trimestreActivo === trimestre.id_trimestre ? null : trimestre.id_trimestre
+                        )}
+                        style={{ cursor: 'pointer' }}
+                    >
+                        📅 Trimestre {index + 1} {trimestreActivo === trimestre.id_trimestre ? '▼' : '▶'}
+                        <span className="trimestre-fechas">
+                            ({new Date(trimestre.fecha_inicio).toLocaleDateString()} - {new Date(trimestre.fecha_fin).toLocaleDateString()})
+                        </span>
+                    </h3>
+                    {trimestreActivo === trimestre.id_trimestre ? (
+                        <div className="semanas-grid">
+                            {trimestre.semanas?.map((semana) => (
+                                <SemanaDropZone
+                                    key={semana.id_semana}
+                                    semana={semana}
+                                    trimestre={`T${index + 1}`}
+                                    itemsAsignados={itemsAsignados}
+                                    onDropItem={handleDropItem}
+                                    onRemoveItem={handleRemoveItem}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="trimestre-colapsado">
+                            <p>📅 {trimestre.semanas?.length || 0} semanas - Click para expandir</p>
+                        </div>
+                    )}
+                </div>
+            ))
+        ) : (
+            <div className="empty-state">
+                <p>📭 No hay trimestres configurados para esta clase</p>
+                <p className="empty-hint">Contacta al administrador para configurar el año académico</p>
+            </div>
+        )}
+    </div>
+</div>
                 )}
 
                 {/* FOOTER */}

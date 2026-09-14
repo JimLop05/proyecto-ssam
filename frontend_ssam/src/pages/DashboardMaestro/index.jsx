@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './DashboardMaestro.css';
 import PlanificacionGestion from './PlanificacionGestion';
+import AdministrarEstudiantes from './AdministrarEstudiantes';
 
 function DashboardMaestro() {
     const navigate = useNavigate();
@@ -15,6 +16,7 @@ function DashboardMaestro() {
     const [clases, setClases] = useState([]);
     const [showSubmenu, setShowSubmenu] = useState(false);
     const [showPlanificacion, setShowPlanificacion] = useState(false);
+    const [administrarEstudiantes, setAdministrarEstudiantes] = useState(false);
     
     // Estado para los datos del formulario
     const [formData, setFormData] = useState({
@@ -75,14 +77,14 @@ function DashboardMaestro() {
             });
             const data = await response.json();
             if (data.success) {
-            // Filtrar grados para mostrar solo id_grado = 6
-            const gradosFiltrados = data.data.grados.filter(g => g.id_grado === 6);
-            setGrados(gradosFiltrados);
-            setAsignaturas(data.data.asignaturas || []);
-            setDistritos(data.data.distritos || []);
-            setUnidadesEducativas(data.data.unidadesEducativas || []);
-            setUnidadesFiltradas(data.data.unidadesEducativas || []);
-        }
+                // Filtrar grados para mostrar solo id_grado = 6
+                const gradosFiltrados = data.data.grados.filter(g => g.id_grado === 6);
+                setGrados(gradosFiltrados);
+                setAsignaturas(data.data.asignaturas || []);
+                setDistritos(data.data.distritos || []);
+                setUnidadesEducativas(data.data.unidadesEducativas || []);
+                setUnidadesFiltradas(data.data.unidadesEducativas || []);
+            }
         } catch (error) {
             console.error('Error al cargar datos:', error);
         }
@@ -186,42 +188,46 @@ function DashboardMaestro() {
     };
 
     const renderContent = () => {
-    // Si está en modo planificación, mostrar el componente de planificación
-    if (showPlanificacion) {
-        return <PlanificacionGestion 
-            user={user}
-            volver={() => setShowPlanificacion(false)}
+        // Si estamos administrando estudiantes de una clase
+        if (administrarEstudiantes && claseSeleccionada) {
+            return <AdministrarEstudiantes
+            clase={claseSeleccionada}
+            volver={() => setAdministrarEstudiantes(false)}
         />;
     }
-
-    switch(activeSection) {
-        case 'perfil':
-            return <MiPerfil user={user} />;
-        case 'clases':
-            return <MisClases 
+        // Si está en modo planificación, mostrar el componente de planificación
+        if (showPlanificacion) {
+            return <PlanificacionGestion 
                 user={user}
-                clases={clases}
-                setClaseSeleccionada={setClaseSeleccionada}
-                setActiveSection={setActiveSection}
+                volver={() => setShowPlanificacion(false)}
             />;
-        case 'detalleClase':
-            return <DetalleClase 
-                clase={claseSeleccionada}
-                volver={() => {
-                    setClaseSeleccionada(null);
-                    setActiveSection('clases');
-                }}
-            />;
-        case 'estudiantes':
-            return <MisEstudiantes />;
-        case 'planificacion':
-            return <MiPlanificacion 
-                onPlanificar={() => setShowPlanificacion(true)}
-            />;
-        case 'reportes':
-            return <MisReportes />;
-        default:
-            return <MiPerfil user={user} />;
+        }
+
+        switch(activeSection) {
+            case 'perfil':
+                return <MiPerfil user={user} />;
+            case 'clases':
+                return <MisClases 
+                    user={user}
+                    clases={clases}
+                    setClaseSeleccionada={setClaseSeleccionada}
+                    setActiveSection={setActiveSection}
+                />;
+            case 'detalleClase':
+                return <DetalleClase 
+                    clase={claseSeleccionada}
+                    volver={() => {
+                        setClaseSeleccionada(null);
+                        setActiveSection('clases');
+                    }}
+                    onAdministrarEstudiantes={() => setAdministrarEstudiantes(true)}
+                />;
+            case 'planificacion':
+                return <MiPlanificacion 
+                    onPlanificar={() => setShowPlanificacion(true)}
+                />;
+            default:
+                return <MiPerfil user={user} />;
         }
     };
 
@@ -275,22 +281,10 @@ function DashboardMaestro() {
                             </div>
                         )}
                         <button 
-                            className={`sidebar-item ${activeSection === 'estudiantes' ? 'active' : ''}`}
-                            onClick={() => setActiveSection('estudiantes')}
-                        >
-                            👨‍🎓 Mis Estudiantes
-                        </button>
-                        <button 
                             className={`sidebar-item ${activeSection === 'planificacion' ? 'active' : ''}`}
                             onClick={() => setActiveSection('planificacion')}
                         >
                             📋 Mi Planificación
-                        </button>
-                        <button 
-                            className={`sidebar-item ${activeSection === 'reportes' ? 'active' : ''}`}
-                            onClick={() => setActiveSection('reportes')}
-                        >
-                            📊 Mis Reportes
                         </button>
                     </nav>
                 </aside>
@@ -391,7 +385,6 @@ function DashboardMaestro() {
                                     min="1"
                                     required
                                 />
-                                {/* Mostrar capacidad máxima si hay UE seleccionada */}
                                 {formData.id_ue && (
                                     <p style={{ fontSize: '12px', color: '#6c757d', marginTop: '4px' }}>
                                         Capacidad máxima de la UE: {unidadesFiltradas.find(ue => ue.id_ue === parseInt(formData.id_ue))?.num_est || 'N/A'} estudiantes
@@ -541,18 +534,6 @@ function MisClases({ user, clases, setClaseSeleccionada, setActiveSection }) {
     );
 }
 
-function MisEstudiantes() {
-    return (
-        <div className="section">
-            <h2>👨‍🎓 Mis Estudiantes</h2>
-            <p>Aquí se mostrarán tus estudiantes.</p>
-            <p style={{ color: '#6c757d', fontStyle: 'italic' }}>
-                Próximamente: listado de estudiantes
-            </p>
-        </div>
-    );
-}
-
 function MiPlanificacion({ onPlanificar }) {
     return (
         <div className="section planificacion-bienvenida">
@@ -562,7 +543,6 @@ function MiPlanificacion({ onPlanificar }) {
                 backgroundPosition: 'center',
                 position: 'relative'
             }}>
-                {/* Overlay oscuro + blanco para contraste */}
                 <div style={{
                     position: 'absolute',
                     top: 0,
@@ -573,7 +553,6 @@ function MiPlanificacion({ onPlanificar }) {
                     borderRadius: '20px'
                 }}></div>
 
-                {/* Contenido */}
                 <div style={{ position: 'relative', zIndex: 1 }}>
                     <div className="hero-icon">📋</div>
                     <h2>¡Bienvenido a tu Planificación Académica!</h2>
@@ -617,19 +596,7 @@ function MiPlanificacion({ onPlanificar }) {
     );
 }
 
-function MisReportes() {
-    return (
-        <div className="section">
-            <h2>📊 Mis Reportes</h2>
-            <p>Aquí se mostrarán tus reportes y estadísticas.</p>
-            <p style={{ color: '#6c757d', fontStyle: 'italic' }}>
-                Próximamente: gráficos y reportes
-            </p>
-        </div>
-    );
-}
-
-function DetalleClase({ clase, volver }) {
+function DetalleClase({ clase, volver, onAdministrarEstudiantes }) {
     return (
         <div className="section">
             <div className="section-header">
@@ -686,10 +653,13 @@ function DetalleClase({ clase, volver }) {
                     <div className="detalle-acciones">
                         <h4>Acciones</h4>
                         <div className="acciones-botones">
-                            <button className="btn-accion">👨‍🎓 Ver Estudiantes</button>
-                            <button className="btn-accion">📝 Crear Evaluación</button>
+                            <button 
+                                className="btn-accion"
+                                onClick={onAdministrarEstudiantes}
+                            >
+                                👨‍🎓 Ver Estudiantes
+                            </button>
                             <button className="btn-accion">📊 Ver Estadísticas</button>
-                            <button className="btn-accion">⚙️ Gestionar Clase</button>
                         </div>
                     </div>
                 </div>

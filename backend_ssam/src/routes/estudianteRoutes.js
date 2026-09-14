@@ -5,12 +5,23 @@
 // ============================================================
 
 const express = require('express');
-const { getEstudiantes } = require('../controllers/estudianteController');
+const { 
+    getEstudiantes, 
+    getMisClases, 
+    unirseAClase,
+    getMiPerfil,
+    getMiRendimiento,
+    getDetalleClaseEstudiante
+} = require('../controllers/estudianteController');
 const authMiddleware = require('../middlewares/auth');
 
 const router = express.Router();
 
-// Ruta protegida: obtener todos los estudiantes (solo usuarios autenticados)
 router.get('/', authMiddleware, getEstudiantes);
+router.get('/mi-perfil', authMiddleware, getMiPerfil);
+router.get('/mis-clases', authMiddleware, getMisClases);
+router.get('/mi-rendimiento', authMiddleware, getMiRendimiento);
+router.post('/unirse-clase', authMiddleware, unirseAClase);
+router.get('/clase/:id_clase', authMiddleware, getDetalleClaseEstudiante);
 
 module.exports = router;

@@ -249,8 +249,84 @@ const getMisClases = async (req, res) => {
     }
 };
 
+// ============================================================
+// OBTENER ESTUDIANTES INSCRITOS EN UNA CLASE
+// ============================================================
+const getEstudiantesDeClase = async (req, res) => {
+    try {
+        const id_maestro = req.user.id;
+        const { id_clase } = req.params;
+
+        // 1. Verificar que el usuario sea maestro
+        const maestroCheck = await pool.query(
+            'SELECT * FROM MAESTRO WHERE id_usuarioM = $1',
+            [id_maestro]
+        );
+
+        if (maestroCheck.rows.length === 0) {
+            return res.status(403).json({
+                success: false,
+                message: 'El usuario no es un maestro registrado'
+            });
+        }
+
+        // 2. Verificar que la clase pertenezca a este maestro
+        const claseCheck = await pool.query(
+            `SELECT id_clase, nombreC FROM CLASE 
+             WHERE id_clase = $1 AND id_maestro = $2`,
+            [id_clase, id_maestro]
+        );
+
+        if (claseCheck.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Clase no encontrada o no tienes permiso para verla'
+            });
+        }
+
+        // 3. Obtener estudiantes inscritos (JOIN pertenece + estudiante + usuario)
+        const result = await pool.query(
+            `SELECT 
+                u.id_usuario,
+                u.username,
+                u.nombre,
+                u.apellido1,
+                u.apellido2,
+                u.email,
+                u.estado AS estado_usuario,
+                e.fecha_nacimiento,
+                e.sexo,
+                e.tipo_estudiante
+             FROM PERTENECE p
+             INNER JOIN ESTUDIANTE e ON p.id_usuarioE = e.id_usuarioE
+             INNER JOIN USUARIO u ON e.id_usuarioE = u.id_usuario
+             WHERE p.id_clase = $1
+             ORDER BY u.apellido1, u.apellido2, u.nombre`,
+            [id_clase]
+        );
+
+        res.status(200).json({
+            success: true,
+            data: {
+                clase: claseCheck.rows[0],
+                estudiantes: result.rows,
+                total: result.rows.length
+            }
+        });
+
+    } catch (error) {
+        console.error('Error al obtener estudiantes de la clase:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener los estudiantes de la clase',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     getDatosFormulario,
     crearClase,
-    getMisClases  
+    getMisClases,
+    getEstudiantesDeClase
 };

@@ -1,0 +1,171 @@
+/* frontend_ssam/src/pages/DashboardMaestro/AdministrarEstudiantes.css */
+
+.admin-estudiantes {
+    padding: 25px;
+}
+
+/* ========== INFO DE LA CLASE ========== */
+.info-clase-resumen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #1a3a5c;
+    margin-bottom: 20px;
+}
+
+.info-clase-resumen span {
+    font-size: 14px;
+    color: #555;
+}
+
+.info-clase-resumen strong {
+    color: #1a3a5c;
+}
+
+/* ========== TOOLBAR ========== */
+.admin-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.input-busqueda {
+    flex: 1;
+    min-width: 250px;
+    padding: 10px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.input-busqueda:focus {
+    outline: none;
+    border-color: #1a3a5c;
+    box-shadow: 0 0 0 3px rgba(26, 58, 92, 0.1);
+}
+
+.contador-estudiantes {
+    background-color: #e9ecef;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #495057;
+    white-space: nowrap;
+}
+
+.contador-estudiantes strong {
+    color: #1a3a5c;
+}
+
+/* ========== ESTADO VACÍO ========== */
+.estado-vacio {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    border: 2px dashed #ced4da;
+}
+
+/* ========== TABLA ========== */
+.tabla-wrapper {
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.tabla-estudiantes {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.tabla-estudiantes thead {
+    background: linear-gradient(135deg, #1a3a5c 0%, #2a5f7a 100%);
+    color: white;
+}
+
+.tabla-estudiantes thead th {
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.tabla-estudiantes tbody tr {
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+}
+
+.tabla-estudiantes tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.tabla-estudiantes tbody tr:last-child {
+    border-bottom: none;
+}
+
+.tabla-estudiantes tbody td {
+    padding: 14px 16px;
+    color: #333;
+    vertical-align: middle;
+}
+
+.tabla-estudiantes tbody td strong {
+    color: #1a3a5c;
+}
+
+/* ========== BADGE DE ESTADO ========== */
+.badge-estado {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-estado.activo {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.badge-estado.inactivo {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.badge-estado.suspendido {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .tabla-wrapper {
+        overflow-x: auto;
+    }
+
+    .tabla-estudiantes {
+        min-width: 700px;
+    }
+
+    .admin-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .input-busqueda {
+        min-width: 100%;
+    }
+}

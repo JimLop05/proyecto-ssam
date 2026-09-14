@@ -1,0 +1,170 @@
+/* frontend_ssam/src/pages/DashboardEstudiante/EvaluacionClase.css */
+
+.clase-detalle-estudiante {
+    padding: 25px;
+}
+
+.btn-volver {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.btn-volver:hover {
+    background-color: #5a6268;
+}
+
+/* ========== INFO DE LA CLASE ========== */
+.info-clase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 25px 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #1a3a5c;
+}
+
+.info-item label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.info-item p {
+    font-size: 15px;
+    font-weight: 500;
+    color: #1a3a5c;
+    margin: 0;
+}
+
+/* ========== UNIDADES ========== */
+.unidades-section {
+    margin-top: 30px;
+}
+
+.unidades-section > h3 {
+    color: #1a3a5c;
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+/* ========== MOSAICOS DE UNIDADES ========== */
+.unidades-mosaico-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.mosaico-unidad {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 14px;
+    color: white;
+    min-height: 220px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.mosaico-unidad:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+/* Paleta de colores */
+.mosaico-unidad.verde {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+.mosaico-unidad.azul {
+    background: linear-gradient(135deg, #1a3a5c 0%, #2a5f7a 100%);
+}
+.mosaico-unidad.naranja {
+    background: linear-gradient(135deg, #fd7e14 0%, #ffb347 100%);
+}
+.mosaico-unidad.morado {
+    background: linear-gradient(135deg, #6f42c1 0%, #a876e0 100%);
+}
+.mosaico-unidad.rojo {
+    background: linear-gradient(135deg, #dc3545 0%, #ff6b7a 100%);
+}
+.mosaico-unidad.turquesa {
+    background: linear-gradient(135deg, #17a2b8 0%, #4dd0e1 100%);
+}
+.mosaico-unidad.amarillo {
+    background: linear-gradient(135deg, #e0a800 0%, #ffd54f 100%);
+}
+.mosaico-unidad.rosa {
+    background: linear-gradient(135deg, #d63384 0%, #ff85c1 100%);
+}
+
+/* Ícono del mosaico */
+.mosaico-icono {
+    font-size: 32px;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+/* Contenido del mosaico */
+.mosaico-contenido {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.mosaico-numero {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.85;
+    margin-bottom: 6px;
+}
+
+.mosaico-contenido h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.mosaico-objetivo {
+    font-size: 13px;
+    opacity: 0.9;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Botón Iniciar */
+.btn-iniciar-unidad {
+    align-self: flex-end;
+    margin-top: 15px;
+    background-color: rgba(255, 255, 255, 0.22);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 8px 18px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+
+.btn-iniciar-unidad:hover {
+    background-color: white;
+    color: #1a3a5c;
+    transform: translateX(3px);
+}

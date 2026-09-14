@@ -29,7 +29,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Prueba... (después de app.use('/api/auth', authRoutes))
-app.use('/api/estudiantes', estudianteRoutes);
+app.use('/api/estudiante', estudianteRoutes);
 // Para pantalla principal de la pagina
 app.use('/api/config', configRoutes);
 app.use('/api/planificacion', planificacionRoutes);
