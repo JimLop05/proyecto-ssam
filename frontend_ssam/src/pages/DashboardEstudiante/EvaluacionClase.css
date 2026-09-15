@@ -147,24 +147,85 @@
     margin: 0;
 }
 
-/* Botón Iniciar */
-.btn-iniciar-unidad {
-    align-self: flex-end;
-    margin-top: 15px;
-    background-color: rgba(255, 255, 255, 0.22);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    padding: 8px 18px;
-    border-radius: 25px;
+/* ========== MOSAICO CLICKEABLE ========== */
+.mosaico-clickeable {
     cursor: pointer;
-    font-weight: 600;
-    font-size: 13px;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(4px);
+    user-select: none;
 }
 
-.btn-iniciar-unidad:hover {
-    background-color: white;
+.mosaico-clickeable:active {
+    transform: translateY(-2px);
+}
+
+.mosaico-clickeable:focus-visible {
+    outline: 3px solid #ffd54f;
+    outline-offset: 3px;
+}
+/* ========== MODAL CONFIRMAR INICIO ========== */
+.modal-confirmar {
+    max-width: 480px;
+    width: 90%;
+}
+
+.modal-body-confirmar {
+    padding: 10px 0 5px 0;
+}
+
+.modal-pregunta {
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 18px;
+    line-height: 1.5;
+}
+
+.modal-unidad-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background-color: #f8f9fa;
+    border-left: 4px solid #1a3a5c;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.modal-unidad-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.modal-unidad-nombre {
+    font-size: 14px;
     color: #1a3a5c;
-    transform: translateX(3px);
+    line-height: 1.4;
+}
+
+/* ========== STATS DEL MOSAICO (intentos / nota alta) ========== */
+.mosaico-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.mosaico-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.stat-icono {
+    font-size: 14px;
+}
+
+.stat-texto strong {
+    font-weight: 800;
+    color: white;
 }

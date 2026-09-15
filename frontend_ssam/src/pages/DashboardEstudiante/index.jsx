@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import './DashboardEstudiante.css';
 import EvaluacionClase from './EvaluacionClase';
+import PreguntasUnidad from './PreguntasUnidad';
 
 function DashboardEstudiante() {
     const navigate = useNavigate();
@@ -21,6 +22,7 @@ function DashboardEstudiante() {
     const [activeSection, setActiveSection] = useState('perfil');
     const [loading, setLoading] = useState(true);
     const [claseSeleccionada, setClaseSeleccionada] = useState(null);
+    const [unidadSeleccionada, setUnidadSeleccionada] = useState(null);
 
     // Estados del modal "Unirse a clase"
     const [showModalUnirse, setShowModalUnirse] = useState(false);
@@ -129,33 +131,46 @@ function DashboardEstudiante() {
     }
 
     const renderContent = () => {
-        // Si hay una clase seleccionada, mostrar la vista interna
-        if (claseSeleccionada) {
+    // 1. Si hay una unidad seleccionada → vista de preguntas
+    if (unidadSeleccionada && claseSeleccionada) {
+        return (
+            <PreguntasUnidad
+                unidad={unidadSeleccionada}
+                clase={claseSeleccionada}
+                volver={() => setUnidadSeleccionada(null)}
+            />
+        );
+    }
+
+    // 2. Si hay una clase seleccionada → detalle de la clase
+    if (claseSeleccionada) {
+        return (
+            <EvaluacionClase
+                idClase={claseSeleccionada.id_clase}
+                volver={() => setClaseSeleccionada(null)}
+                onIniciarUnidad={(unidad) => setUnidadSeleccionada(unidad)}
+            />
+        );
+    }
+
+    // 3. Vista normal por sección
+    switch (activeSection) {
+        case 'perfil':
+            return <MiPerfil user={user} estudiante={estudiante} rendimiento={rendimiento} />;
+        case 'evaluaciones':
+            return <MisEvaluaciones evaluaciones={evaluaciones} />;
+        case 'clases':
             return (
-                <EvaluacionClase
-                    idClase={claseSeleccionada.id_clase}
-                    volver={() => setClaseSeleccionada(null)}
+                <MisClases
+                    clases={clases}
+                    onUnirse={() => setShowModalUnirse(true)}
+                    onAbrirClase={(clase) => setClaseSeleccionada(clase)}
                 />
             );
-        }
-
-        switch (activeSection) {
-            case 'perfil':
-                return <MiPerfil user={user} estudiante={estudiante} rendimiento={rendimiento} />;
-            case 'evaluaciones':
-                return <MisEvaluaciones evaluaciones={evaluaciones} />;
-            case 'clases':
-                return (
-                    <MisClases
-                        clases={clases}
-                        onUnirse={() => setShowModalUnirse(true)}
-                        onAbrirClase={(clase) => setClaseSeleccionada(clase)}
-                    />
-                );
-            default:
-                return <MiPerfil user={user} estudiante={estudiante} rendimiento={rendimiento} />;
-        }
-    };
+        default:
+            return <MiPerfil user={user} estudiante={estudiante} rendimiento={rendimiento} />;
+    }
+};
 
     return (
         <div className="dashboard-container">

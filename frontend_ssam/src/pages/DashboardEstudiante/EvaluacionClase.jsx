@@ -2,7 +2,7 @@
 // ============================================================
 // VISTA INTERNA DE UNA CLASE (ESTUDIANTE)
 // Muestra info de la clase + unidades temáticas en mosaicos
-// Los ítems NO se muestran; el botón Iniciar va por unidad
+// Los ítems NO se muestran; el mosaico es clickeable
 // Se omiten las unidades tipo "Laboratorio"
 // ============================================================
 
@@ -22,10 +22,13 @@ const COLORES_MOSAICO = [
     'rosa',
 ];
 
-function EvaluacionClase({ idClase, volver }) {
+function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
     const [detalle, setDetalle] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+
+    // Estado del modal de confirmación
+    const [unidadPendiente, setUnidadPendiente] = useState(null);
 
     useEffect(() => {
         cargarDetalle();
@@ -44,6 +47,25 @@ function EvaluacionClase({ idClase, volver }) {
             setError(err.response?.data?.message || 'Error al conectar con el servidor');
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Abre el modal
+    const handleClickUnidad = (unidad) => {
+        setUnidadPendiente(unidad);
+    };
+
+    // Cancela el modal
+    const cancelarInicio = () => {
+        setUnidadPendiente(null);
+    };
+
+    // Confirma y avisa al padre
+    const confirmarInicio = () => {
+        if (unidadPendiente && onIniciarUnidad) {
+            const unidad = unidadPendiente;
+            setUnidadPendiente(null);
+            onIniciarUnidad(unidad);
         }
     };
 
@@ -127,7 +149,16 @@ function EvaluacionClase({ idClase, volver }) {
                             return (
                                 <div
                                     key={unidad.id_unid_tem}
-                                    className={`mosaico-unidad ${colorClase}`}
+                                    className={`mosaico-unidad ${colorClase} mosaico-clickeable`}
+                                    onClick={() => handleClickUnidad(unidad)}
+                                    role="button"
+                                    tabIndex={0}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            handleClickUnidad(unidad);
+                                        }
+                                    }}
                                 >
                                     {/* Espacio reservado para el ícono */}
                                     <div className="mosaico-icono">📘</div>
@@ -146,18 +177,81 @@ function EvaluacionClase({ idClase, volver }) {
                                         )}
                                     </div>
 
-                                    <button
-                                        className="btn-iniciar-unidad"
-                                        onClick={() => alert(`Iniciar unidad: ${unidad.nombreut}`)}
-                                    >
-                                        Iniciar →
-                                    </button>
+                                    {/* 👈 NUEVO: datos de rendimiento */}
+                                    <div className="mosaico-stats">
+                                        <div className="mosaico-stat">
+                                            <span className="stat-icono">🔄</span>
+                                            <span className="stat-texto">
+                                                Intentos: <strong>{unidad.evalua?.nro_intentos || 0}</strong>
+                                            </span>
+                                        </div>
+                                        <div className="mosaico-stat">
+                                            <span className="stat-icono">🏆</span>
+                                            <span className="stat-texto">
+                                                Nota alta: <strong>
+                                                    {unidad.evalua?.nota_alta != null ? `${unidad.evalua.nota_alta}%` : '—'}
+                                                </strong>
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             );
                         })}
                     </div>
                 )}
             </div>
+
+            {/* ===== MODAL CONFIRMAR INICIO ===== */}
+            {unidadPendiente && (
+                <div className="modal-overlay" onClick={cancelarInicio}>
+                    <div
+                        className="modal-content modal-confirmar"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="modal-header">
+                            <h3>🚀 Comenzar la prueba</h3>
+                            <button className="modal-close" onClick={cancelarInicio}>✕</button>
+                        </div>
+
+                        <div className="modal-body-confirmar">
+                            <p className="modal-pregunta">
+                                ¿Estás seguro que deseas comenzar la prueba de esta unidad?
+                            </p>
+                            <div className="modal-unidad-info">
+                                <span className="modal-unidad-label">Unidad:</span>
+                                <span className="modal-unidad-nombre">
+                                    {unidadPendiente.nombreut}
+                                </span>
+                            </div>
+                            {unidadPendiente.objetivo && (
+                                <div className="modal-unidad-info">
+                                    <span className="modal-unidad-label">Objetivo:</span>
+                                    <span className="modal-unidad-nombre">
+                                        {unidadPendiente.objetivo}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="form-actions">
+                            <button
+                                type="button"
+                                className="btn-cancelar"
+                                onClick={cancelarInicio}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-guardar"
+                                onClick={confirmarInicio}
+                            >
+                                Sí, comenzar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

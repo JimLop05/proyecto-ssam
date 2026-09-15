@@ -11,7 +11,9 @@ const {
     unirseAClase,
     getMiPerfil,
     getMiRendimiento,
-    getDetalleClaseEstudiante
+    getDetalleClaseEstudiante,
+    getPreguntasUnidad,
+    enviarIntentoUnidad   // 👈 NUEVO
 } = require('../controllers/estudianteController');
 const authMiddleware = require('../middlewares/auth');
 
@@ -23,5 +25,7 @@ router.get('/mis-clases', authMiddleware, getMisClases);
 router.get('/mi-rendimiento', authMiddleware, getMiRendimiento);
 router.post('/unirse-clase', authMiddleware, unirseAClase);
 router.get('/clase/:id_clase', authMiddleware, getDetalleClaseEstudiante);
+router.get('/unidad/:id_unid_tem/preguntas', authMiddleware, getPreguntasUnidad);
+router.post('/unidad/:id_unid_tem/enviar-intento', authMiddleware, enviarIntentoUnidad); // 👈 NUEVO
 
 module.exports = router;
