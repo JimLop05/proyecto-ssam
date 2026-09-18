@@ -429,3 +429,15 @@
     background-color: #dc3545;
     color: white;
 }
+
+/* Fórmulas matemáticas */
+.pregunta-texto .katex,
+.opcion-texto .katex {
+    font-size: 1.05em;
+}
+
+/* Fórmulas en bloque (centradas) */
+.pregunta-texto .katex-display {
+    margin: 12px 0;
+    text-align: center;
+}

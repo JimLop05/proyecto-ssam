@@ -229,3 +229,30 @@
     font-weight: 800;
     color: white;
 }
+
+/* 👈 TEMPORAL — Botones de debug en el header */
+.header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-debug-header {
+    background-color: #ffd54f;
+    color: #1a3a5c;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-debug-header:hover {
+    background-color: #ffca28;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}

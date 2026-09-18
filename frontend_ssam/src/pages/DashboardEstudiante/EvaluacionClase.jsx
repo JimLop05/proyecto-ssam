@@ -9,6 +9,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import './EvaluacionClase.css';
+import DebugPreguntas from './DebugPreguntas';  // 👈 TEMPORAL
 
 // Paleta rotativa para los mosaicos
 const COLORES_MOSAICO = [
@@ -26,6 +27,7 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
     const [detalle, setDetalle] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [debugTipo, setDebugTipo] = useState(null); // 'preguntas' | 'respuestas' | null 👈 TEMPORAL
 
     // Estado del modal de confirmación
     const [unidadPendiente, setUnidadPendiente] = useState(null);
@@ -96,12 +98,38 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
         (u) => !u.nombreut.toLowerCase().includes('laboratorio')
     );
 
+    // 👈 TEMPORAL — Vista de debug
+    if (debugTipo) {
+        return (
+            <DebugPreguntas
+                idClase={idClase}
+                tipo={debugTipo}
+                volver={() => setDebugTipo(null)}
+            />
+        );
+    }
+
     return (
         <div className="section clase-detalle-estudiante">
             {/* HEADER CON VOLVER */}
             <div className="section-header">
                 <h2>📖 {clase.nombrec}</h2>
-                <button className="btn-volver" onClick={volver}>← Volver a Mis Clases</button>
+                <div className="header-actions">
+                    {/* 👈 TEMPORAL — Botones de debug */}
+                    <button
+                        className="btn-debug-header"
+                        onClick={() => setDebugTipo('preguntas')}
+                    >
+                        🔍 Ver Preguntas
+                    </button>
+                    <button
+                        className="btn-debug-header"
+                        onClick={() => setDebugTipo('respuestas')}
+                    >
+                        🔍 Ver Respuestas
+                    </button>
+                    <button className="btn-volver" onClick={volver}>← Volver a Mis Clases</button>
+                </div>
             </div>
 
             {/* INFO DE LA CLASE */}

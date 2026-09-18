@@ -13,7 +13,8 @@ const {
     getMiRendimiento,
     getDetalleClaseEstudiante,
     getPreguntasUnidad,
-    enviarIntentoUnidad   // 👈 NUEVO
+    enviarIntentoUnidad,   // 👈 NUEVO
+    getDebugTodo   // 👈 TEMPORAL
 } = require('../controllers/estudianteController');
 const authMiddleware = require('../middlewares/auth');
 
@@ -27,5 +28,6 @@ router.post('/unirse-clase', authMiddleware, unirseAClase);
 router.get('/clase/:id_clase', authMiddleware, getDetalleClaseEstudiante);
 router.get('/unidad/:id_unid_tem/preguntas', authMiddleware, getPreguntasUnidad);
 router.post('/unidad/:id_unid_tem/enviar-intento', authMiddleware, enviarIntentoUnidad); // 👈 NUEVO
+router.get('/clase/:id_clase/debug-todo', authMiddleware, getDebugTodo); // 👈 TEMPORAL
 
 module.exports = router;

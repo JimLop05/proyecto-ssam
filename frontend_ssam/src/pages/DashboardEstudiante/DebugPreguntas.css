@@ -1,0 +1,240 @@
+/* TEMPORAL — Estilos para DebugPreguntas */
+
+.debug-container {
+    padding: 25px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.debug-header {
+    background: linear-gradient(135deg, #1a3a5c 0%, #2a5f7a 100%);
+    color: white;
+    padding: 20px 25px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.debug-header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.debug-subtitulo {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.debug-aviso {
+    margin: 5px 0 0 0;
+    font-size: 12px;
+    color: #ffd54f;
+    font-weight: 600;
+}
+
+.debug-header .btn-volver {
+    align-self: flex-start;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.debug-header .btn-volver:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ========== BLOQUES DE UNIDAD ========== */
+.debug-unidad-bloque {
+    background-color: #f8f9fa;
+    padding: 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border-left: 4px solid #1a3a5c;
+}
+
+.debug-unidad-titulo {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #cfd8e3;
+    color: #1a3a5c;
+    font-size: 16px;
+}
+
+.debug-unidad-id,
+.debug-unidad-count {
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 400;
+}
+
+.debug-unidad-count {
+    margin-left: auto;
+    background-color: #1a3a5c;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+/* ========== ITEMS (preguntas / respuestas) ========== */
+.debug-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.debug-item {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+}
+
+.debug-item-header {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 11px;
+}
+
+.debug-numero {
+    background-color: #1a3a5c;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.debug-id {
+    color: #6c757d;
+    font-family: 'Courier New', monospace;
+}
+
+.debug-tiempo {
+    color: #6c757d;
+    margin-left: auto;
+    font-weight: 600;
+}
+
+.debug-texto-crudo {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #333;
+    background-color: #f8f9fa;
+    padding: 12px 15px;
+    border-radius: 6px;
+    line-height: 1.6;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+.debug-pregunta-ref {
+    font-size: 13px;
+    color: #333;
+    background-color: #fff8e1;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-family: 'Courier New', monospace;
+    line-height: 1.5;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+.debug-opciones-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.debug-opcion-item {
+    display: flex;
+    gap: 12px;
+    padding: 8px 12px;
+    background-color: #eef4fa;
+    border-left: 3px solid #6c757d;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    align-items: flex-start;
+}
+
+.debug-opcion-item.correcta {
+    background-color: #e8f5e9;
+    border-left-color: #4caf50;
+}
+
+.debug-opcion-id {
+    color: #6c757d;
+    font-size: 11px;
+    min-width: 100px;
+    padding-top: 2px;
+}
+
+.debug-opcion-texto {
+    flex: 1;
+    color: #333;
+    word-break: break-word;
+    line-height: 1.4;
+    white-space: pre-wrap;
+}
+
+.debug-opcion-flag {
+    font-size: 14px;
+    min-width: 24px;
+    text-align: right;
+}
+
+.debug-sin-preguntas {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 13px;
+    padding: 10px;
+}
+
+.debug-texto-render {
+    font-size: 15px;
+    color: #1a3a5c;
+    background-color: #eef4fa;
+    padding: 12px 15px;
+    border-radius: 6px;
+    border-left: 3px solid #1a3a5c;
+    line-height: 1.6;
+    word-break: break-word;
+    margin-bottom: 8px;
+}
+
+.debug-render-line {
+    margin-top: 6px;
+    font-size: 15px;
+    color: #1a3a5c;
+    background-color: #ffffff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    line-height: 1.5;
+}
+
+.debug-crudo-line {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #999;
+    font-family: 'Courier New', monospace;
+    padding: 4px 8px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    word-break: break-word;
+}

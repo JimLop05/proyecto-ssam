@@ -730,6 +730,100 @@ const enviarIntentoUnidad = async (req, res) => {
     }
 };
 
+// ============================================================
+// TEMPORAL — Endpoint de debug
+// Devuelve TODAS las unidades, preguntas y opciones de una clase
+// BORRAR CUANDO YA NO SE NECESITE
+// ============================================================
+const getDebugTodo = async (req, res) => {
+    try {
+        const id_usuarioE = req.user.id;
+        const { id_clase } = req.params;
+
+        // 1. Verificar inscripción
+        const perteneceCheck = await pool.query(
+            `SELECT 1 FROM pertenece WHERE id_usuarioe = $1 AND id_clase = $2`,
+            [id_usuarioE, id_clase]
+        );
+        if (perteneceCheck.rows.length === 0) {
+            return res.status(403).json({ success: false, message: 'No estás inscrito en esta clase' });
+        }
+
+        // 2. Datos de la clase
+        const claseQuery = await pool.query(
+            `SELECT id_clase, nombrec, id_grado, id_asig FROM clase WHERE id_clase = $1`,
+            [id_clase]
+        );
+        if (claseQuery.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Clase no encontrada' });
+        }
+        const clase = claseQuery.rows[0];
+
+        // 3. Unidades de la clase
+        const unidadesQuery = await pool.query(
+            `SELECT id_unid_tem, nombreut, objetivo
+             FROM unidadtematica
+             WHERE id_grado = $1 AND id_asig = $2
+             ORDER BY id_unid_tem`,
+            [clase.id_grado, clase.id_asig]
+        );
+
+        // 4. Por cada unidad, traer sus preguntas + opciones
+        const unidades = [];
+        let totalPreguntas = 0;
+        let totalOpciones = 0;
+
+        for (const unidad of unidadesQuery.rows) {
+            const preguntasQuery = await pool.query(
+                `SELECT 
+                    p.id_pregunta, p.descripcion, p.tiempo_limite_segundos, p.dificultad,
+                    p.imagen, p.id_item, i.nombreitem
+                 FROM pregunta p
+                 INNER JOIN item i ON p.id_item = i.id_item
+                 WHERE i.id_unid_tem = $1
+                 ORDER BY i.id_item, p.id_pregunta`,
+                [unidad.id_unid_tem]
+            );
+
+            const preguntas = [];
+            for (const p of preguntasQuery.rows) {
+                const opcionesQuery = await pool.query(
+                    `SELECT id_opcion, texto, es_correcta
+                     FROM opcion
+                     WHERE id_pregunta = $1
+                     ORDER BY id_opcion`,
+                    [p.id_pregunta]
+                );
+                preguntas.push({ ...p, opciones: opcionesQuery.rows });
+                totalOpciones += opcionesQuery.rows.length;
+            }
+
+            totalPreguntas += preguntas.length;
+            unidades.push({
+                id_unid_tem: unidad.id_unid_tem,
+                nombreut: unidad.nombreut,
+                objetivo: unidad.objetivo,
+                preguntas
+            });
+        }
+
+        res.json({
+            success: true,
+            data: {
+                clase: { id_clase: clase.id_clase, nombrec: clase.nombrec },
+                total_unidades: unidades.length,
+                total_preguntas: totalPreguntas,
+                total_opciones: totalOpciones,
+                unidades
+            }
+        });
+
+    } catch (error) {
+        console.error('Error en getDebugTodo:', error);
+        res.status(500).json({ success: false, message: 'Error en el debug' });
+    }
+};
+
 module.exports = {
     getEstudiantes,
     getMisClases,
@@ -738,5 +832,6 @@ module.exports = {
     getMiRendimiento,
     getDetalleClaseEstudiante,
     getPreguntasUnidad,
-    enviarIntentoUnidad  
+    enviarIntentoUnidad,
+    getDebugTodo   // 👈 TEMPORAL
 };

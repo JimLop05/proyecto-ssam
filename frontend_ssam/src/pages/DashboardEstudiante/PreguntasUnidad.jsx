@@ -10,6 +10,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../../api/axios';
 import './PreguntasUnidad.css';
+import MathText from '../../components/MathText';
 
 // Mezcla un array (Fisher-Yates)
 const mezclar = (arr) => {
@@ -368,7 +369,9 @@ function PreguntasUnidad({ unidad, clase, volver }) {
                 <div className="pregunta-numero">
                     Pregunta {indiceActual + 1} de {total}
                 </div>
-                <h3 className="pregunta-texto">{preguntaActual.descripcion}</h3>
+                <h3 className="pregunta-texto">
+                    <MathText>{preguntaActual.descripcion}</MathText>
+                </h3>
                 {preguntaActual.imagen && (
                     <img
                         src={preguntaActual.imagen}
@@ -393,7 +396,9 @@ function PreguntasUnidad({ unidad, clase, volver }) {
                             disabled={bloqueado}
                         >
                             <span className="opcion-letra">{letras[i] || i + 1}</span>
-                            <span className="opcion-texto">{op.texto}</span>
+                            <span className="opcion-texto">
+                                <MathText>{op.texto}</MathText>
+                            </span>
                         </button>
                     );
                 })}
