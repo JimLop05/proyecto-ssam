@@ -9,7 +9,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import './EvaluacionClase.css';
-import DebugPreguntas from './DebugPreguntas';  // 👈 TEMPORAL
+import DebugPreguntas from './DebugPreguntas';  // TEMPORAL
 
 // Paleta rotativa para los mosaicos
 const COLORES_MOSAICO = [
@@ -27,7 +27,7 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
     const [detalle, setDetalle] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [debugTipo, setDebugTipo] = useState(null); // 'preguntas' | 'respuestas' | null 👈 TEMPORAL
+    const [debugTipo, setDebugTipo] = useState(null); // 'preguntas' | 'respuestas' | null TEMPORAL
 
     // Estado del modal de confirmación
     const [unidadPendiente, setUnidadPendiente] = useState(null);
@@ -74,7 +74,10 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
     if (loading) {
         return (
             <div className="section">
-                <p className="empty-message">Cargando información de la clase...</p>
+                <div className="loading-inline">
+                    <div className="loading-spinner"></div>
+                    <p>Cargando información de la clase...</p>
+                </div>
             </div>
         );
     }
@@ -83,8 +86,11 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
         return (
             <div className="section">
                 <div className="section-header">
-                    <h2>❌ Error</h2>
-                    <button className="btn-volver" onClick={volver}>← Volver</button>
+                    <div className="section-header-simple">
+                        <h2>Error</h2>
+                        <p className="section-subtitle">No se pudo cargar la información</p>
+                    </div>
+                    <button className="btn-volver" onClick={volver}>Volver</button>
                 </div>
                 <p className="empty-message">{error}</p>
             </div>
@@ -98,7 +104,7 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
         (u) => !u.nombreut.toLowerCase().includes('laboratorio')
     );
 
-    // 👈 TEMPORAL — Vista de debug
+    // TEMPORAL — Vista de debug
     if (debugTipo) {
         return (
             <DebugPreguntas
@@ -113,22 +119,27 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
         <div className="section clase-detalle-estudiante">
             {/* HEADER CON VOLVER */}
             <div className="section-header">
-                <h2>📖 {clase.nombrec}</h2>
+                <div className="section-header-simple">
+                    <h2>{clase.nombrec}</h2>
+                    <p className="section-subtitle">Detalle de la clase y unidades temáticas</p>
+                </div>
                 <div className="header-actions">
-                    {/* 👈 TEMPORAL — Botones de debug */}
+                    {/* TEMPORAL — Botones de debug */}
                     <button
                         className="btn-debug-header"
                         onClick={() => setDebugTipo('preguntas')}
                     >
-                        🔍 Ver Preguntas
+                        Ver Preguntas
                     </button>
                     <button
                         className="btn-debug-header"
                         onClick={() => setDebugTipo('respuestas')}
                     >
-                        🔍 Ver Respuestas
+                        Ver Respuestas
                     </button>
-                    <button className="btn-volver" onClick={volver}>← Volver a Mis Clases</button>
+                    <button className="btn-volver" onClick={volver}>
+                        Volver a Mis Clases
+                    </button>
                 </div>
             </div>
 
@@ -164,7 +175,7 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
 
             {/* UNIDADES TEMÁTICAS EN MOSAICOS */}
             <div className="unidades-section">
-                <h3>📚 Unidades Temáticas</h3>
+                <h3 className="unidades-titulo">Unidades Temáticas</h3>
 
                 {unidadesFiltradas.length === 0 ? (
                     <p className="empty-message">
@@ -188,9 +199,6 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
                                         }
                                     }}
                                 >
-                                    {/* Espacio reservado para el ícono */}
-                                    <div className="mosaico-icono">📘</div>
-
                                     <div className="mosaico-contenido">
                                         <div className="mosaico-numero">
                                             Unidad {index + 1}
@@ -205,20 +213,20 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
                                         )}
                                     </div>
 
-                                    {/* 👈 NUEVO: datos de rendimiento */}
+                                    {/* Datos de rendimiento */}
                                     <div className="mosaico-stats">
                                         <div className="mosaico-stat">
-                                            <span className="stat-icono">🔄</span>
-                                            <span className="stat-texto">
-                                                Intentos: <strong>{unidad.evalua?.nro_intentos || 0}</strong>
+                                            <span className="stat-label">Intentos</span>
+                                            <span className="stat-value">
+                                                {unidad.evalua?.nro_intentos || 0}
                                             </span>
                                         </div>
                                         <div className="mosaico-stat">
-                                            <span className="stat-icono">🏆</span>
-                                            <span className="stat-texto">
-                                                Nota alta: <strong>
-                                                    {unidad.evalua?.nota_alta != null ? `${unidad.evalua.nota_alta}%` : '—'}
-                                                </strong>
+                                            <span className="stat-label">Nota alta</span>
+                                            <span className="stat-value">
+                                                {unidad.evalua?.nota_alta != null
+                                                    ? `${unidad.evalua.nota_alta}%`
+                                                    : '—'}
                                             </span>
                                         </div>
                                     </div>
@@ -237,8 +245,8 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="modal-header">
-                            <h3>🚀 Comenzar la prueba</h3>
-                            <button className="modal-close" onClick={cancelarInicio}>✕</button>
+                            <h3>Comenzar la prueba</h3>
+                            <button className="modal-close" onClick={cancelarInicio}>×</button>
                         </div>
 
                         <div className="modal-body-confirmar">

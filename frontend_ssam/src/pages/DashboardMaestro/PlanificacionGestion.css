@@ -1,48 +1,73 @@
-/* ===== DRAG & DROP ===== */
-.semana-item.drop-active {
-    border-color: #28a745;
-    background: #f0fff4;
-    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
-    transition: all 0.2s;
+/* ============================================================
+   CONTENEDOR PRINCIPAL
+============================================================ */
+.planificacion-container {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.5rem;
+    height: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
 }
 
-.item-unidad.dragging {
-    opacity: 0.3;
-    transform: scale(0.95);
+/* ============================================================
+   HEADER
+============================================================ */
+.planificacion-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-.item-unidad.disponible {
-    cursor: grab;
-    transition: all 0.2s;
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
-.item-unidad.disponible:hover {
+.header-left h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #2c3e50;
+}
+
+.clase-info {
     background: #e7f3ff;
-    border-color: #667eea;
-    transform: translateX(4px);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: #004085;
+    font-weight: 500;
 }
 
-.item-unidad.asignado {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background: #f1f3f5;
+.btn-volver-planificacion {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
 }
 
-.item-unidad.asignado .badge-asignado {
-    margin-left: auto;
-    font-size: 0.9rem;
+.btn-volver-planificacion:hover {
+    background: #5a6268;
+    transform: translateX(-2px);
 }
 
-.item-icon {
-    margin-right: 0.3rem;
-}
-
-/* ===== SELECTOR DE CLASE ===== */
+/* ============================================================
+   SELECTOR DE CLASE
+============================================================ */
 .selector-clase {
     background: #f8f9fa;
     padding: 0.8rem 1.2rem;
     border-radius: 10px;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -62,14 +87,17 @@
     font-size: 0.95rem;
     flex: 1;
     max-width: 400px;
+    background: white;
 }
 
-/* ===== BARRA DE PROGRESO ===== */
+/* ============================================================
+   BARRA DE PROGRESO
+============================================================ */
 .progreso-bar {
     background: white;
     border-radius: 12px;
     padding: 1rem 1.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     border: 1px solid #e9ecef;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
@@ -111,25 +139,90 @@
     color: #6c757d;
 }
 
-/* ===== UNIDADES HEADER ===== */
+/* ============================================================
+   CUERPO PRINCIPAL — 2 COLUMNAS
+   ⭐ CAMBIO: ahora izquierda = trimestres, derecha = unidades
+============================================================ */
+.planificacion-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    flex: 1;
+    min-height: 0; /* 👈 Importante para que el scroll interno funcione */
+}
+
+/* ============================================================
+   COLUMNA IZQUIERDA — TRIMESTRES
+============================================================ */
+.planificacion-trimestres {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    height: 700px; /* 👈 Altura fija para activar scroll interno */
+    overflow: hidden;
+}
+
+.columna-header {
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid #f1f3f5;
+    flex-shrink: 0;
+}
+
+.columna-header h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #2c3e50;
+}
+
+/* ⭐ Scroll elegante en trimestres */
+.columna-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+/* ============================================================
+   COLUMNA DERECHA — UNIDADES
+============================================================ */
+.planificacion-unidades {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    height: 700px; /* 👈 Misma altura que trimestres */
+    overflow: hidden;
+}
+
 .unidades-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.8rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid #f1f3f5;
     flex-wrap: wrap;
     gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 .unidades-header h3 {
     margin: 0;
-    padding: 0;
-    border: none;
+    font-size: 1.05rem;
+    color: #2c3e50;
 }
 
 .search-box {
     flex: 1;
-    max-width: 300px;
+    max-width: 250px;
     min-width: 150px;
 }
 
@@ -138,7 +231,7 @@
     padding: 0.4rem 0.8rem;
     border: 1px solid #ced4da;
     border-radius: 8px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     transition: border-color 0.2s;
 }
 
@@ -148,42 +241,84 @@
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-/* ===== CLASE INFO EN HEADER ===== */
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
+/* ⭐ Scroll elegante en unidades */
+.unidades-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
 }
 
-.header-left h2 {
+/* ============================================================
+   SCROLL ELEGANTE (para ambas columnas)
+============================================================ */
+.columna-scroll::-webkit-scrollbar,
+.unidades-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.columna-scroll::-webkit-scrollbar-track,
+.unidades-scroll::-webkit-scrollbar-track {
+    background: #f1f3f5;
+    border-radius: 10px;
+}
+
+.columna-scroll::-webkit-scrollbar-thumb,
+.unidades-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #667eea, #764ba2);
+    border-radius: 10px;
+    transition: background 0.2s;
+}
+
+.columna-scroll::-webkit-scrollbar-thumb:hover,
+.unidades-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #5568d3, #653d8a);
+}
+
+/* Firefox */
+.columna-scroll,
+.unidades-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #667eea #f1f3f5;
+}
+
+/* ============================================================
+   TRIMESTRES (tarjetas colapsables)
+============================================================ */
+.trimestre-card {
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+}
+
+.trimestre-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.trimestre-titulo {
+    transition: all 0.2s;
+    padding: 0.8rem 1rem;
+    background: #f8f9fa;
     margin: 0;
-}
-
-.clase-info {
-    background: #e7f3ff;
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: #004085;
-    font-weight: 500;
-}
-
-/* ===== MEJORAS EN SEMANAS ===== */
-.semana-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 0.4rem;
-    font-size: 0.7rem;
-    color: #6c757d;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+    user-select: none;
 }
 
-.semana-item-count {
+.trimestre-titulo:hover {
     background: #e9ecef;
-    padding: 0.1rem 0.5rem;
-    border-radius: 10px;
-    font-weight: 600;
+}
+
+.trimestre-titulo.activo {
+    background: #e7f3ff;
+    border-left: 4px solid #667eea;
+    color: #004085;
 }
 
 .trimestre-fechas {
@@ -192,76 +327,76 @@
     font-weight: 400;
     margin-left: 0.5rem;
 }
-/* ===== ESTADOS VACÍOS ===== */
-.empty-state {
+
+.trimestre-colapsado {
+    padding: 0.8rem 1rem;
     text-align: center;
-    padding: 2rem 1rem;
     color: #6c757d;
-}
-
-.empty-state p {
-    margin: 0.3rem 0;
-    font-size: 1rem;
-}
-
-.empty-hint {
-    font-size: 0.85rem !important;
-    color: #adb5bd !important;
     font-style: italic;
-}
-/* ===== DRAG & DROP ===== */
-.item-unidad {
-    cursor: grab;
-    user-select: none;
-    transition: all 0.2s;
-    padding: 0.5rem 0.8rem;
-    background: white;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    font-size: 0.85rem;
+    background: #fafbfc;
+    border-top: 1px dashed #dee2e6;
 }
 
-.item-unidad:hover {
-    border-color: #667eea;
-    transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
-}
-
-.item-unidad.dragging {
-    opacity: 0.3;
-    transform: scale(0.95);
-}
-
-.item-unidad.asignado {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background: #f1f3f5;
+/* ============================================================
+   SEMANAS (grid dentro de cada trimestre)
+============================================================ */
+.semanas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.8rem;
+    padding: 1rem;
+    background: #fafbfc;
+    border-top: 1px solid #e9ecef;
 }
 
 .semana-item {
-    background: #f8f9fa;
+    background: white;
     border-radius: 8px;
-    padding: 0.8rem;
+    padding: 0.7rem;
     border: 2px dashed #dee2e6;
     transition: all 0.2s;
-    min-height: 80px;
-}
-
-.semana-item.drop-active {
-    border-color: #28a745;
-    background: #f0fff4;
-    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
 }
 
 .semana-item:hover {
     border-color: #667eea;
 }
 
+.semana-item.drop-active {
+    border-color: #28a745 !important;
+    background: #f0fff4 !important;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+}
+
+.semana-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+
+.semana-numero {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #2c3e50;
+}
+
+.semana-trimestre {
+    background: #e7f3ff;
+    color: #004085;
+    padding: 0.1rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
 .semana-items {
-    min-height: 40px;
-    margin: 0.5rem 0;
+    flex: 1;
+    min-height: 30px;
+    margin: 0.3rem 0;
 }
 
 .item-asignado {
@@ -269,15 +404,15 @@
     justify-content: space-between;
     align-items: center;
     background: #e7f3ff;
-    padding: 0.3rem 0.6rem;
+    padding: 0.25rem 0.5rem;
     border-radius: 4px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     border-left: 3px solid #667eea;
     margin-bottom: 0.3rem;
 }
 
 .empty-semana {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: #adb5bd;
     font-style: italic;
     text-align: center;
@@ -297,21 +432,150 @@
 .btn-quitar-item:hover {
     color: #c82333;
 }
-/* ===== DRAG & DROP CON @dnd-kit ===== */
-.item-unidad {
-    padding: 8px 12px;
-    background: white;
-    border: 1px solid #e9ecef;
-    border-radius: 6px;
+
+.semana-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: all 0.2s;
-    user-select: none;
+    margin-top: 0.3rem;
+    font-size: 0.65rem;
+    color: #6c757d;
 }
 
-.item-unidad.disponible {
+.semana-fechas {
+    font-size: 0.65rem;
+}
+
+.semana-item-count {
+    background: #e9ecef;
+    padding: 0.1rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+/* ============================================================
+   UNIDADES TEMÁTICAS — ACORDEÓN
+============================================================ */
+.unidad-card {
+    margin-bottom: 0.8rem;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+}
+
+.unidad-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* ⭐ Header clickeable de la unidad */
+.unidad-titulo {
+    transition: all 0.2s;
+    padding: 0.7rem 1rem;
+    background: #f8f9fa;
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    user-select: none;
+    color: #2c3e50;
+}
+
+.unidad-titulo:hover {
+    background: #e9ecef;
+}
+
+.unidad-titulo.activo {
+    background: #e7f3ff;
+    border-left: 4px solid #667eea;
+    color: #004085;
+}
+
+.unidad-badge {
+    background: #667eea;
+    color: white;
+    padding: 0.15rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.unidad-titulo.activo .unidad-badge {
+    background: #004085;
+}
+
+/* ⭐ Contenido desplegable */
+.unidad-contenido {
+    padding: 0.8rem 1rem;
+    background: #fafbfc;
+    border-top: 1px solid #e9ecef;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.unidad-objetivo {
+    margin: 0 0 0.7rem 0;
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+.items-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.empty-items {
+    color: #adb5bd;
+    font-size: 0.8rem;
+    font-style: italic;
+    text-align: center;
+    padding: 0.5rem;
+    margin: 0;
+}
+
+/* ⭐ Estado colapsado */
+.unidad-colapsada {
+    padding: 0.6rem 1rem;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    font-size: 0.8rem;
+    background: #fafbfc;
+    border-top: 1px dashed #dee2e6;
+}
+
+/* ============================================================
+   ITEMS ARRASTRABLES
+============================================================ */
+.item-unidad {
     cursor: grab;
+    user-select: none;
+    transition: all 0.2s;
+    padding: 0.5rem 0.8rem;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
 }
 
 .item-unidad.disponible:hover {
@@ -332,71 +596,189 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-.semana-item.drop-active {
-    border-color: #28a745 !important;
-    background: #f0fff4 !important;
-    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+.item-icon {
+    margin-right: 0.3rem;
 }
 
-/* ===== TRIMESTRES COLAPSABLES ===== */
-.trimestre-titulo {
-    transition: all 0.2s;
-    padding: 0.8rem 1rem;
-    border-radius: 8px;
-    background: #f8f9fa;
-    border-bottom: none;
-    margin-bottom: 0.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+.item-nombre {
+    flex: 1;
+    text-align: left;
 }
 
-.trimestre-titulo:hover {
-    background: #e9ecef;
+.badge-asignado {
+    margin-left: auto;
+    font-size: 0.85rem;
 }
 
-.trimestre-titulo.activo {
-    background: #e7f3ff;
-    border-left: 4px solid #667eea;
-    color: #004085;
-}
-
-.trimestre-colapsado {
-    padding: 1rem;
+/* ============================================================
+   ESTADOS VACÍOS
+============================================================ */
+.empty-state {
     text-align: center;
+    padding: 2rem 1rem;
     color: #6c757d;
+}
+
+.empty-state p {
+    margin: 0.3rem 0;
+    font-size: 0.95rem;
+}
+
+.empty-hint {
+    font-size: 0.8rem !important;
+    color: #adb5bd !important;
     font-style: italic;
-    font-size: 0.9rem;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px dashed #dee2e6;
 }
 
-/* ===== INVERTIR COLUMNAS ===== */
-.planificacion-body {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+/* ============================================================
+   FOOTER
+============================================================ */
+.planificacion-footer {
     margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    flex-shrink: 0;
 }
 
-/* La columna de unidades ahora está a la izquierda */
-.planificacion-unidades {
-    background: white;
-    border-radius: 12px;
-    padding: 1rem;
-    border: 1px solid #e9ecef;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    max-height: 700px;
-    display: flex;
-    flex-direction: column;
+.btn-guardar-planificacion {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 0.7rem 1.8rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
-/* La columna de trimestres ahora está a la derecha */
-.planificacion-trimestres {
+.btn-guardar-planificacion:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.btn-guardar-planificacion:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* ============================================================
+   LOADING
+============================================================ */
+.loading-spinner {
+    text-align: center;
+    padding: 2rem;
+    color: #667eea;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* ============================================================
+   RESPONSIVE — móvil/tablet
+============================================================ */
+@media (max-width: 1024px) {
+    .planificacion-body {
+        grid-template-columns: 1fr;
+    }
+    
+    .planificacion-trimestres,
+    .planificacion-unidades {
+        height: 500px;
+    }
+}
+
+/* ============================================================
+   TOAST DE NOTIFICACIONES
+============================================================ */
+.toast-notificacion {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.2rem;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    font-size: 0.9rem;
+    font-weight: 500;
+    max-width: 350px;
+    animation: toastSlideIn 0.3s ease;
+}
+
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.toast-exito {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.toast-error {
+    background: linear-gradient(135deg, #dc3545, #e74c3c);
+    color: white;
+}
+
+.toast-icono {
+    font-size: 1.1rem;
+}
+
+.toast-mensaje {
+    line-height: 1.3;
+}
+
+/* ============================================================
+   ITEMS ASIGNADOS (colores según semanas)
+============================================================ */
+.item-unidad.una-semana {
+    background: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+}
+
+.item-unidad.una-semana:hover {
+    background: #c3e6cb;
+    border-color: #1e7e34;
+}
+
+.item-unidad.dos-semanas {
+    background: #a8d5b5;
+    border-color: #1e7e34;
+    color: #0b2e13;
+}
+
+.item-unidad.dos-semanas:hover {
+    background: #96c9a4;
+}
+
+/* Badge con las semanas donde está el item */
+.badge-semanas {
+    background: #1e7e34;
+    color: white;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+    margin-left: auto;
+}
+
+/* ============================================================
+   SEMANA CON DROP INVÁLIDO (hover rojo cuando no se puede)
+============================================================ */
+.semana-item.drop-invalid {
+    border-color: #dc3545 !important;
+    background: #fff5f5 !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
 }

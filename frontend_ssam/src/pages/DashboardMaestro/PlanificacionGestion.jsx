@@ -1,51 +1,91 @@
 // frontend_ssam/src/pages/DashboardMaestro/PlanificacionGestion.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import './PlanificacionGestion.css';
+import VistaPlanificacion from './VistaPlanificacion';
+
+// ============================================================
+// COMPONENTE TOAST (notificación flotante)
+// ============================================================
+const Toast = ({ toast }) => {
+    if (!toast) return null;
+    
+    return (
+        <div className={`toast-notificacion toast-${toast.tipo}`}>
+            <span className="toast-icono">
+                {toast.tipo === 'exito' ? '✅' : '❌'}
+            </span>
+            <span className="toast-mensaje">{toast.mensaje}</span>
+        </div>
+    );
+};
 
 // ============================================================
 // COMPONENTES DE DRAG & DROP
 // ============================================================
 
 // Item que se puede arrastrar (desde la lista de unidades)
-const DraggableItem = ({ item, estaAsignado }) => {
+const DraggableItem = ({ item, semanasAsignadas }) => {
+    // ⭐ Determinar estado visual según cuántas semanas tiene asignadas
+    const cantidadSemanas = semanasAsignadas.length;
+    const estaBloqueado = cantidadSemanas >= 2; // ya no se puede arrastrar
+    
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'ITEM',
         item: { id: item.id_item, nombre: item.nombreitem },
         collect: (monitor) => ({
             isDragging: !!monitor.isDragging(),
         }),
-        canDrag: !estaAsignado,
+        canDrag: !estaBloqueado, // 🔒 Bloqueado si ya está en 2 semanas
     }));
+
+    // Clase CSS según estado
+    let claseEstado = 'disponible'; // 0 semanas
+    if (cantidadSemanas === 1) claseEstado = 'una-semana';   // verde claro
+    if (cantidadSemanas === 2) claseEstado = 'dos-semanas';  // verde oscuro
 
     return (
         <div
             ref={drag}
-            className={`item-unidad ${estaAsignado ? 'asignado' : 'disponible'} ${isDragging ? 'dragging' : ''}`}
+            className={`item-unidad ${claseEstado} ${isDragging ? 'dragging' : ''}`}
             style={{ 
                 opacity: isDragging ? 0.5 : 1,
-                cursor: estaAsignado ? 'not-allowed' : 'grab',
-                userSelect: 'none' // 👈 Evita que el texto se seleccione
-            }}
-            // 👇 Eventos para touchpad
-            onTouchStart={(e) => {
-                console.log('👆 Touch start en:', item.nombreitem);
+                cursor: estaBloqueado ? 'not-allowed' : 'grab',
+                userSelect: 'none'
             }}
         >
             <span className="item-icon">🔹</span>
             <span className="item-nombre">{item.nombreitem}</span>
-            {estaAsignado && <span className="badge-asignado">✅</span>}
+            
+            {/* ⭐ Badge con las semanas donde está asignado */}
+            {cantidadSemanas > 0 && (
+                <span className="badge-semanas">
+                    📅 S{semanasAsignadas.join(', S')}
+                </span>
+            )}
         </div>
     );
 };
 
 // Semana que recibe items (drop zone)
-const SemanaDropZone = ({ semana, itemsAsignados, onDropItem, onRemoveItem, trimestre }) => {
+const SemanaDropZone = ({ 
+    semana, 
+    itemsAsignados, 
+    onDropItem, 
+    onRemoveItem, 
+    trimestre,
+    puedeRecibirItem  // ⭐ función que valida si puede recibir el item
+}) => {
     const [{ isOver, canDrop }, drop] = useDrop(() => ({
         accept: 'ITEM',
         drop: (item) => {
             onDropItem(item.id, semana.id_semana);
+        },
+        // ⭐ canDrop: se ejecuta durante el hover para iluminar o no la semana
+        canDrop: (item) => {
+            const resultado = puedeRecibirItem(item.id, semana.id_semana);
+            return resultado.ok;
         },
         collect: (monitor) => ({
             isOver: !!monitor.isOver(),
@@ -58,7 +98,7 @@ const SemanaDropZone = ({ semana, itemsAsignados, onDropItem, onRemoveItem, trim
     return (
         <div
             ref={drop}
-            className={`semana-item ${isOver && canDrop ? 'drop-active' : ''}`}
+            className={`semana-item ${isOver && canDrop ? 'drop-active' : ''} ${isOver && !canDrop ? 'drop-invalid' : ''}`}
         >
             <div className="semana-header">
                 <span className="semana-numero">
@@ -112,10 +152,31 @@ function PlanificacionGestion({ user, volver }) {
     const [items, setItems] = useState([]);
     const [itemsAsignados, setItemsAsignados] = useState({});
     const [planificacionId, setPlanificacionId] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
     const [progreso, setProgreso] = useState(0);
     const [totalSemanas, setTotalSemanas] = useState(0);
     const [trimestreActivo, setTrimestreActivo] = useState(null);
+    const [unidadActiva, setUnidadActiva] = useState(null);
+    // ⭐ NUEVO: estado del toast
+    const [toast, setToast] = useState(null);
+    // ⭐ Controla si estamos viendo el editor o la vista previa
+    const [mostrarVista, setMostrarVista] = useState(false);
+
+    // ⭐ Mostrar toast y auto-ocultar en 3 segundos
+    const mostrarToast = (mensaje, tipo = 'exito') => {
+        setToast({ mensaje, tipo });
+        setTimeout(() => setToast(null), 3000);
+    };
+
+    // ⭐ Mapa: id_semana → numero_semana (para validar consecutividad)
+    const mapaSemanas = useMemo(() => {
+        const mapa = {};
+        trimestres.forEach(t => {
+            t.semanas?.forEach(s => {
+                mapa[s.id_semana] = s.numero_semana;
+            });
+        });
+        return mapa;
+    }, [trimestres]);
 
     // Cargar clases del maestro al iniciar
     useEffect(() => {
@@ -133,16 +194,14 @@ function PlanificacionGestion({ user, volver }) {
             
             if (data.success && data.data.length > 0) {
                 setClases(data.data);
-                // Seleccionar la primera clase por defecto
                 setClaseSeleccionada(data.data[0]);
-                // Cargar datos de la primera clase
                 await cargarDatosClase(data.data[0].id_clase);
             } else {
-                alert('No tienes clases asignadas. Creá una clase primero.');
+                mostrarToast('No tienes clases asignadas', 'error');
             }
         } catch (error) {
             console.error('Error cargando clases:', error);
-            alert('Error al cargar las clases');
+            mostrarToast('Error al cargar las clases', 'error');
         } finally {
             setLoading(false);
         }
@@ -163,21 +222,16 @@ function PlanificacionGestion({ user, volver }) {
                     setTrimestreActivo(data.data.trimestres[0].id_trimestre);
                 }
                 setUnidadesTematicas(data.data.unidades || []);
-                // Extraer todos los items de las unidades
                 const allItems = data.data.unidades.flatMap(u => u.items || []);
                 setItems(allItems);
-                // Guardar items globalmente para los componentes hijos
                 window.itemsData = allItems;
-                window.unidadesTematicas = data.data.unidades; // 👈 AGREGÁ ESTA LÍNEA
-                window.items = allItems; // 👈 AGREGÁ ESTA LÍNEA
+                window.unidadesTematicas = data.data.unidades;
                 
-                // Calcular total de semanas
                 const total = data.data.trimestres.reduce(
                     (acc, t) => acc + (t.semanas?.length || 0), 0
                 );
                 setTotalSemanas(total);
                 
-                // Cargar planificación existente
                 if (data.data.planificacion) {
                     setPlanificacionId(data.data.planificacion.id_planificacion);
                     setItemsAsignados(data.data.itemsAsignados || {});
@@ -185,21 +239,17 @@ function PlanificacionGestion({ user, volver }) {
                     setPlanificacionId(null);
                     setItemsAsignados({});
                 }
-                
-                // Guardar items globalmente para los componentes hijos
-                window.itemsData = allItems;
             } else {
-                alert('Error al cargar datos de la clase: ' + data.message);
+                mostrarToast('Error al cargar datos de la clase', 'error');
             }
         } catch (error) {
             console.error('Error cargando datos de clase:', error);
-            alert('Error al cargar los datos de la clase');
+            mostrarToast('Error al cargar los datos', 'error');
         } finally {
             setLoading(false);
         }
     };
 
-    // Cambiar de clase
     const handleCambiarClase = async (idClase) => {
         const clase = clases.find(c => c.id_clase === idClase);
         if (clase) {
@@ -208,15 +258,54 @@ function PlanificacionGestion({ user, volver }) {
         }
     };
 
+    // ⭐ Devuelve array de números de semana donde está asignado un item
+    const obtenerSemanasDeItem = (itemId) => {
+        const semanas = [];
+        Object.entries(itemsAsignados).forEach(([semanaId, items]) => {
+            if (items.includes(itemId)) {
+                const numSemana = mapaSemanas[parseInt(semanaId)];
+                if (numSemana !== undefined) semanas.push(numSemana);
+            }
+        });
+        return semanas.sort((a, b) => a - b);
+    };
+
+    // ⭐ Valida si un item puede ir a una semana destino
+    const puedeRecibirItem = (itemId, semanaDestinoId) => {
+        // 1. Semanas actuales donde está el item
+        const semanasActuales = Object.entries(itemsAsignados)
+            .filter(([_, items]) => items.includes(itemId))
+            .map(([semanaId]) => parseInt(semanaId));
+        
+        // 2. ¿Ya está en esa semana?
+        if (semanasActuales.includes(semanaDestinoId)) {
+            return { ok: false, msg: 'Este item ya está en esa semana' };
+        }
+        
+        // 3. ¿Ya está en 2 semanas?
+        if (semanasActuales.length >= 2) {
+            return { ok: false, msg: 'Máximo 2 semanas por item' };
+        }
+        
+        // 4. Si está en 1, validar consecutividad
+        if (semanasActuales.length === 1) {
+            const numActual = mapaSemanas[semanasActuales[0]];
+            const numDestino = mapaSemanas[semanaDestinoId];
+            
+            if (Math.abs(numActual - numDestino) !== 1) {
+                return { ok: false, msg: 'Solo semanas consecutivas' };
+            }
+        }
+        
+        return { ok: true };
+    };
+
     // Handler para soltar item en semana
     const handleDropItem = (itemId, semanaId) => {
-        // Verificar si el item ya está asignado
-        const itemYaAsignado = Object.values(itemsAsignados).some(
-            items => items.includes(itemId)
-        );
+        const validacion = puedeRecibirItem(itemId, semanaId);
         
-        if (itemYaAsignado) {
-            alert('Este item ya está asignado a otra semana');
+        if (!validacion.ok) {
+            mostrarToast(validacion.msg, 'error');
             return;
         }
 
@@ -224,6 +313,10 @@ function PlanificacionGestion({ user, volver }) {
             ...prev,
             [semanaId]: [...(prev[semanaId] || []), itemId]
         }));
+
+        const numSemana = mapaSemanas[semanaId];
+        const item = items.find(i => i.id_item === itemId);
+        mostrarToast(`"${item?.nombreitem || 'Item'}" asignado a Semana ${numSemana}`, 'exito');
     };
 
     // Handler para quitar item de semana
@@ -232,17 +325,19 @@ function PlanificacionGestion({ user, volver }) {
             ...prev,
             [semanaId]: prev[semanaId].filter(id => id !== itemId)
         }));
+
+        const numSemana = mapaSemanas[semanaId];
+        mostrarToast(`Item removido de Semana ${numSemana}`, 'exito');
     };
 
-    // Guardar planificación
     const guardarPlanificacion = async () => {
         if (!claseSeleccionada) {
-            alert('No hay clase seleccionada');
+            mostrarToast('No hay clase seleccionada', 'error');
             return;
         }
 
         if (Object.keys(itemsAsignados).length === 0) {
-            alert('No hay items asignados a ninguna semana');
+            mostrarToast('No hay items asignados', 'error');
             return;
         }
 
@@ -265,22 +360,21 @@ function PlanificacionGestion({ user, volver }) {
             
             const data = await response.json();
             if (data.success) {
-                alert('✅ Planificación guardada exitosamente');
+                mostrarToast('Planificación guardada exitosamente', 'exito');
                 if (data.data.id_planificacion) {
                     setPlanificacionId(data.data.id_planificacion);
                 }
             } else {
-                alert('❌ Error: ' + data.message);
+                mostrarToast('Error: ' + data.message, 'error');
             }
         } catch (error) {
             console.error('Error guardando planificación:', error);
-            alert('❌ Error al guardar');
+            mostrarToast('Error al guardar', 'error');
         } finally {
             setLoading(false);
         }
     };
 
-    // Calcular progreso
     useEffect(() => {
         const semanasConItems = Object.keys(itemsAsignados).filter(
             key => itemsAsignados[key]?.length > 0
@@ -292,28 +386,27 @@ function PlanificacionGestion({ user, volver }) {
         setProgreso(porcentaje);
     }, [itemsAsignados, totalSemanas]);
 
-    // Filtrar items disponibles
-    const itemsDisponibles = items.filter(item => {
-        const estaAsignado = Object.values(itemsAsignados).some(
-            items => items.includes(item.id_item)
+    // ⭐ Si el usuario clickeó "Ver Planificación", mostramos la vista previa
+    if (mostrarVista) {
+        return (
+            <VistaPlanificacion
+                user={user}
+                claseSeleccionada={claseSeleccionada}
+                trimestres={trimestres}
+                itemsAsignados={itemsAsignados}
+                items={items}
+                unidadesTematicas={unidadesTematicas}
+                onVolver={() => setMostrarVista(false)}
+            />
         );
-        return !estaAsignado;
-    });
-
-    // Filtrar por búsqueda
-    const itemsFiltrados = itemsDisponibles.filter(item =>
-        item.nombreitem?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    // Agrupar items por unidad temática
-    const itemsPorUnidad = unidadesTematicas.map(unidad => ({
-        ...unidad,
-        items: itemsFiltrados.filter(item => item.id_unid_tem === unidad.id_unid_tem)
-    })).filter(unidad => unidad.items.length > 0);
+    }
 
     // Renderizado
     return (
         <DndProvider backend={HTML5Backend}>
+            {/* ⭐ Toast flotante */}
+            <Toast toast={toast} />
+            
             <div className="section planificacion-container">
                 {/* HEADER */}
                 <div className="planificacion-header-actions">
@@ -369,103 +462,133 @@ function PlanificacionGestion({ user, volver }) {
                 {/* CUERPO PRINCIPAL */}
                 {!loading && (
                     <div className="planificacion-body">
-    {/* COLUMNA IZQUIERDA: UNIDADES TEMÁTICAS */}
-    <div className="planificacion-unidades">
-        <div className="unidades-header">
-            <h3>📚 Unidades Temáticas</h3>
-            <div className="search-box">
-                <input
-                    type="text"
-                    placeholder="🔍 Buscar item..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
-        </div>
+                        {/* COLUMNA IZQUIERDA: TRIMESTRES */}
+                        <div className="planificacion-trimestres">
+                            <div className="columna-header">
+                                <h3>📅 Trimestres y Semanas</h3>
+                            </div>
+                            
+                            <div className="columna-scroll">
+                                {trimestres.length > 0 ? (
+                                    trimestres.map((trimestre, index) => (
+                                        <div key={trimestre.id_trimestre} className="trimestre-card">
+                                            <h3 
+                                                className={`trimestre-titulo ${trimestreActivo === trimestre.id_trimestre ? 'activo' : ''}`}
+                                                onClick={() => setTrimestreActivo(
+                                                    trimestreActivo === trimestre.id_trimestre ? null : trimestre.id_trimestre
+                                                )}
+                                            >
+                                                📅 Trimestre {index + 1} {trimestreActivo === trimestre.id_trimestre ? '▼' : '▶'}
+                                                <span className="trimestre-fechas">
+                                                    ({new Date(trimestre.fecha_inicio).toLocaleDateString()} - {new Date(trimestre.fecha_fin).toLocaleDateString()})
+                                                </span>
+                                            </h3>
+                                            {trimestreActivo === trimestre.id_trimestre ? (
+                                                <div className="semanas-grid">
+                                                    {trimestre.semanas?.map((semana) => (
+                                                        <SemanaDropZone
+                                                            key={semana.id_semana}
+                                                            semana={semana}
+                                                            trimestre={`T${index + 1}`}
+                                                            itemsAsignados={itemsAsignados}
+                                                            onDropItem={handleDropItem}
+                                                            onRemoveItem={handleRemoveItem}
+                                                            puedeRecibirItem={puedeRecibirItem}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="trimestre-colapsado">
+                                                    <p>📅 {trimestre.semanas?.length || 0} semanas - Click para expandir</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="empty-state">
+                                        <p>📭 No hay trimestres configurados</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
 
-        <div className="unidades-scroll">
-            {unidadesTematicas.length > 0 ? (
-                unidadesTematicas.map(unidad => (
-                    <div key={unidad.id_unid_tem} className="unidad-card">
-                        <h4 className="unidad-titulo">{unidad.nombreut}</h4>
-                        <p className="unidad-objetivo">{unidad.objetivo || 'Sin objetivo'}</p>
-                        <div className="items-lista">
-                            {unidad.items?.length > 0 ? (
-                                unidad.items.map(item => {
-                                    const estaAsignado = Object.values(itemsAsignados).some(
-                                        items => items.includes(item.id_item)
-                                    );
-                                    return (
-                                        <DraggableItem
-                                            key={item.id_item}
-                                            item={item}
-                                            estaAsignado={estaAsignado}
-                                        />
-                                    );
-                                })
-                            ) : (
-                                <p style={{ color: '#6c757d', fontSize: '0.8rem' }}>Sin items</p>
-                            )}
+                        {/* COLUMNA DERECHA: UNIDADES */}
+                        <div className="planificacion-unidades">
+                            <div className="unidades-header">
+                                <h3>📚 Unidades Temáticas</h3>
+                            </div>
+
+                            <div className="unidades-scroll">
+                                {unidadesTematicas.length > 0 ? (
+                                    unidadesTematicas.map(unidad => {
+                                        const estaActiva = unidadActiva === unidad.id_unid_tem;
+                                        const itemsDeUnidad = unidad.items || [];
+                                        
+                                        return (
+                                            <div key={unidad.id_unid_tem} className="unidad-card">
+                                                <h4 
+                                                    className={`unidad-titulo ${estaActiva ? 'activo' : ''}`}
+                                                    onClick={() => setUnidadActiva(
+                                                        estaActiva ? null : unidad.id_unid_tem
+                                                    )}
+                                                >
+                                                    <span>
+                                                        {estaActiva ? '▼' : '▶'} {unidad.nombreut}
+                                                    </span>
+                                                    <span className="unidad-badge">
+                                                        {itemsDeUnidad.length} items
+                                                    </span>
+                                                </h4>
+                                                
+                                                {estaActiva ? (
+                                                    <div className="unidad-contenido">
+                                                        <p className="unidad-objetivo">
+                                                            {unidad.objetivo || 'Sin objetivo'}
+                                                        </p>
+                                                        <div className="items-lista">
+                                                            {itemsDeUnidad.length > 0 ? (
+                                                                itemsDeUnidad.map(item => (
+                                                                    <DraggableItem
+                                                                        key={item.id_item}
+                                                                        item={item}
+                                                                        semanasAsignadas={obtenerSemanasDeItem(item.id_item)}
+                                                                    />
+                                                                ))
+                                                            ) : (
+                                                                <p className="empty-items">
+                                                                    📦 No hay items en esta unidad
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="unidad-colapsada">
+                                                        <p>📖 Click para ver los items</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="empty-state">
+                                        <p>📚 No hay unidades temáticas disponibles</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
-                ))
-            ) : (
-                <div className="empty-state">
-                    <p>📚 No hay unidades temáticas disponibles</p>
-                </div>
-            )}
-        </div>
-    </div>
-
-    {/* COLUMNA DERECHA: TRIMESTRES */}
-    <div className="planificacion-trimestres">
-        {trimestres.length > 0 ? (
-            trimestres.map((trimestre, index) => (
-                <div key={trimestre.id_trimestre} className="trimestre-card">
-                    <h3 
-                        className={`trimestre-titulo ${trimestreActivo === trimestre.id_trimestre ? 'activo' : ''}`}
-                        onClick={() => setTrimestreActivo(
-                            trimestreActivo === trimestre.id_trimestre ? null : trimestre.id_trimestre
-                        )}
-                        style={{ cursor: 'pointer' }}
-                    >
-                        📅 Trimestre {index + 1} {trimestreActivo === trimestre.id_trimestre ? '▼' : '▶'}
-                        <span className="trimestre-fechas">
-                            ({new Date(trimestre.fecha_inicio).toLocaleDateString()} - {new Date(trimestre.fecha_fin).toLocaleDateString()})
-                        </span>
-                    </h3>
-                    {trimestreActivo === trimestre.id_trimestre ? (
-                        <div className="semanas-grid">
-                            {trimestre.semanas?.map((semana) => (
-                                <SemanaDropZone
-                                    key={semana.id_semana}
-                                    semana={semana}
-                                    trimestre={`T${index + 1}`}
-                                    itemsAsignados={itemsAsignados}
-                                    onDropItem={handleDropItem}
-                                    onRemoveItem={handleRemoveItem}
-                                />
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="trimestre-colapsado">
-                            <p>📅 {trimestre.semanas?.length || 0} semanas - Click para expandir</p>
-                        </div>
-                    )}
-                </div>
-            ))
-        ) : (
-            <div className="empty-state">
-                <p>📭 No hay trimestres configurados para esta clase</p>
-                <p className="empty-hint">Contacta al administrador para configurar el año académico</p>
-            </div>
-        )}
-    </div>
-</div>
                 )}
 
                 {/* FOOTER */}
                 <div className="planificacion-footer">
+                    <button
+                        className="btn-ver-planificacion"
+                        onClick={() => setMostrarVista(true)}
+                        disabled={!planificacionId}
+                        title={!planificacionId ? 'Guardá la planificación primero' : 'Ver planificación'}
+                    >
+                        👁️ Ver Planificación
+                    </button>
                     <button
                         className="btn-guardar-planificacion"
                         onClick={guardarPlanificacion}

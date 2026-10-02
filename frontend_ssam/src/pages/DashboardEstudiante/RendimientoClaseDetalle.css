@@ -1,0 +1,887 @@
+/* frontend_ssam/src/pages/DashboardEstudiante/RendimientoClaseDetalle.css */
+/* ============================================================
+   DETALLE DE RENDIMIENTO DE UNA CLASE - Estilos
+   ============================================================ */
+
+:root {
+    --color-primary: #1e3a5f;
+    --color-primary-light: #2c5282;
+    --color-primary-dark: #15293f;
+    --color-accent: #2e7d32;
+    --color-warning: #f9a825;
+    --color-danger: #c62828;
+    --color-bg: #f5f7fa;
+    --color-surface: #ffffff;
+    --color-border: #e2e8f0;
+    --color-text: #1a202c;
+    --color-text-muted: #64748b;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --radius: 10px;
+    --radius-lg: 14px;
+}
+
+/* ============================================================
+   HEADER DEL DETALLE
+   ============================================================ */
+.rendimiento-detalle {
+    max-width: 1200px;
+}
+
+.detalle-header-badges {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.asignatura-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fff;
+    background: var(--color-primary);
+}
+
+.asignatura-badge.optimo         { background: #2e7d32; }
+.asignatura-badge.bueno          { background: #66bb6a; }
+.asignatura-badge.aceptable      { background: #f9a825; color: #4a3500; }
+.asignatura-badge.en-desarrollo  { background: #c62828; }
+.asignatura-badge.sin-evaluar    { background: #94a3b8; }
+
+.clase-periodo {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+/* ============================================================
+   TABS HORIZONTALES
+   ============================================================ */
+.tabs-horizontal {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid var(--color-border);
+    margin-bottom: 24px;
+    overflow-x: auto;
+    padding-bottom: 0;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.tab-btn:hover {
+    color: var(--color-primary);
+}
+
+.tab-btn.active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+}
+
+/* ============================================================
+   PANEL DE TAB
+   ============================================================ */
+.tab-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ============================================================
+   TAB 1: Resumen de clase
+   ============================================================ */
+.resumen-clase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+}
+
+.resumen-clase-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: var(--shadow-sm);
+}
+
+.resumen-clase-card.destacado {
+    background: linear-gradient(135deg, #f0f5fa 0%, #ffffff 100%);
+    border-color: #c9ddf0;
+}
+
+.resumen-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.resumen-valor {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1.1;
+}
+
+.resumen-hint {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* ============================================================
+   GRÁFICO DE BARRAS VERTICALES (Tab 1)
+   ============================================================ */
+.grafico-barras-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+.grafico-titulo {
+    margin: 0 0 20px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-primary-dark);
+}
+
+.grafico-barras-vertical {
+    display: flex;
+    gap: 12px;
+    min-height: 320px;
+}
+
+/* Eje Y */
+.eje-y {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-right: 8px;
+    min-width: 46px;
+}
+
+.eje-y-tick {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 0;
+    position: relative;
+}
+
+.tick-label {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    min-width: 32px;
+    text-align: right;
+}
+
+.tick-linea {
+    flex: 1;
+    height: 1px;
+    background: transparent;
+}
+
+/* Barras */
+.barras-container {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    gap: 12px;
+    border-left: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    padding: 0 12px 0 16px;
+    min-height: 320px;
+    position: relative;
+}
+
+.barra-columna {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    max-width: 100px;
+    height: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.barra-wrapper {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    position: relative;
+}
+
+.barra-vertical {
+    width: 70%;
+    max-width: 60px;
+    min-height: 4px;
+    border-radius: 6px 6px 0 0;
+    transition: height 0.6s ease, background 0.3s ease;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 6px;
+    position: relative;
+}
+
+.barra-vertical.sin-datos {
+    border: 2px dashed var(--color-border);
+    min-height: 40px;
+}
+
+.barra-valor {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.barra-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text);
+    text-align: center;
+    word-break: break-word;
+    line-height: 1.25;
+    min-height: 28px;
+}
+
+.barra-sublabel {
+    font-size: 10px;
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+/* ============================================================
+   TAB 2: Selector de unidad
+   ============================================================ */
+.selector-unidad-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: var(--shadow-sm);
+    flex-wrap: wrap;
+}
+
+.selector-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.selector-unidad {
+    flex: 1;
+    min-width: 220px;
+    padding: 10px 14px;
+    font-size: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.selector-unidad:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.12);
+}
+
+/* Info de unidad */
+.unidad-info-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 18px 22px;
+    box-shadow: var(--shadow-sm);
+}
+
+.unidad-info-titulo {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-primary-dark);
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.unidad-info-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+}
+
+.info-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.info-stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.info-stat-valor {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+/* ============================================================
+   BARRAS HORIZONTALES (Tab 2)
+   ============================================================ */
+.barras-horizontales {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.barra-horizontal-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 60px 60px;
+    align-items: center;
+    gap: 14px;
+}
+
+.barra-h-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.barra-h-track {
+    width: 100%;
+    height: 22px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+    cursor: help;
+}
+
+.barra-h-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.6s ease, background 0.3s ease;
+    cursor: help;
+}
+
+.barra-h-valor {
+    font-size: 14px;
+    font-weight: 700;
+    text-align: right;
+    cursor: help;
+}
+
+.barra-h-correctas {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    text-align: right;
+    font-weight: 600;
+    cursor: help;
+}
+
+.tooltip-hint {
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    text-align: center;
+    font-style: italic;
+}
+
+/* ============================================================
+   TAB 3: Círculos de promedio
+   ============================================================ */
+.circulos-card,
+.tabla-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+.circulos-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.circulo-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    max-width: 130px;
+}
+
+.circulo-item.destacado {
+    max-width: 180px;
+    padding: 16px;
+    background: #f0f5fa;
+    border: 2px solid #c9ddf0;
+    border-radius: var(--radius-lg);
+}
+
+.circulo-svg-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.circulo-svg {
+    transform: rotate(-90deg);
+}
+
+.circulo-fondo {
+    fill: none;
+    stroke: var(--color-bg);
+    stroke-width: 12;
+}
+
+.circulo-progreso {
+    fill: none;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s ease, stroke 0.3s ease;
+}
+
+.circulo-centro {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.circulo-valor {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.circulo-item.destacado .circulo-valor {
+    font-size: 30px;
+}
+
+.circulo-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text);
+    text-align: center;
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.circulo-hint {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* ============================================================
+   TABLA DE INTENTOS (Tab 3)
+   ============================================================ */
+.tabla-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tabla-header .grafico-titulo {
+    margin: 0;
+}
+
+.btn-exportar {
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    padding: 9px 18px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s ease;
+}
+
+.btn-exportar:hover:not(:disabled) {
+    background: var(--color-primary-light);
+}
+
+.btn-exportar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.tabla-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+}
+
+.tabla-intentos {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.tabla-intentos thead {
+    background: var(--color-bg);
+}
+
+.tabla-intentos th {
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--color-text-muted);
+    font-weight: 700;
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+}
+
+.tabla-intentos td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+}
+
+.tabla-intentos tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tabla-intentos tbody tr:hover {
+    background: #f9fbfd;
+}
+
+.estado-chip {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ============================================================
+   BOTONES GENERALES
+   ============================================================ */
+.btn-volver {
+    background: var(--color-surface);
+    color: var(--color-primary);
+    border: 1px solid var(--color-border);
+    padding: 9px 18px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.btn-volver:hover {
+    background: var(--color-bg);
+    border-color: var(--color-primary);
+}
+
+/* ============================================================
+   EMPTY Y LOADING
+   ============================================================ */
+.empty-message {
+    background: var(--color-bg);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    margin: 0;
+}
+
+.loading-inline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 60px 20px;
+}
+
+.loading-inline p {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    margin: 0;
+}
+
+.loading-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   HEADER DE SECCIÓN
+   ============================================================ */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 24px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.section-header-simple {
+    margin-bottom: 0;
+}
+
+.section h2 {
+    margin: 8px 0 4px 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-primary-dark);
+}
+
+.section-subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-text-muted);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 800px) {
+    .barra-horizontal-row {
+        grid-template-columns: 70px 1fr 50px 50px;
+        gap: 8px;
+    }
+
+    .barra-h-label {
+        font-size: 11px;
+    }
+
+    .tab-btn {
+        padding: 10px 12px;
+        font-size: 11px;
+    }
+
+    .circulos-grid {
+        gap: 16px;
+    }
+
+    .grafico-barras-vertical {
+        min-height: 260px;
+    }
+
+    .barras-container {
+        min-height: 260px;
+    }
+    
+}
+/* ============================================================
+   AGRUPAMIENTO POR ÍTEM (Tab 2)
+   ============================================================ */
+.items-agrupados {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.item-grupo {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--color-surface);
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    color: #fff;
+    font-weight: 600;
+    flex-wrap: wrap;
+    transition: opacity 0.2s ease;
+}
+
+.item-header:hover {
+    opacity: 1 !important;
+}
+
+.item-nombre {
+    font-size: 14px;
+    letter-spacing: 0.3px;
+}
+
+.item-promedio {
+    font-size: 12px;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.18);
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.item-nivel {
+    font-weight: 700;
+}
+
+.item-preguntas {
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--color-surface);
+}
+/* ============================================================
+   TAB 3: INTENTOS AGRUPADOS POR UNIDAD
+   ============================================================ */
+.unidades-intentos-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.unidad-intentos-bloque {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--color-surface);
+}
+
+.unidad-intentos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 18px;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    flex-wrap: wrap;
+}
+
+.unidad-intentos-titulo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.unidad-intentos-nombre {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-primary-dark);
+}
+
+.unidad-intentos-meta {
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+.unidad-intentos-promedio {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 6px 14px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.promedio-mini-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.promedio-mini-valor {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.promedio-mini-nivel {
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.85;
+}
+/* ============================================================
+   HEADER DE GRÁFICO (con subtítulo)
+   ============================================================ */
+.grafico-header {
+    margin-bottom: 20px;
+}
+
+.grafico-header .grafico-titulo {
+    margin: 0 0 4px 0;
+}
+
+.grafico-subtitulo {
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    font-style: italic;
+}

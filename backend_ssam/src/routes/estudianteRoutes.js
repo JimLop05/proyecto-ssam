@@ -11,10 +11,12 @@ const {
     unirseAClase,
     getMiPerfil,
     getMiRendimiento,
+    getMiRendimientoClases,
+    getRendimientoClase,       // 👈 NUEVO
     getDetalleClaseEstudiante,
     getPreguntasUnidad,
-    enviarIntentoUnidad,   // 👈 NUEVO
-    getDebugTodo   // 👈 TEMPORAL
+    enviarIntentoUnidad,
+    getDebugTodo   // TEMPORAL
 } = require('../controllers/estudianteController');
 const authMiddleware = require('../middlewares/auth');
 
@@ -24,10 +26,12 @@ router.get('/', authMiddleware, getEstudiantes);
 router.get('/mi-perfil', authMiddleware, getMiPerfil);
 router.get('/mis-clases', authMiddleware, getMisClases);
 router.get('/mi-rendimiento', authMiddleware, getMiRendimiento);
+router.get('/mi-rendimiento-clases', authMiddleware, getMiRendimientoClases);
+router.get('/clase/:id_clase/rendimiento', authMiddleware, getRendimientoClase);  // 👈 NUEVO
 router.post('/unirse-clase', authMiddleware, unirseAClase);
 router.get('/clase/:id_clase', authMiddleware, getDetalleClaseEstudiante);
 router.get('/unidad/:id_unid_tem/preguntas', authMiddleware, getPreguntasUnidad);
-router.post('/unidad/:id_unid_tem/enviar-intento', authMiddleware, enviarIntentoUnidad); // 👈 NUEVO
-router.get('/clase/:id_clase/debug-todo', authMiddleware, getDebugTodo); // 👈 TEMPORAL
+router.post('/unidad/:id_unid_tem/enviar-intento', authMiddleware, enviarIntentoUnidad);
+router.get('/clase/:id_clase/debug-todo', authMiddleware, getDebugTodo); // TEMPORAL
 
 module.exports = router;

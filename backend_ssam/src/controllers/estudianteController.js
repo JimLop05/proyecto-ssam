@@ -665,32 +665,59 @@ const enviarIntentoUnidad = async (req, res) => {
             );
         }
 
-        // 7c. Upsert en EVALUA
+                // 7c. Upsert en EVALUA
+        // LÓGICA: se consideran solo los ÚLTIMOS 3 intentos
+        // - nota_alta    = máximo de los últimos 3
+        // - nota_promedio = promedio de los últimos 3
+        // - nro_intentos  = acumulado total (histórico)
+        // Esto premia la mejora progresiva del estudiante.
         const evaluaCheck = await client.query(
             `SELECT * FROM evalua WHERE id_evaluacion = $1 AND id_unid_tem = $2`,
             [id_evaluacion, id_unid_tem]
         );
 
+        // Consultar los últimos 3 intentos (incluyendo el actual que acabamos de insertar)
+        const ultimosIntentosQuery = await client.query(
+            `SELECT nota_unidad_tematica
+             FROM intento
+             WHERE id_evaluacion = $1 AND id_unidad_tem = $2
+             ORDER BY id_intento DESC
+             LIMIT 3`,
+            [id_evaluacion, id_unid_tem]
+        );
+
+        const notasUltimos3 = ultimosIntentosQuery.rows.map((r) =>
+            parseFloat(r.nota_unidad_tematica)
+        );
+
+        // Promedio y nota alta de la ventana de últimos 3
+        const nuevoPromedio = Math.round(
+            notasUltimos3.reduce((sum, n) => sum + n, 0) / notasUltimos3.length
+        );
+        const nuevaNotaAlta = Math.max(...notasUltimos3);
+
         if (evaluaCheck.rows.length === 0) {
             // Primera vez que se rinde esta unidad → crear EVALUA
+            let estadoInicial = 'EN_PROGRESO';
+            if (nuevoPromedio >= 51) estadoInicial = 'APROBADO';
+
             await client.query(
                 `INSERT INTO evalua (id_evaluacion, id_unid_tem, nota_alta, nro_intentos, nota_promedio, estado)
-                 VALUES ($1, $2, $3, 1, $3, $4)`,
-                [id_evaluacion, id_unid_tem, nota, 'EN_PROGRESO']
+                 VALUES ($1, $2, $3, 1, $4, $5)`,
+                [id_evaluacion, id_unid_tem, nuevaNotaAlta, nuevoPromedio, estadoInicial]
             );
         } else {
-            // Ya existe → recalcular nro_intentos, nota_alta, nota_promedio
+            // Ya existe → recalcular
             const ev = evaluaCheck.rows[0];
             const nuevoNroIntentos = ev.nro_intentos + 1;
-            const nuevaNotaAlta = Math.max(ev.nota_alta || 0, nota);
-            const nuevoPromedio = Math.round(
-                ((ev.nota_promedio * ev.nro_intentos) + nota) / nuevoNroIntentos
-            );
 
-            // Estado según la nota promedio
+            // Estado según la nueva lógica
             let nuevoEstado = 'EN_PROGRESO';
-            if (nuevoPromedio >= 51) nuevoEstado = 'APROBADO';
-            else if (nuevoNroIntentos >= 3) nuevoEstado = 'REPROBADO';
+            if (nuevoPromedio >= 51) {
+                nuevoEstado = 'APROBADO';
+            } else if (nuevoNroIntentos >= 3) {
+                nuevoEstado = 'REPROBADO';
+            }
 
             await client.query(
                 `UPDATE evalua
@@ -727,6 +754,369 @@ const enviarIntentoUnidad = async (req, res) => {
         });
     } finally {
         client.release();
+    }
+};
+
+// ============================================================
+// Obtener el rendimiento resumido de todas las clases del estudiante
+// - Para la vista principal de "Mi Rendimiento"
+// - Incluye: promedio por clase + resumen general
+// - Las unidades NO evaluadas se excluyen del promedio
+//   (solo se promedian las unidades que el estudiante ya rindió)
+// ============================================================
+const getMiRendimientoClases = async (req, res) => {
+    try {
+        const id_usuarioE = req.user.id;
+
+        // 1. Traer todas las clases del estudiante
+        const clasesQuery = await pool.query(`
+            SELECT 
+                c.id_clase,
+                c.nombrec,
+                c.periodo,
+                c.estado_clase,
+                c.id_grado,
+                c.id_asig,
+                g.titulog AS grado,
+                a.nombrea AS asignatura,
+                ue.nombre AS unidad_educativa
+            FROM pertenece p
+            INNER JOIN clase c ON p.id_clase = c.id_clase
+            LEFT JOIN grado g ON c.id_grado = g.id_grado
+            LEFT JOIN asignatura a ON c.id_asig = a.id_asig
+            LEFT JOIN ue ON c.id_ue = ue.id_ue
+            WHERE p.id_usuarioe = $1
+            ORDER BY a.nombrea, c.nombrec
+        `, [id_usuarioE]);
+
+        // 2. Para cada clase, calcular métricas
+        const clases = [];
+
+        for (const clase of clasesQuery.rows) {
+            // Total de unidades temáticas de ese grado + asignatura
+            const totalUnidadesQuery = await pool.query(`
+                SELECT COUNT(*) AS total
+                FROM unidadtematica
+                WHERE id_grado = $1 AND id_asig = $2
+            `, [clase.id_grado, clase.id_asig]);
+
+            const totalUnidades = parseInt(totalUnidadesQuery.rows[0].total) || 0;
+
+            // Buscar la evaluación del estudiante para esta clase
+            const evalQuery = await pool.query(`
+                SELECT id_evaluacion
+                FROM evaluacion
+                WHERE id_usuarioe = $1 AND id_clase = $2
+            `, [id_usuarioE, clase.id_clase]);
+
+            let unidadesEvaluadas = 0;
+            let unidadesAprobadas = 0;
+            let promedioClase = null;
+
+            if (evalQuery.rows.length > 0) {
+                const id_evaluacion = evalQuery.rows[0].id_evaluacion;
+
+                // Métricas de EVALUA para esta evaluación
+                const evaluaQuery = await pool.query(`
+                    SELECT 
+                        COUNT(*) AS unidades_evaluadas,
+                        COUNT(*) FILTER (WHERE estado = 'APROBADO') AS unidades_aprobadas,
+                        AVG(nota_promedio) AS promedio_clase
+                    FROM evalua
+                    WHERE id_evaluacion = $1
+                `, [id_evaluacion]);
+
+                unidadesEvaluadas = parseInt(evaluaQuery.rows[0].unidades_evaluadas) || 0;
+                unidadesAprobadas = parseInt(evaluaQuery.rows[0].unidades_aprobadas) || 0;
+                promedioClase = evaluaQuery.rows[0].promedio_clase !== null
+                    ? Math.round(parseFloat(evaluaQuery.rows[0].promedio_clase))
+                    : null;
+            }
+
+            clases.push({
+                id_clase: clase.id_clase,
+                nombrec: clase.nombrec,
+                asignatura: clase.asignatura,
+                grado: clase.grado,
+                periodo: clase.periodo,
+                estado_clase: clase.estado_clase,
+                unidad_educativa: clase.unidad_educativa,
+                total_unidades: totalUnidades,
+                unidades_evaluadas: unidadesEvaluadas,
+                unidades_aprobadas: unidadesAprobadas,
+                promedio_clase: promedioClase
+            });
+        }
+
+        // 3. Calcular resumen general
+        //    Solo se promedian las clases que tienen promedio (unidades evaluadas)
+        const clasesConPromedio = clases.filter((c) => c.promedio_clase !== null);
+
+        const promedioGeneral = clasesConPromedio.length > 0
+            ? Math.round(
+                clasesConPromedio.reduce((sum, c) => sum + c.promedio_clase, 0) /
+                clasesConPromedio.length
+            )
+            : null;
+
+        const totalUnidades = clases.reduce((sum, c) => sum + c.total_unidades, 0);
+        const unidadesEvaluadas = clases.reduce((sum, c) => sum + c.unidades_evaluadas, 0);
+        const unidadesAprobadas = clases.reduce((sum, c) => sum + c.unidades_aprobadas, 0);
+
+        res.json({
+            success: true,
+            data: {
+                resumen_general: {
+                    promedio_general: promedioGeneral,
+                    total_clases: clases.length,
+                    total_unidades: totalUnidades,
+                    unidades_evaluadas: unidadesEvaluadas,
+                    unidades_aprobadas: unidadesAprobadas
+                },
+                clases
+            }
+        });
+
+    } catch (error) {
+        console.error('Error en getMiRendimientoClases:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener el rendimiento de las clases'
+        });
+    }
+};
+
+// ============================================================
+// Obtener el rendimiento DETALLADO de una clase del estudiante
+// - Alimenta las 3 pestañas del módulo Mi Rendimiento:
+//   1. RENDIMIENTO DE LA CLASE (barras por unidad)
+//   2. RENDIMIENTO POR UNIDAD (barras por pregunta)
+//   3. REPORTE GLOBAL (tabla de intentos + promedios)
+// ============================================================
+const getRendimientoClase = async (req, res) => {
+    try {
+        const id_usuarioE = req.user.id;
+        const { id_clase } = req.params;
+
+        // 1. Verificar inscripción a la clase
+        const perteneceCheck = await pool.query(
+            `SELECT 1 FROM pertenece 
+             WHERE id_usuarioe = $1 AND id_clase = $2`,
+            [id_usuarioE, id_clase]
+        );
+
+        if (perteneceCheck.rows.length === 0) {
+            return res.status(403).json({
+                success: false,
+                message: 'No estás inscrito en esta clase'
+            });
+        }
+
+        // 2. Obtener datos de la clase
+        const claseQuery = await pool.query(`
+            SELECT 
+                c.id_clase,
+                c.nombrec,
+                c.periodo,
+                c.estado_clase,
+                c.id_grado,
+                c.id_asig,
+                g.titulog AS grado,
+                a.nombrea AS asignatura,
+                ue.nombre AS unidad_educativa,
+                CONCAT(u.nombre, ' ', u.apellido1, ' ', COALESCE(u.apellido2, '')) AS maestro
+            FROM clase c
+            LEFT JOIN grado g ON c.id_grado = g.id_grado
+            LEFT JOIN asignatura a ON c.id_asig = a.id_asig
+            LEFT JOIN ue ON c.id_ue = ue.id_ue
+            LEFT JOIN maestro m ON c.id_maestro = m.id_usuariom
+            LEFT JOIN usuario u ON m.id_usuariom = u.id_usuario
+            WHERE c.id_clase = $1
+        `, [id_clase]);
+
+        if (claseQuery.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Clase no encontrada'
+            });
+        }
+
+        const clase = claseQuery.rows[0];
+
+        // 3. Buscar la evaluación del estudiante para esta clase
+        const evalQuery = await pool.query(
+            `SELECT id_evaluacion FROM evaluacion
+             WHERE id_usuarioe = $1 AND id_clase = $2`,
+            [id_usuarioE, id_clase]
+        );
+
+        const id_evaluacion = evalQuery.rows[0]?.id_evaluacion || null;
+
+        // 4. Obtener TODAS las unidades temáticas del grado + asignatura
+        //    (aunque el estudiante no las haya rendido)
+        const unidadesQuery = await pool.query(`
+            SELECT id_unid_tem, nombreut, objetivo
+            FROM unidadtematica
+            WHERE id_grado = $1 AND id_asig = $2
+            ORDER BY id_unid_tem
+        `, [clase.id_grado, clase.id_asig]);
+
+        // 5. Armar POR UNIDAD (merge de unidades + datos de EVALUA si existen)
+        let porUnidad = [];
+        let totalUnidades = unidadesQuery.rows.length;
+
+        if (id_evaluacion) {
+            const evaluaQuery = await pool.query(`
+                SELECT id_unid_tem, nota_alta, nota_promedio, nro_intentos, estado
+                FROM evalua
+                WHERE id_evaluacion = $1
+            `, [id_evaluacion]);
+
+            const evaluaMap = {};
+            evaluaQuery.rows.forEach((e) => {
+                evaluaMap[e.id_unid_tem] = e;
+            });
+
+            porUnidad = unidadesQuery.rows.map((u) => {
+                const ev = evaluaMap[u.id_unid_tem];
+                return {
+                    id_unid_tem: u.id_unid_tem,
+                    nombreut: u.nombreut,
+                    objetivo: u.objetivo,
+                    nota_alta: ev?.nota_alta ?? null,
+                    nota_promedio: ev?.nota_promedio ?? null,
+                    nro_intentos: ev?.nro_intentos ?? 0,
+                    estado: ev?.estado ?? 'SIN_INTENTOS'
+                };
+            });
+        } else {
+            // No hay evaluación: todas las unidades sin intentos
+            porUnidad = unidadesQuery.rows.map((u) => ({
+                id_unid_tem: u.id_unid_tem,
+                nombreut: u.nombreut,
+                objetivo: u.objetivo,
+                nota_alta: null,
+                nota_promedio: null,
+                nro_intentos: 0,
+                estado: 'SIN_INTENTOS'
+            }));
+        }
+
+        // 6. Calcular RESUMEN
+        const unidadesEvaluadas = porUnidad.filter((u) => u.nro_intentos > 0);
+        const unidadesAprobadas = porUnidad.filter((u) => u.estado === 'APROBADO').length;
+
+        const promedioClase = unidadesEvaluadas.length > 0
+            ? Math.round(
+                unidadesEvaluadas.reduce((sum, u) => sum + u.nota_promedio, 0) /
+                unidadesEvaluadas.length
+            )
+            : null;
+
+                // 7. Obtener POR PREGUNTA (porcentaje de acierto por pregunta)
+        //    Filtrado a los ÚLTIMOS 3 INTENTOS por unidad (coherente con nota_promedio)
+        //    Incluye el ítem al que pertenece (para agrupar en el frontend)
+        let porPregunta = [];
+
+        if (id_evaluacion) {
+            const preguntasQuery = await pool.query(`
+                WITH ultimos_intentos AS (
+                    SELECT id_intento, id_unidad_tem
+                    FROM (
+                        SELECT 
+                            id_intento,
+                            id_unidad_tem,
+                            ROW_NUMBER() OVER (
+                                PARTITION BY id_unidad_tem 
+                                ORDER BY id_intento DESC
+                            ) AS rn
+                        FROM intento
+                        WHERE id_evaluacion = $1
+                    ) sub
+                    WHERE rn <= 3
+                )
+                SELECT 
+                    p.id_pregunta,
+                    p.descripcion,
+                    i.id_item,
+                    i.nombreitem,
+                    i.id_unid_tem,
+                    ut.nombreut,
+                    COUNT(r.id_opcion) AS total_respuestas,
+                    COUNT(r.id_opcion) FILTER (WHERE r.es_correcta = true) AS correctas
+                FROM ultimos_intentos ui
+                INNER JOIN respuesta r ON r.id_intento = ui.id_intento
+                INNER JOIN opcion o ON r.id_opcion = o.id_opcion
+                INNER JOIN pregunta p ON o.id_pregunta = p.id_pregunta
+                INNER JOIN item i ON p.id_item = i.id_item
+                INNER JOIN unidadtematica ut ON i.id_unid_tem = ut.id_unid_tem
+                GROUP BY p.id_pregunta, p.descripcion, i.id_item, i.nombreitem, i.id_unid_tem, ut.nombreut
+                ORDER BY i.id_unid_tem, i.id_item, p.id_pregunta
+            `, [id_evaluacion]);
+
+            porPregunta = preguntasQuery.rows.map((row) => {
+                const total = parseInt(row.total_respuestas) || 0;
+                const correctas = parseInt(row.correctas) || 0;
+                const porcentaje = total > 0 ? Math.round((correctas / total) * 100) : 0;
+
+                return {
+                    id_pregunta: row.id_pregunta,
+                    descripcion: row.descripcion,
+                    id_item: row.id_item,
+                    nombre_item: row.nombreitem,
+                    id_unid_tem: row.id_unid_tem,
+                    nombreut: row.nombreut,
+                    total_respuestas: total,
+                    correctas,
+                    porcentaje
+                };
+            });
+        }
+        // 8. Obtener INTENTOS (lista cronológica)
+        let intentos = [];
+
+        if (id_evaluacion) {
+            const intentosQuery = await pool.query(`
+                SELECT 
+                    it.id_intento,
+                    it.fecha_intento,
+                    it.hora_intento,
+                    it.nro_respuestas_correctas,
+                    it.nota_unidad_tematica,
+                    ut.nombreut
+                FROM intento it
+                INNER JOIN unidadtematica ut ON it.id_unidad_tem = ut.id_unid_tem
+                WHERE it.id_evaluacion = $1
+                ORDER BY it.fecha_intento DESC, it.hora_intento DESC
+            `, [id_evaluacion]);
+
+            intentos = intentosQuery.rows;
+        }
+
+        // 9. Responder
+        res.json({
+            success: true,
+            data: {
+                clase,
+                resumen: {
+                    promedio_clase: promedioClase,
+                    total_unidades: totalUnidades,
+                    unidades_evaluadas: unidadesEvaluadas.length,
+                    unidades_aprobadas: unidadesAprobadas,
+                    total_intentos: intentos.length
+                },
+                por_unidad: porUnidad,
+                por_pregunta: porPregunta,
+                intentos
+            }
+        });
+
+    } catch (error) {
+        console.error('Error en getRendimientoClase:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener el rendimiento de la clase'
+        });
     }
 };
 
@@ -830,6 +1220,8 @@ module.exports = {
     unirseAClase,
     getMiPerfil,
     getMiRendimiento,
+    getMiRendimientoClases, 
+     getRendimientoClase,  
     getDetalleClaseEstudiante,
     getPreguntasUnidad,
     enviarIntentoUnidad,

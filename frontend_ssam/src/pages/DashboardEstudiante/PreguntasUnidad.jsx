@@ -162,7 +162,7 @@ function PreguntasUnidad({ unidad, clase, volver }) {
         setTimeout(() => avanzarSiguiente(), 400);
     };
 
-   const avanzarSiguiente = () => {
+    const avanzarSiguiente = () => {
         setIndiceActual((prev) => {
             // Si ya estamos en la última pregunta, NO avanzar
             if (prev >= preguntasMezcladas.length - 1) {
@@ -193,10 +193,10 @@ function PreguntasUnidad({ unidad, clase, volver }) {
                 }
             );
 
-                        if (res.data.success) {
+            if (res.data.success) {
                 setResultado(res.data.data);
-            // 👈 NUEVO: guardar el detalle de corrección por pregunta
-            if (res.data.data.detalle) {
+                // Guardar el detalle de corrección por pregunta
+                if (res.data.data.detalle) {
                     const detalleMap = {};
                     res.data.data.detalle.forEach((d) => {
                         detalleMap[d.id_pregunta] = d.es_correcta;
@@ -217,7 +217,7 @@ function PreguntasUnidad({ unidad, clase, volver }) {
     const reintentar = () => {
         setResultado(null);
         setRespuestas({});
-        setDetalleCorreccion({}); // 👈 NUEVO
+        setDetalleCorreccion({});
         setIndiceActual(0);
         setError('');
         setLoading(true);
@@ -229,7 +229,7 @@ function PreguntasUnidad({ unidad, clase, volver }) {
         return (
             <div className="section">
                 <p className="empty-message">No se seleccionó ninguna unidad.</p>
-                <button className="btn-volver" onClick={volver}>← Volver</button>
+                <button className="btn-volver" onClick={volver}>Volver</button>
             </div>
         );
     }
@@ -237,7 +237,10 @@ function PreguntasUnidad({ unidad, clase, volver }) {
     if (loading) {
         return (
             <div className="section">
-                <p className="empty-message">Cargando preguntas...</p>
+                <div className="loading-inline">
+                    <div className="loading-spinner"></div>
+                    <p>Cargando preguntas...</p>
+                </div>
             </div>
         );
     }
@@ -246,8 +249,11 @@ function PreguntasUnidad({ unidad, clase, volver }) {
         return (
             <div className="section">
                 <div className="section-header">
-                    <h2>❌ Error</h2>
-                    <button className="btn-volver" onClick={volver}>← Volver</button>
+                    <div className="section-header-simple">
+                        <h2>Error</h2>
+                        <p className="section-subtitle">No se pudieron cargar las preguntas</p>
+                    </div>
+                    <button className="btn-volver" onClick={volver}>Volver</button>
                 </div>
                 <p className="empty-message">{error}</p>
             </div>
@@ -260,10 +266,10 @@ function PreguntasUnidad({ unidad, clase, volver }) {
         return (
             <div className="resultado-container">
                 <div className={`resultado-card ${aprobado ? 'aprobado' : 'reprobado'}`}>
-                    <div className="resultado-icono">
-                        {aprobado ? '🎉' : '😢'}
+                    <div className={`resultado-icono ${aprobado ? 'icono-aprobado' : 'icono-reprobado'}`}>
+                        <span className="icono-simbolo">{aprobado ? '✓' : '×'}</span>
                     </div>
-                    <h2>{aprobado ? '¡Aprobado!' : 'No aprobado'}</h2>
+                    <h2>{aprobado ? 'Aprobado' : 'No aprobado'}</h2>
                     <p className="resultado-unidad">{unidad.nombreut}</p>
 
                     <div className="resultado-stats">
@@ -281,10 +287,10 @@ function PreguntasUnidad({ unidad, clase, volver }) {
 
                     <div className="resultado-acciones">
                         <button className="btn-reintentar" onClick={reintentar}>
-                            🔄 Reintentar
+                            Reintentar
                         </button>
                         <button className="btn-volver-clase" onClick={volver}>
-                            ← Volver a la clase
+                            Volver a la clase
                         </button>
                     </div>
                 </div>
@@ -311,16 +317,16 @@ function PreguntasUnidad({ unidad, clase, volver }) {
             <div className="preguntas-header">
                 <div className="preguntas-header-left">
                     <button className="btn-volver" onClick={volver}>
-                        ← Volver a la clase
+                        Volver a la clase
                     </button>
-                    <h2>📝 {unidad.nombreut}</h2>
+                    <h2>{unidad.nombreut}</h2>
                     <p className="preguntas-subtitulo">
                         {clase?.nombrec} · {clase?.asignatura} · {clase?.grado}
                     </p>
                 </div>
 
                 <div className={`preguntas-timer ${tiempoRestante <= 5 ? 'peligro' : ''}`}>
-                    <span className="timer-label">⏱ Tiempo</span>
+                    <span className="timer-label">Tiempo</span>
                     <span className="timer-valor">{tiempoRestante}s</span>
                 </div>
             </div>
@@ -391,7 +397,7 @@ function PreguntasUnidad({ unidad, clase, volver }) {
                     return (
                         <button
                             key={op.id_opcion}
-                            className={`opcion-btn ${seleccionada ? 'seleccionada' : ''}`}
+                            className={`opcion-btn opcion-${i} ${seleccionada ? 'seleccionada' : ''}`}
                             onClick={() => manejarClickOpcion(op)}
                             disabled={bloqueado}
                         >
@@ -412,7 +418,7 @@ function PreguntasUnidad({ unidad, clase, volver }) {
                         onClick={enviarIntento}
                         disabled={enviando}
                     >
-                        {enviando ? 'Enviando...' : '📤 Enviar intento'}
+                        {enviando ? 'Enviando...' : 'Enviar intento'}
                     </button>
                 </div>
             )}
