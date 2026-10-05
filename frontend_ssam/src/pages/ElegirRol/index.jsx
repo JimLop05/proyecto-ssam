@@ -1,3 +1,4 @@
+// frontend_ssam/src/pages/ElegirRol/index.jsx
 // ============================================================
 // PÁGINA DE ELECCIÓN DE ROL
 // El usuario elige si registrarse como Estudiante o Maestro

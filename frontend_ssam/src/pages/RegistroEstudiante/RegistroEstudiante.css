@@ -1,100 +1,84 @@
-/* frontend_ssam/src/pages/Login/Login.css
+/* frontend_ssam/src/pages/RegistroEstudiante/RegistroEstudiante.css
    ============================================================
-   Estilos del Login — Sistema de diseño SSAM
+   Estilos del formulario de registro de Estudiante
    ============================================================ */
 
 @import '../../styles/theme.css';
 
 /* ==================== BASE ==================== */
-.login-page {
+.re-page {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: var(--space-8) var(--space-4);
-  background:
-    linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-alt) 100%);
   font-family: var(--font-sans);
   position: relative;
-  overflow: hidden;
-}
-
-/* Decoración radial sutil (parecido al Hero de la Landing) */
-.login-page::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.35) 0%, transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(16, 185, 129, 0.25) 0%, transparent 45%);
-  pointer-events: none;
 }
 
 /* ==================== BOTÓN VOLVER ==================== */
-.login-back {
+.re-back {
   position: absolute;
   top: var(--space-6);
   left: var(--space-6);
-  z-index: 2;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: var(--color-ink-inverse);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-ink-muted);
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
   padding: 8px 16px;
   border-radius: var(--radius-md);
   cursor: pointer;
-  backdrop-filter: blur(6px);
   transition: all var(--transition-fast);
 }
-
-.login-back:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.5);
+.re-back:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
   transform: translateX(-2px);
 }
 
 /* ==================== CARD ==================== */
-.login-card {
-  position: relative;
-  z-index: 1;
+.re-card {
   background: var(--color-surface);
   border-radius: var(--radius-xl);
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
   padding: var(--space-10);
+  max-width: 720px;
   width: 100%;
-  max-width: 440px;
+}
+
+.re-card--success {
+  text-align: center;
+  max-width: 480px;
+  padding: var(--space-12) var(--space-8);
 }
 
 /* ==================== HEADER ==================== */
-.login-header {
+.re-header {
   text-align: center;
   margin-bottom: var(--space-8);
 }
 
-.login-logo-wrapper {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto var(--space-5);
+.re-header-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-4);
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--color-primary-light);
+  color: var(--color-primary);
   border-radius: var(--radius-lg);
-  padding: var(--space-2);
 }
 
-.login-logo {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-.login-title {
+.re-title {
   font-size: 26px;
   font-weight: 800;
   color: var(--color-ink);
@@ -102,64 +86,78 @@
   letter-spacing: -0.3px;
 }
 
-.login-subtitle {
+.re-subtitle {
   font-size: 15px;
   color: var(--color-ink-muted);
   line-height: 1.5;
 }
 
 /* ==================== ALERTAS ==================== */
-.login-alert {
+.re-alert {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
-  background: var(--color-danger-light);
-  color: var(--color-danger);
-  border: 1px solid rgba(239, 68, 68, 0.2);
   font-size: 14px;
   font-weight: 500;
   margin-bottom: var(--space-5);
 }
 
+.re-alert--error {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
 /* ==================== FORM ==================== */
-.login-form {
+.re-form {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
 }
 
-.login-field {
+.re-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.re-field {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
-.login-label {
+.re-label {
   font-size: 13px;
   font-weight: 600;
   color: var(--color-ink);
   letter-spacing: 0.2px;
 }
 
+.re-label-optional {
+  color: var(--color-ink-soft);
+  font-weight: 400;
+  font-size: 12px;
+}
+
 /* ==================== INPUTS ==================== */
-.login-input-wrapper {
+.re-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.login-input-icon {
+.re-input-icon {
   position: absolute;
   left: 14px;
   color: var(--color-ink-soft);
   pointer-events: none;
   transition: color var(--transition-fast);
-  z-index: 1;
 }
 
-.login-input {
+.re-input {
   width: 100%;
   padding: 12px 14px 12px 42px;
   font-family: inherit;
@@ -172,63 +170,34 @@
   transition: all var(--transition-fast);
 }
 
-.login-input::placeholder {
+.re-input--standalone {
+  padding-left: 14px;
+}
+
+.re-input::placeholder {
   color: var(--color-ink-soft);
 }
 
-.login-input:hover {
+.re-input:hover {
   border-color: var(--color-ink-soft);
 }
 
-.login-input:focus {
+.re-input:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
 }
 
-.login-input-wrapper:focus-within .login-input-icon {
+.re-input-wrapper:focus-within .re-input-icon {
   color: var(--color-primary);
-}
-
-.login-input--with-toggle {
-  padding-right: 44px;
-}
-
-/* ==================== TOGGLE OJITO ==================== */
-.login-input-toggle {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  padding: 4px;
-  cursor: pointer;
-  color: var(--color-ink-soft);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
-  z-index: 2;
-}
-
-.login-input-toggle:hover {
-  color: var(--color-primary);
-  background: var(--color-primary-light);
-}
-
-.login-input-toggle:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
 }
 
 /* ==================== BOTÓN SUBMIT ==================== */
-.login-btn-submit {
+.re-btn-submit {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  background: var(--color-primary);
+  background: var(--color-accent);
   color: var(--color-ink-inverse);
   font-family: inherit;
   font-size: 16px;
@@ -241,124 +210,111 @@
   margin-top: var(--space-2);
 }
 
-.login-btn-submit:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-  box-shadow: var(--shadow-lg);
+.re-btn-submit:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+  box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
 
-.login-btn-submit:active:not(:disabled) {
+.re-btn-submit:active:not(:disabled) {
   transform: translateY(0);
 }
 
-.login-btn-submit:disabled {
+.re-btn-submit:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
 
-.login-btn-spinner {
-  animation: login-spin 1s linear infinite;
+.re-btn-spinner {
+  animation: re-spin 1s linear infinite;
 }
 
-@keyframes login-spin {
+@keyframes re-spin {
   to { transform: rotate(360deg); }
 }
 
-/* ==================== DIVISOR ==================== */
-.login-divider {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin: var(--space-6) 0;
-}
-
-.login-divider-line {
-  flex: 1;
-  height: 1px;
-  background: var(--color-border);
-}
-
-.login-divider-text {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-ink-soft);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-}
-
-/* ==================== REGISTRO HINT ==================== */
-.login-register-hint {
+/* ==================== FOOTER ==================== */
+.re-footer {
   text-align: center;
+  margin-top: var(--space-5);
   color: var(--color-ink-muted);
   font-size: 14px;
-  line-height: 1.5;
 }
 
-.login-register-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
+.re-link {
   color: var(--color-primary);
   font-weight: 700;
   text-decoration: none;
-  transition: all var(--transition-fast);
+  transition: color var(--transition-fast);
 }
 
-.login-register-link:hover {
+.re-link:hover {
   color: var(--color-primary-hover);
   text-decoration: underline;
 }
 
-.login-register-link:hover svg {
-  transform: translateX(2px);
+/* ==================== VISTA ÉXITO ==================== */
+.re-success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent-light);
+  color: var(--color-accent-hover);
+  border-radius: 50%;
 }
 
-.login-register-link svg {
-  transition: transform var(--transition-fast);
+.re-success-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-ink);
+  margin-bottom: var(--space-3);
 }
 
-/* ==================== FOOTER ==================== */
-.login-footer {
-  margin-top: var(--space-6);
-  padding-top: var(--space-5);
-  border-top: 1px solid var(--color-border);
-  text-align: center;
-}
-
-.login-footer p {
-  font-size: 12px;
-  color: var(--color-ink-soft);
+.re-success-text {
+  font-size: 15px;
+  color: var(--color-ink-muted);
+  margin-bottom: var(--space-2);
   line-height: 1.5;
+}
+
+.re-success-hint {
+  font-size: 14px;
+  color: var(--color-ink-soft);
+  margin-bottom: var(--space-6);
+}
+
+.re-success-spinner {
+  color: var(--color-primary);
+  animation: re-spin 1s linear infinite;
+  margin: 0 auto;
 }
 
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 640px) {
-  .login-page {
+  .re-page {
     padding: var(--space-6) var(--space-3);
-    align-items: flex-start;
+    justify-content: flex-start;
   }
 
-  .login-back {
+  .re-back {
     position: static;
     margin-bottom: var(--space-4);
     align-self: flex-start;
   }
 
-  .login-page {
-    flex-direction: column;
-  }
-
-  .login-card {
+  .re-card {
     padding: var(--space-6);
     border-radius: var(--radius-lg);
   }
 
-  .login-title {
-    font-size: 22px;
+  .re-row {
+    grid-template-columns: 1fr;
   }
 
-  .login-logo-wrapper {
-    width: 64px;
-    height: 64px;
+  .re-title {
+    font-size: 22px;
   }
 }

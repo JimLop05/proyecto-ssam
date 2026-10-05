@@ -1,0 +1,73 @@
+/* frontend_ssam/src/styles/theme.css
+   ============================================================
+   SISTEMA DE DISEÑO SSAM — Paleta institucional educativa
+   Variables globales reutilizables en todos los componentes
+   ============================================================ */
+
+:root {
+  /* ==================== COLORES ==================== */
+  /* Primario — Azul académico (60%) */
+  --color-primary:        #1E3A8A;
+  --color-primary-hover:  #1D4ED8;
+  --color-primary-dark:   #172554;
+  --color-primary-light:  #EFF6FF;
+  --color-primary-soft:   #DBEAFE;
+
+  /* Acento — Verde esmeralda (10%) */
+  --color-accent:         #10B981;
+  --color-accent-hover:   #059669;
+  --color-accent-light:   #D1FAE5;
+
+  /* Neutros — Fondo y tarjetas (30%) */
+  --color-bg:             #F8FAFC;
+  --color-bg-alt:         #F1F5F9;
+  --color-surface:        #FFFFFF;
+  --color-border:         #E2E8F0;
+
+  /* Texto */
+  --color-ink:            #0F172A;
+  --color-ink-muted:      #64748B;
+  --color-ink-soft:       #94A3B8;
+  --color-ink-inverse:    #FFFFFF;
+
+  /* Estados */
+  --color-warning:        #F59E0B;
+  --color-warning-light:  #FEF3C7;
+  --color-danger:         #EF4444;
+  --color-danger-light:   #FEE2E2;
+  --color-success:        #10B981;
+
+  /* ==================== TIPOGRAFÍA ==================== */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* ==================== ESPACIADO ==================== */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ==================== RADIOS ==================== */
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-xl:  20px;
+  --radius-full: 9999px;
+
+  /* ==================== SOMBRAS ==================== */
+  --shadow-sm:  0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md:  0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg:  0 10px 25px rgba(15, 23, 42, 0.10);
+  --shadow-xl:  0 20px 40px rgba(15, 23, 42, 0.12);
+
+  /* ==================== TRANSICIONES ==================== */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.25s ease;
+  --transition-slow: 0.4s ease;
+}

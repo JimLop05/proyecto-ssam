@@ -1,7 +1,32 @@
 // frontend_ssam/src/pages/DashboardMaestro/index.jsx
+// ============================================================
+// DASHBOARD DEL MAESTRO
+// Secciones: Perfil · Clases · Planificación
+// ============================================================
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+    User,
+    BookOpen,
+    ClipboardList,
+    Plus,
+    LogOut,
+    X,
+    ArrowLeft,
+    GraduationCap,
+    Users,
+    BarChart3,
+    Calendar,
+    Building2,
+    KeyRound,
+    Loader2,
+    AlertCircle,
+    CheckCircle2,
+    Settings,
+    School,
+} from 'lucide-react';
+import api from '../../api/axios';
 import './DashboardMaestro.css';
 import PlanificacionGestion from './PlanificacionGestion';
 import AdministrarEstudiantes from './AdministrarEstudiantes';
@@ -14,11 +39,11 @@ function DashboardMaestro() {
     const [loading, setLoading] = useState(false);
     const [mensaje, setMensaje] = useState('');
     const [clases, setClases] = useState([]);
-    const [showSubmenu, setShowSubmenu] = useState(false);
     const [showPlanificacion, setShowPlanificacion] = useState(false);
     const [administrarEstudiantes, setAdministrarEstudiantes] = useState(false);
-    
-    // Estado para los datos del formulario
+    const [claseSeleccionada, setClaseSeleccionada] = useState(null);
+    const [config, setConfig] = useState(null);
+
     const [formData, setFormData] = useState({
         nombreC: '',
         id_distrito: '',
@@ -28,17 +53,16 @@ function DashboardMaestro() {
         password_clase: '',
         turno: '',
         id_grado: '',
-        id_asig: ''
+        id_asig: '',
     });
 
-    // Estados para los selects
     const [grados, setGrados] = useState([]);
     const [asignaturas, setAsignaturas] = useState([]);
     const [distritos, setDistritos] = useState([]);
     const [unidadesEducativas, setUnidadesEducativas] = useState([]);
     const [unidadesFiltradas, setUnidadesFiltradas] = useState([]);
-    const [claseSeleccionada, setClaseSeleccionada] = useState(null);
 
+    // ========== EFECTOS INICIALES ==========
     useEffect(() => {
         const userData = JSON.parse(localStorage.getItem('user'));
         if (!userData) {
@@ -46,39 +70,49 @@ function DashboardMaestro() {
             return;
         }
         setUser(userData);
+        cargarConfig();
         cargarClases();
     }, [navigate]);
+
+    const cargarConfig = async () => {
+        try {
+            const res = await api.get('/config');
+            setConfig(res.data.data);
+        } catch (err) {
+            console.error('Error al cargar config:', err);
+        }
+    };
 
     const cargarClases = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/clases/mis-clases', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
+            const response = await fetch(
+                'http://localhost:5000/api/clases/mis-clases',
+                {
+                    headers: { Authorization: `Bearer ${token}` },
                 }
-            });
+            );
             const data = await response.json();
-            if (data.success) {
-                setClases(data.data);
-            }
+            if (data.success) setClases(data.data);
         } catch (error) {
             console.error('Error al cargar clases:', error);
         }
     };
 
-    // Cargar datos para el formulario
     const cargarDatosFormulario = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/clases/datos-formulario', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
+            const response = await fetch(
+                'http://localhost:5000/api/clases/datos-formulario',
+                {
+                    headers: { Authorization: `Bearer ${token}` },
                 }
-            });
+            );
             const data = await response.json();
             if (data.success) {
-                // Filtrar grados para mostrar solo id_grado = 6
-                const gradosFiltrados = data.data.grados.filter(g => g.id_grado === 6);
+                const gradosFiltrados = data.data.grados.filter(
+                    (g) => g.id_grado === 6
+                );
                 setGrados(gradosFiltrados);
                 setAsignaturas(data.data.asignaturas || []);
                 setDistritos(data.data.distritos || []);
@@ -90,41 +124,40 @@ function DashboardMaestro() {
         }
     };
 
+    // ========== HANDLERS ==========
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        navigate('/login');
+        navigate('/', { replace: true });
     };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
+        setFormData({ ...formData, [name]: value });
     };
 
-    // Filtrar UE cuando cambia el distrito
     const handleDistritoChange = (e) => {
         const id_distrito = e.target.value;
-        setFormData({
-            ...formData,
-            id_distrito: id_distrito,
-            id_ue: '' // Resetear UE
-        });
-        
+        setFormData({ ...formData, id_distrito, id_ue: '' });
+
         if (id_distrito) {
-            const filtradas = unidadesEducativas.filter(ue => ue.id_distrito === parseInt(id_distrito));
+            const filtradas = unidadesEducativas.filter(
+                (ue) => ue.id_distrito === parseInt(id_distrito)
+            );
             setUnidadesFiltradas(filtradas);
         } else {
             setUnidadesFiltradas(unidadesEducativas);
         }
     };
 
-    // Abrir modal y cargar datos
     const abrirModal = () => {
         setShowModal(true);
         cargarDatosFormulario();
+    };
+
+    const cerrarModal = () => {
+        setShowModal(false);
+        setMensaje('');
     };
 
     const handleSubmitClase = async (e) => {
@@ -134,7 +167,6 @@ function DashboardMaestro() {
 
         try {
             const token = localStorage.getItem('token');
-            
             const datosEnvio = {
                 nombreC: formData.nombreC,
                 id_ue: parseInt(formData.id_ue),
@@ -144,22 +176,25 @@ function DashboardMaestro() {
                 password_clase: formData.password_clase,
                 turno: formData.turno,
                 tipo_ue: formData.tipo_ue,
-                estado_clase: 'ACTIVA' // Se autocompleta
+                estado_clase: 'ACTIVA',
             };
 
-            const response = await fetch('http://localhost:5000/api/clases/crear', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(datosEnvio)
-            });
+            const response = await fetch(
+                'http://localhost:5000/api/clases/crear',
+                {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(datosEnvio),
+                }
+            );
 
             const data = await response.json();
 
             if (data.success) {
-                setMensaje('✅ Clase creada exitosamente!');
+                setMensaje('Clase creada exitosamente');
                 setFormData({
                     nombreC: '',
                     id_distrito: '',
@@ -169,289 +204,425 @@ function DashboardMaestro() {
                     password_clase: '',
                     turno: '',
                     id_grado: '',
-                    id_asig: ''
+                    id_asig: '',
                 });
                 setUnidadesFiltradas([]);
                 cargarClases();
                 setTimeout(() => {
                     setShowModal(false);
                     setMensaje('');
-                }, 2000);
+                }, 1800);
             } else {
-                setMensaje('❌ Error: ' + data.message);
+                setMensaje('Error: ' + data.message);
             }
         } catch (error) {
-            setMensaje('❌ Error al conectar con el servidor');
+            setMensaje('Error al conectar con el servidor');
         } finally {
             setLoading(false);
         }
     };
 
+    // ========== RENDER DE CONTENIDO ==========
     const renderContent = () => {
-        // Si estamos administrando estudiantes de una clase
         if (administrarEstudiantes && claseSeleccionada) {
-            return <AdministrarEstudiantes
-            clase={claseSeleccionada}
-            volver={() => setAdministrarEstudiantes(false)}
-        />;
-    }
-        // Si está en modo planificación, mostrar el componente de planificación
-        if (showPlanificacion) {
-            return <PlanificacionGestion 
-                user={user}
-                volver={() => setShowPlanificacion(false)}
-            />;
+            return (
+                <AdministrarEstudiantes
+                    clase={claseSeleccionada}
+                    volver={() => setAdministrarEstudiantes(false)}
+                />
+            );
         }
 
-        switch(activeSection) {
+        if (showPlanificacion) {
+            return (
+                <PlanificacionGestion
+                    user={user}
+                    volver={() => setShowPlanificacion(false)}
+                />
+            );
+        }
+
+        switch (activeSection) {
             case 'perfil':
                 return <MiPerfil user={user} />;
             case 'clases':
-                return <MisClases 
-                    user={user}
-                    clases={clases}
-                    setClaseSeleccionada={setClaseSeleccionada}
-                    setActiveSection={setActiveSection}
-                />;
+                return (
+                    <MisClases
+                        user={user}
+                        clases={clases}
+                        setClaseSeleccionada={setClaseSeleccionada}
+                        setActiveSection={setActiveSection}
+                    />
+                );
             case 'detalleClase':
-                return <DetalleClase 
-                    clase={claseSeleccionada}
-                    volver={() => {
-                        setClaseSeleccionada(null);
-                        setActiveSection('clases');
-                    }}
-                    onAdministrarEstudiantes={() => setAdministrarEstudiantes(true)}
-                />;
+                return (
+                    <DetalleClase
+                        clase={claseSeleccionada}
+                        volver={() => {
+                            setClaseSeleccionada(null);
+                            setActiveSection('clases');
+                        }}
+                        onAdministrarEstudiantes={() =>
+                            setAdministrarEstudiantes(true)
+                        }
+                    />
+                );
             case 'planificacion':
-                return <MiPlanificacion 
-                    onPlanificar={() => setShowPlanificacion(true)}
-                />;
+                return (
+                    <MiPlanificacion
+                        onPlanificar={() => setShowPlanificacion(true)}
+                    />
+                );
             default:
                 return <MiPerfil user={user} />;
         }
     };
 
+    // ========== NOMBRE DEL SISTEMA ==========
+    const systemName = config?.nombre_plataforma || 'SSAM';
+    const logoSrc = config?.logo_url || '/LogoSSAM.png';
+
     return (
-        <div className="dashboard-container">
-            <header className="dashboard-header">
-                <div className="header-left">
-                    <img src="/LogoSSAM.png" alt="SSAM" className="logo" />
-                    <h1>Dashboard Maestro</h1>
+        <div className="dm-container">
+            {/* ==================== HEADER ==================== */}
+            <header className="dm-header">
+                <div className="dm-header__left">
+                    <img
+                        src={logoSrc}
+                        alt="Logo"
+                        className="dm-header__logo"
+                        onError={(e) => {
+                            e.target.src = '/LogoSSAM.png';
+                        }}
+                    />
+                    <div className="dm-header__titles">
+                        <h1 className="dm-header__title">{systemName}</h1>
+                        <p className="dm-header__subtitle">Panel del Maestro</p>
+                    </div>
                 </div>
-                <div className="header-right">
-                    <span className="user-name">{user?.nombre} {user?.apellido1}</span>
-                    <button className="btn-crear-clase-header" onClick={abrirModal}>
-                        + Crear Clase
+
+                <div className="dm-header__right">
+                    <button
+                        className="dm-btn dm-btn--primary"
+                        onClick={abrirModal}
+                    >
+                        <Plus size={16} />
+                        Crear Clase
                     </button>
-                    <button onClick={handleLogout} className="btn-logout">
-                        Cerrar Sesión
+
+                    <div className="dm-user-chip">
+                        <div className="dm-user-chip__avatar">
+                            {user?.nombre?.[0]}
+                            {user?.apellido1?.[0]}
+                        </div>
+                        <div className="dm-user-chip__info">
+                            <span className="dm-user-chip__name">
+                                {user?.nombre} {user?.apellido1}
+                            </span>
+                            <span className="dm-user-chip__role">
+                                Docente
+                            </span>
+                        </div>
+                    </div>
+
+                    <button
+                        className="dm-btn dm-btn--ghost"
+                        onClick={handleLogout}
+                        title="Cerrar sesión"
+                    >
+                        <LogOut size={16} />
+                        Salir
                     </button>
                 </div>
             </header>
 
-            <div className="dashboard-body">
-                <aside className="sidebar">
-                    <nav className="sidebar-nav">
-                        <button 
-                            className={`sidebar-item ${activeSection === 'perfil' ? 'active' : ''}`}
+            {/* ==================== BODY ==================== */}
+            <div className="dm-body">
+                {/* Sidebar */}
+                <aside className="dm-sidebar">
+                    <nav className="dm-sidebar__nav">
+                        <button
+                            className={`dm-sidebar__item ${
+                                activeSection === 'perfil' ? 'is-active' : ''
+                            }`}
                             onClick={() => setActiveSection('perfil')}
                         >
-                            👤 Mi Perfil
+                            <User size={18} />
+                            Mi Perfil
                         </button>
-                        <button 
-                            className={`sidebar-item ${activeSection === 'clases' ? 'active' : ''}`}
-                            onClick={() => {
-                                setActiveSection('clases');
-                                setShowSubmenu(!showSubmenu);
-                            }}
+
+                        <button
+                            className={`dm-sidebar__item ${
+                                activeSection === 'clases' ? 'is-active' : ''
+                            }`}
+                            onClick={() => setActiveSection('clases')}
                         >
-                            📚 Mis Clases {showSubmenu && activeSection === 'clases' ? '▼' : '▶'}
+                            <BookOpen size={18} />
+                            Mis Clases
+                            {clases.length > 0 && (
+                                <span className="dm-sidebar__badge">
+                                    {clases.length}
+                                </span>
+                            )}
                         </button>
-                        {showSubmenu && activeSection === 'clases' && (
-                            <div className="submenu">
-                                {clases.length > 0 ? (
-                                    clases.map(clase => (
-                                        <button key={clase.id_clase} className="submenu-item">
-                                            📖 {clase.nombrec}
-                                        </button>
-                                    ))
-                                ) : (
-                                    <p className="submenu-empty">No tienes clases creadas</p>
-                                )}
-                            </div>
-                        )}
-                        <button 
-                            className={`sidebar-item ${activeSection === 'planificacion' ? 'active' : ''}`}
+
+                        <button
+                            className={`dm-sidebar__item ${
+                                activeSection === 'planificacion'
+                                    ? 'is-active'
+                                    : ''
+                            }`}
                             onClick={() => setActiveSection('planificacion')}
                         >
-                            📋 Mi Planificación
+                            <ClipboardList size={18} />
+                            Mi Planificación
                         </button>
                     </nav>
+
+                    <div className="dm-sidebar__footer">
+                        <p className="dm-sidebar__hint">
+                            Sistema de Seguimiento Académico
+                        </p>
+                    </div>
                 </aside>
 
-                <main className="main-content">
-                    {renderContent()}
-                </main>
+                {/* Main */}
+                <main className="dm-main">{renderContent()}</main>
             </div>
 
-            {/* ===== MODAL ===== */}
+            {/* ==================== MODAL CREAR CLASE ==================== */}
             {showModal && (
-                <div className="modal-overlay" onClick={() => setShowModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3>📝 Crear Nueva Clase</h3>
-                            <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
+                <div className="dm-modal" onClick={cerrarModal}>
+                    <div
+                        className="dm-modal__content"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="dm-modal__header">
+                            <div>
+                                <h3 className="dm-modal__title">
+                                    Crear Nueva Clase
+                                </h3>
+                                <p className="dm-modal__subtitle">
+                                    Completa los datos para crear una clase
+                                </p>
+                            </div>
+                            <button
+                                className="dm-modal__close"
+                                onClick={cerrarModal}
+                                type="button"
+                                aria-label="Cerrar"
+                            >
+                                <X size={20} />
+                            </button>
                         </div>
 
-                        <form onSubmit={handleSubmitClase}>
-                            <div className="form-group">
-                                <label>Nombre de la Clase *</label>
+                        <form
+                            onSubmit={handleSubmitClase}
+                            className="dm-modal__form"
+                        >
+                            <div className="dm-field">
+                                <label className="dm-label">
+                                    Nombre de la Clase *
+                                </label>
                                 <input
                                     type="text"
                                     name="nombreC"
                                     value={formData.nombreC}
                                     onChange={handleInputChange}
                                     placeholder="Ej: Matemáticas 5to A"
+                                    className="dm-input"
                                     required
                                 />
                             </div>
 
-                            <div className="form-group">
-                                <label>Distrito *</label>
-                                <select
-                                    name="id_distrito"
-                                    value={formData.id_distrito || ''}
-                                    onChange={handleDistritoChange}
-                                    required
-                                    className="select-custom"
-                                >
-                                    <option value="">Seleccionar Distrito</option>
-                                    {distritos.map(d => (
-                                        <option key={d.id_distrito} value={d.id_distrito}>
-                                            {d.nombred}
+                            <div className="dm-row">
+                                <div className="dm-field">
+                                    <label className="dm-label">
+                                        Distrito *
+                                    </label>
+                                    <select
+                                        name="id_distrito"
+                                        value={formData.id_distrito || ''}
+                                        onChange={handleDistritoChange}
+                                        className="dm-input dm-select"
+                                        required
+                                    >
+                                        <option value="">
+                                            Seleccionar Distrito
                                         </option>
-                                    ))}
-                                </select>
-                            </div>
+                                        {distritos.map((d) => (
+                                            <option
+                                                key={d.id_distrito}
+                                                value={d.id_distrito}
+                                            >
+                                                {d.nombred}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
 
-                            <div className="form-group">
-                                <label>Unidad Educativa *</label>
-                                <select
-                                    name="id_ue"
-                                    value={formData.id_ue}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="select-custom"
-                                >
-                                    <option value="">Seleccionar UE</option>
-                                    {unidadesFiltradas.map(ue => (
-                                        <option key={ue.id_ue} value={ue.id_ue}>
-                                            {ue.nombre}
+                                <div className="dm-field">
+                                    <label className="dm-label">
+                                        Unidad Educativa *
+                                    </label>
+                                    <select
+                                        name="id_ue"
+                                        value={formData.id_ue}
+                                        onChange={handleInputChange}
+                                        className="dm-input dm-select"
+                                        required
+                                    >
+                                        <option value="">
+                                            Seleccionar UE
                                         </option>
-                                    ))}
-                                </select>
-                                {unidadesFiltradas.length === 0 && formData.id_distrito && (
-                                    <p style={{ color: '#dc3545', fontSize: '13px', marginTop: '5px' }}>
-                                        No hay Unidades Educativas en este distrito
-                                    </p>
-                                )}
+                                        {unidadesFiltradas.map((ue) => (
+                                            <option
+                                                key={ue.id_ue}
+                                                value={ue.id_ue}
+                                            >
+                                                {ue.nombre}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {unidadesFiltradas.length === 0 &&
+                                        formData.id_distrito && (
+                                            <p className="dm-hint dm-hint--error">
+                                                No hay Unidades Educativas en
+                                                este distrito
+                                            </p>
+                                        )}
+                                </div>
                             </div>
 
-                            <div className="form-group">
-                                <label>Tipo de Unidad Educativa *</label>
-                                <select
-                                    name="tipo_ue"
-                                    value={formData.tipo_ue}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="select-custom"
-                                >
-                                    <option value="">Seleccionar Tipo</option>
-                                    <option value="Fiscal">Fiscal</option>
-                                    <option value="Privada">Privada</option>
-                                    <option value="Convenio">Convenio</option>
-                                </select>
+                            <div className="dm-row">
+                                <div className="dm-field">
+                                    <label className="dm-label">
+                                        Tipo de UE *
+                                    </label>
+                                    <select
+                                        name="tipo_ue"
+                                        value={formData.tipo_ue}
+                                        onChange={handleInputChange}
+                                        className="dm-input dm-select"
+                                        required
+                                    >
+                                        <option value="">
+                                            Seleccionar Tipo
+                                        </option>
+                                        <option value="Fiscal">Fiscal</option>
+                                        <option value="Privada">
+                                            Privada
+                                        </option>
+                                        <option value="Convenio">
+                                            Convenio
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div className="dm-field">
+                                    <label className="dm-label">
+                                        Turno *
+                                    </label>
+                                    <select
+                                        name="turno"
+                                        value={formData.turno}
+                                        onChange={handleInputChange}
+                                        className="dm-input dm-select"
+                                        required
+                                    >
+                                        <option value="">
+                                            Seleccionar Turno
+                                        </option>
+                                        <option value="Mañana">Mañana</option>
+                                        <option value="Tarde">Tarde</option>
+                                        <option value="Noche">Noche</option>
+                                    </select>
+                                </div>
                             </div>
 
-                            <div className="form-row">
-                               <div className="form-group">
-                                <label>Número de Estudiantes *</label>
-                                <input
-                                    type="number"
-                                    name="numEst"
-                                    value={formData.numEst}
-                                    onChange={handleInputChange}
-                                    placeholder="Ej: 25"
-                                    min="1"
-                                    required
-                                />
-                                {formData.id_ue && (
-                                    <p style={{ fontSize: '12px', color: '#6c757d', marginTop: '4px' }}>
-                                        Capacidad máxima de la UE: {unidadesFiltradas.find(ue => ue.id_ue === parseInt(formData.id_ue))?.num_est || 'N/A'} estudiantes
-                                    </p>
-                                )}
-                            </div>
+                            <div className="dm-row">
+                                <div className="dm-field">
+                                    <label className="dm-label">
+                                        Número de Estudiantes *
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="numEst"
+                                        value={formData.numEst}
+                                        onChange={handleInputChange}
+                                        placeholder="Ej: 25"
+                                        min="1"
+                                        className="dm-input"
+                                        required
+                                    />
+                                    {formData.id_ue && (
+                                        <p className="dm-hint">
+                                            Capacidad máxima:{' '}
+                                            {unidadesFiltradas.find(
+                                                (ue) =>
+                                                    ue.id_ue ===
+                                                    parseInt(formData.id_ue)
+                                            )?.num_est || 'N/A'}{' '}
+                                            estudiantes
+                                        </p>
+                                    )}
+                                </div>
 
-                                <div className="form-group">
-                                    <label>Contraseña de la Clase *</label>
+                                <div className="dm-field">
+                                    <label className="dm-label">
+                                        Contraseña de la Clase *
+                                    </label>
                                     <input
                                         type="text"
                                         name="password_clase"
                                         value={formData.password_clase}
                                         onChange={handleInputChange}
                                         placeholder="Ej: 123456"
+                                        className="dm-input"
                                         required
                                     />
                                 </div>
                             </div>
 
-                            <div className="form-group">
-                                <label>Turno *</label>
-                                <select
-                                    name="turno"
-                                    value={formData.turno}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="select-custom"
-                                >
-                                    <option value="">Seleccionar Turno</option>
-                                    <option value="Mañana">Mañana</option>
-                                    <option value="Tarde">Tarde</option>
-                                    <option value="Noche">Noche</option>
-                                </select>
-                            </div>
-
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>Grado *</label>
+                            <div className="dm-row">
+                                <div className="dm-field">
+                                    <label className="dm-label">Grado *</label>
                                     <select
                                         name="id_grado"
                                         value={formData.id_grado}
                                         onChange={handleInputChange}
+                                        className="dm-input dm-select"
                                         required
-                                        className="select-custom"
                                     >
                                         <option value="">Seleccionar</option>
-                                        {grados.map(g => (
-                                            <option key={g.id_grado} value={g.id_grado}>
+                                        {grados.map((g) => (
+                                            <option
+                                                key={g.id_grado}
+                                                value={g.id_grado}
+                                            >
                                                 {g.titulog}
                                             </option>
                                         ))}
                                     </select>
                                 </div>
 
-                                <div className="form-group">
-                                    <label>Asignatura *</label>
+                                <div className="dm-field">
+                                    <label className="dm-label">
+                                        Asignatura *
+                                    </label>
                                     <select
                                         name="id_asig"
                                         value={formData.id_asig}
                                         onChange={handleInputChange}
+                                        className="dm-input dm-select"
                                         required
-                                        className="select-custom"
                                     >
                                         <option value="">Seleccionar</option>
-                                        {asignaturas.map(a => (
-                                            <option key={a.id_asig} value={a.id_asig}>
+                                        {asignaturas.map((a) => (
+                                            <option
+                                                key={a.id_asig}
+                                                value={a.id_asig}
+                                            >
                                                 {a.nombrea}
                                             </option>
                                         ))}
@@ -460,17 +631,49 @@ function DashboardMaestro() {
                             </div>
 
                             {mensaje && (
-                                <div className={`mensaje ${mensaje.includes('✅') ? 'mensaje-exito' : 'mensaje-error'}`}>
-                                    {mensaje}
+                                <div
+                                    className={`dm-alert ${
+                                        mensaje.includes('exitosamente')
+                                            ? 'dm-alert--success'
+                                            : 'dm-alert--error'
+                                    }`}
+                                >
+                                    {mensaje.includes('exitosamente') ? (
+                                        <CheckCircle2 size={16} />
+                                    ) : (
+                                        <AlertCircle size={16} />
+                                    )}
+                                    <span>{mensaje}</span>
                                 </div>
                             )}
 
-                            <div className="form-actions">
-                                <button type="button" className="btn-cancelar" onClick={() => setShowModal(false)}>
+                            <div className="dm-modal__actions">
+                                <button
+                                    type="button"
+                                    className="dm-btn dm-btn--ghost"
+                                    onClick={cerrarModal}
+                                >
                                     Cancelar
                                 </button>
-                                <button type="submit" className="btn-guardar" disabled={loading}>
-                                    {loading ? 'Creando...' : 'Crear Clase'}
+                                <button
+                                    type="submit"
+                                    className="dm-btn dm-btn--primary"
+                                    disabled={loading}
+                                >
+                                    {loading ? (
+                                        <>
+                                            <Loader2
+                                                className="dm-spin"
+                                                size={16}
+                                            />
+                                            Creando...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Plus size={16} />
+                                            Crear Clase
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </form>
@@ -482,188 +685,264 @@ function DashboardMaestro() {
 }
 
 // ============================================================
-// COMPONENTES DE SECCIONES
+// SECCIONES
 // ============================================================
 
 function MiPerfil({ user }) {
     return (
-        <div className="section">
-            <h2>👤 Mi Perfil</h2>
-            <div className="profile-card">
-                <p><strong>Nombre:</strong> {user?.nombre} {user?.apellido1} {user?.apellido2 || ''}</p>
-                <p><strong>Username:</strong> {user?.username}</p>
-                <p><strong>Email:</strong> {user?.email}</p>
-                <p><strong>Rol:</strong> {user?.rol}</p>
-                <p><strong>Departamento:</strong> {user?.departamento || 'No asignado'}</p>
+        <div className="dm-section">
+            <header className="dm-section__head">
+                <div className="dm-section__icon">
+                    <User size={22} />
+                </div>
+                <div>
+                    <h2 className="dm-section__title">Mi Perfil</h2>
+                    <p className="dm-section__subtitle">
+                        Información de tu cuenta
+                    </p>
+                </div>
+            </header>
+
+            <div className="dm-profile-card">
+                <div className="dm-profile-card__avatar">
+                    {user?.nombre?.[0]}
+                    {user?.apellido1?.[0]}
+                </div>
+                <div className="dm-profile-card__info">
+                    <p className="dm-profile-card__name">
+                        {user?.nombre} {user?.apellido1}{' '}
+                        {user?.apellido2 || ''}
+                    </p>
+                    <p className="dm-profile-card__role">Docente</p>
+                </div>
+            </div>
+
+            <div className="dm-info-grid">
+                <div className="dm-info-item">
+                    <span className="dm-info-item__label">Usuario</span>
+                    <span className="dm-info-item__value">
+                        {user?.username}
+                    </span>
+                </div>
+                <div className="dm-info-item">
+                    <span className="dm-info-item__label">
+                        Correo Electrónico
+                    </span>
+                    <span className="dm-info-item__value">{user?.email}</span>
+                </div>
+                <div className="dm-info-item">
+                    <span className="dm-info-item__label">Rol</span>
+                    <span className="dm-info-item__value">
+                        {user?.rol}
+                    </span>
+                </div>
+                <div className="dm-info-item">
+                    <span className="dm-info-item__label">Departamento</span>
+                    <span className="dm-info-item__value">
+                        {user?.departamento || 'No asignado'}
+                    </span>
+                </div>
             </div>
         </div>
     );
 }
 
-function MisClases({ user, clases, setClaseSeleccionada, setActiveSection }) {
+function MisClases({ clases, setClaseSeleccionada, setActiveSection }) {
     const handleVerClase = (clase) => {
         setClaseSeleccionada(clase);
         setActiveSection('detalleClase');
     };
 
     return (
-        <div className="section">
-            <div className="section-header">
-                <h2>📚 Mis Clases</h2>
-            </div>
-            
+        <div className="dm-section">
+            <header className="dm-section__head">
+                <div className="dm-section__icon">
+                    <BookOpen size={22} />
+                </div>
+                <div>
+                    <h2 className="dm-section__title">Mis Clases</h2>
+                    <p className="dm-section__subtitle">
+                        {clases.length}{' '}
+                        {clases.length === 1 ? 'clase creada' : 'clases creadas'}
+                    </p>
+                </div>
+            </header>
+
             {clases.length > 0 ? (
-                <div className="clases-grid">
-                    {clases.map(clase => (
-                        <div key={clase.id_clase} className="clase-card" onClick={() => handleVerClase(clase)}>
-                            <h3>{clase.nombrec}</h3>
-                            <p><strong>Código:</strong> {clase.id_clase}</p>
-                            <p><strong>Estudiantes:</strong> {clase.numest || 0}</p>
-                            <p><strong>Estado:</strong> {clase.estado_clase}</p>
-                            <p><strong>Turno:</strong> {clase.turno || 'No especificado'}</p>
-                            <button className="btn-ver-clase">Ver Detalles →</button>
-                        </div>
+                <div className="dm-clases-grid">
+                    {clases.map((clase) => (
+                        <button
+                            key={clase.id_clase}
+                            className="dm-clase-card"
+                            onClick={() => handleVerClase(clase)}
+                        >
+                            <div className="dm-clase-card__head">
+                                <h3 className="dm-clase-card__title">
+                                    {clase.nombrec}
+                                </h3>
+                                <span
+                                    className={`dm-badge dm-badge--${(clase.estado_clase || '').toLowerCase()}`}
+                                >
+                                    {clase.estado_clase}
+                                </span>
+                            </div>
+
+                            <div className="dm-clase-card__stats">
+                                <div className="dm-stat">
+                                    <Users size={14} />
+                                    <span>{clase.numest || 0} est.</span>
+                                </div>
+                                <div className="dm-stat">
+                                    <Calendar size={14} />
+                                    <span>
+                                        {clase.turno || 'Sin turno'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="dm-clase-card__footer">
+                                <span className="dm-clase-card__cta">
+                                    Ver detalles
+                                </span>
+                            </div>
+                        </button>
                     ))}
                 </div>
             ) : (
-                <p style={{ color: '#6c757d', fontStyle: 'italic' }}>
-                    No tienes clases creadas aún. Haz clic en "Crear Clase" en el header.
-                </p>
+                <div className="dm-empty">
+                    <BookOpen size={40} className="dm-empty__icon" />
+                    <p className="dm-empty__title">Sin clases creadas</p>
+                    <p className="dm-empty__text">
+                        Haz clic en "Crear Clase" para comenzar
+                    </p>
+                </div>
             )}
         </div>
     );
 }
 
 function MiPlanificacion({ onPlanificar }) {
+    const beneficios = [
+        { icon: CheckCircle2, text: 'Planifica por trimestres y semanas' },
+        { icon: BookOpen, text: 'Asigna unidades temáticas a cada semana' },
+        { icon: BarChart3, text: 'Visualiza el avance de tu planificación' },
+        { icon: ClipboardList, text: 'Clona planificaciones anteriores' },
+    ];
+
     return (
-        <div className="section planificacion-bienvenida">
-            <div className="planificacion-hero" style={{
-                backgroundImage: 'url(https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1000&h=500&fit=crop)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                position: 'relative'
-            }}>
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.85) 100%)',
-                    borderRadius: '20px'
-                }}></div>
-
-                <div style={{ position: 'relative', zIndex: 1 }}>
-                    <div className="hero-icon">📋</div>
-                    <h2>¡Bienvenido a tu Planificación Académica!</h2>
-                    <p className="hero-subtitle">
-                        Organiza tus clases, distribuye los contenidos por semanas 
-                        y mantén un seguimiento claro de tu enseñanza.
-                    </p>
-                    
-                    <div className="hero-beneficios">
-                        <div className="beneficio-item">
-                            <span className="beneficio-icon">✅</span>
-                            <p>Planifica por trimestres y semanas</p>
-                        </div>
-                        <div className="beneficio-item">
-                            <span className="beneficio-icon">📚</span>
-                            <p>Asigna unidades temáticas a cada semana</p>
-                        </div>
-                        <div className="beneficio-item">
-                            <span className="beneficio-icon">📊</span>
-                            <p>Visualiza el avance de tu planificación</p>
-                        </div>
-                        <div className="beneficio-item">
-                            <span className="beneficio-icon">🔄</span>
-                            <p>Clona planificaciones de años anteriores</p>
-                        </div>
-                    </div>
-
-                    <button 
-                        className="btn-planificar-gestion"
-                        onClick={onPlanificar}
-                    >
-                        🚀 PLANIFICAR GESTIÓN
-                    </button>
-                    
-                    <p className="hero-footer">
-                        ⏱️ Organiza tu año académico de manera eficiente
-                    </p>
+        <div className="dm-section">
+            <div className="dm-planning-hero">
+                <div className="dm-planning-hero__icon">
+                    <ClipboardList size={36} />
                 </div>
+                <h2 className="dm-planning-hero__title">
+                    Planificación Académica
+                </h2>
+                <p className="dm-planning-hero__subtitle">
+                    Organiza tus clases, distribuye los contenidos por semanas
+                    y mantén un seguimiento claro de tu enseñanza.
+                </p>
+
+                <div className="dm-planning-benefits">
+                    {beneficios.map(({ icon: Icon, text }) => (
+                        <div key={text} className="dm-benefit">
+                            <Icon size={18} />
+                            <span>{text}</span>
+                        </div>
+                    ))}
+                </div>
+
+                <button
+                    className="dm-btn dm-btn--primary dm-btn--lg"
+                    onClick={onPlanificar}
+                >
+                    <ClipboardList size={18} />
+                    Comenzar Planificación
+                </button>
             </div>
         </div>
     );
 }
 
 function DetalleClase({ clase, volver, onAdministrarEstudiantes }) {
+    if (!clase) return null;
+
+    const items = [
+        { label: 'Código de Clase', value: clase.id_clase, icon: KeyRound },
+        {
+            label: 'Número de Estudiantes',
+            value: clase.numest || 0,
+            icon: Users,
+        },
+        {
+            label: 'Contraseña de Acceso',
+            value: clase.password_clase || 'No definida',
+            icon: KeyRound,
+        },
+        { label: 'Turno', value: clase.turno || 'No especificado', icon: Calendar },
+        {
+            label: 'Unidad Educativa',
+            value: clase.nombre_ue || 'No asignada',
+            icon: Building2,
+        },
+        { label: 'Grado', value: clase.nombre_grado || 'No asignado', icon: School },
+        {
+            label: 'Asignatura',
+            value: clase.nombre_asignatura || 'No asignada',
+            icon: BookOpen,
+        },
+    ];
+
     return (
-        <div className="section">
-            <div className="section-header">
-                <h2>📖 Detalle de la Clase</h2>
-                <button className="btn-volver" onClick={volver}>
-                    ← Volver a Mis Clases
-                </button>
+        <div className="dm-section">
+            <button className="dm-btn dm-btn--ghost" onClick={volver}>
+                <ArrowLeft size={16} />
+                Volver a Mis Clases
+            </button>
+
+            <header className="dm-detail-header">
+                <div className="dm-section__icon">
+                    <BookOpen size={22} />
+                </div>
+                <div>
+                    <h2 className="dm-section__title">{clase.nombrec}</h2>
+                    <p className="dm-section__subtitle">Detalle de la clase</p>
+                </div>
+                <span
+                    className={`dm-badge dm-badge--${(clase.estado_clase || '').toLowerCase()}`}
+                >
+                    {clase.estado_clase}
+                </span>
+            </header>
+
+            <div className="dm-info-grid dm-info-grid--wide">
+                {items.map(({ label, value, icon: Icon }) => (
+                    <div key={label} className="dm-info-item">
+                        <div className="dm-info-item__head">
+                            <Icon size={14} />
+                            <span className="dm-info-item__label">{label}</span>
+                        </div>
+                        <span className="dm-info-item__value">{value}</span>
+                    </div>
+                ))}
             </div>
 
-            {clase && (
-                <div className="detalle-clase">
-                    <div className="detalle-header">
-                        <h3>{clase.nombrec}</h3>
-                        <span className={`estado-badge ${clase.estado_clase.toLowerCase()}`}>
-                            {clase.estado_clase}
-                        </span>
-                    </div>
-
-                    <div className="detalle-grid">
-                        <div className="detalle-item">
-                            <label>Código de Clase</label>
-                            <p>{clase.id_clase}</p>
-                        </div>
-                        <div className="detalle-item">
-                            <label>Número de Estudiantes</label>
-                            <p>{clase.numest || 0}</p>
-                        </div>
-                        <div className="detalle-item">
-                            <label>Contraseña de Acceso</label>
-                            <p>{clase.password_clase || 'No definida'}</p>
-                        </div>
-                        <div className="detalle-item">
-                            <label>Período</label>
-                            <p>{clase.periodo || 'No definido'}</p>
-                        </div>
-                        <div className="detalle-item">
-                            <label>Turno</label>
-                            <p>{clase.turno || 'No especificado'}</p>
-                        </div>
-                        <div className="detalle-item">
-                            <label>Unidad Educativa</label>
-                            <p>{clase.nombre_ue || 'No asignada'}</p>
-                        </div>
-                        <div className="detalle-item">
-                            <label>Grado</label>
-                            <p>{clase.nombre_grado || 'No asignado'}</p>
-                        </div>
-                        <div className="detalle-item">
-                            <label>Asignatura</label>
-                            <p>{clase.nombre_asignatura || 'No asignada'}</p>
-                        </div>
-                    </div>
-
-                    <div className="detalle-acciones">
-                        <h4>Acciones</h4>
-                        <div className="acciones-botones">
-                            <button 
-                                className="btn-accion"
-                                onClick={onAdministrarEstudiantes}
-                            >
-                                👨‍🎓 Ver Estudiantes
-                            </button>
-                            <button className="btn-accion">📊 Ver Estadísticas</button>
-                        </div>
-                    </div>
+            <div className="dm-detail-actions">
+                <h4 className="dm-detail-actions__title">Acciones</h4>
+                <div className="dm-detail-actions__buttons">
+                    <button
+                        className="dm-btn dm-btn--primary"
+                        onClick={onAdministrarEstudiantes}
+                    >
+                        <GraduationCap size={16} />
+                        Ver Estudiantes
+                    </button>
+                    <button className="dm-btn dm-btn--ghost">
+                        <BarChart3 size={16} />
+                        Ver Estadísticas
+                    </button>
                 </div>
-            )}
+            </div>
         </div>
     );
 }

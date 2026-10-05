@@ -1,784 +1,958 @@
-/* ============================================================
-   CONTENEDOR PRINCIPAL
-============================================================ */
-.planificacion-container {
-    display: flex;
-    flex-direction: column;
-    padding: 1rem 1.5rem;
-    height: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-}
-
-/* ============================================================
-   HEADER
-============================================================ */
-.planificacion-header-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.header-left h2 {
-    margin: 0;
-    font-size: 1.4rem;
-    color: #2c3e50;
-}
-
-.clase-info {
-    background: #e7f3ff;
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: #004085;
-    font-weight: 500;
-}
-
-.btn-volver-planificacion {
-    background: #6c757d;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-.btn-volver-planificacion:hover {
-    background: #5a6268;
-    transform: translateX(-2px);
-}
-
-/* ============================================================
-   SELECTOR DE CLASE
-============================================================ */
-.selector-clase {
-    background: #f8f9fa;
-    padding: 0.8rem 1.2rem;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    border: 1px solid #e9ecef;
-}
-
-.selector-clase label {
-    font-weight: 600;
-    color: #495057;
-    font-size: 0.95rem;
-}
-
-.selector-clase select {
-    padding: 0.4rem 0.8rem;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    flex: 1;
-    max-width: 400px;
-    background: white;
-}
-
-/* ============================================================
-   BARRA DE PROGRESO
-============================================================ */
-.progreso-bar {
-    background: white;
-    border-radius: 12px;
-    padding: 1rem 1.5rem;
-    margin-bottom: 1rem;
-    border: 1px solid #e9ecef;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-
-.progreso-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: #2c3e50;
-}
-
-.progreso-porcentaje {
-    font-weight: 700;
-    color: #667eea;
-    font-size: 1.1rem;
-}
-
-.progreso-track {
-    width: 100%;
-    height: 8px;
-    background: #e9ecef;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 0.3rem;
-}
-
-.progreso-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #667eea, #764ba2);
-    border-radius: 10px;
-    transition: width 0.5s ease;
-}
-
-.progreso-detalle {
-    font-size: 0.8rem;
-    color: #6c757d;
-}
-
-/* ============================================================
-   CUERPO PRINCIPAL — 2 COLUMNAS
-   ⭐ CAMBIO: ahora izquierda = trimestres, derecha = unidades
-============================================================ */
-.planificacion-body {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-top: 1rem;
-    flex: 1;
-    min-height: 0; /* 👈 Importante para que el scroll interno funcione */
-}
-
-/* ============================================================
-   COLUMNA IZQUIERDA — TRIMESTRES
-============================================================ */
-.planificacion-trimestres {
-    background: white;
-    border-radius: 12px;
-    padding: 1rem;
-    border: 1px solid #e9ecef;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    display: flex;
-    flex-direction: column;
-    height: 700px; /* 👈 Altura fija para activar scroll interno */
-    overflow: hidden;
-}
-
-.columna-header {
-    margin-bottom: 0.8rem;
-    padding-bottom: 0.6rem;
-    border-bottom: 2px solid #f1f3f5;
-    flex-shrink: 0;
-}
-
-.columna-header h3 {
-    margin: 0;
-    font-size: 1.05rem;
-    color: #2c3e50;
-}
-
-/* ⭐ Scroll elegante en trimestres */
-.columna-scroll {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: 0.5rem;
-}
-
-/* ============================================================
-   COLUMNA DERECHA — UNIDADES
-============================================================ */
-.planificacion-unidades {
-    background: white;
-    border-radius: 12px;
-    padding: 1rem;
-    border: 1px solid #e9ecef;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    display: flex;
-    flex-direction: column;
-    height: 700px; /* 👈 Misma altura que trimestres */
-    overflow: hidden;
-}
-
-.unidades-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.8rem;
-    padding-bottom: 0.6rem;
-    border-bottom: 2px solid #f1f3f5;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    flex-shrink: 0;
-}
-
-.unidades-header h3 {
-    margin: 0;
-    font-size: 1.05rem;
-    color: #2c3e50;
-}
-
-.search-box {
-    flex: 1;
-    max-width: 250px;
-    min-width: 150px;
-}
-
-.search-box input {
-    width: 100%;
-    padding: 0.4rem 0.8rem;
-    border: 1px solid #ced4da;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    transition: border-color 0.2s;
-}
-
-.search-box input:focus {
-    border-color: #667eea;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-/* ⭐ Scroll elegante en unidades */
-.unidades-scroll {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: 0.5rem;
-}
-
-/* ============================================================
-   SCROLL ELEGANTE (para ambas columnas)
-============================================================ */
-.columna-scroll::-webkit-scrollbar,
-.unidades-scroll::-webkit-scrollbar {
-    width: 8px;
-}
-
-.columna-scroll::-webkit-scrollbar-track,
-.unidades-scroll::-webkit-scrollbar-track {
-    background: #f1f3f5;
-    border-radius: 10px;
-}
-
-.columna-scroll::-webkit-scrollbar-thumb,
-.unidades-scroll::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #667eea, #764ba2);
-    border-radius: 10px;
-    transition: background 0.2s;
-}
-
-.columna-scroll::-webkit-scrollbar-thumb:hover,
-.unidades-scroll::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #5568d3, #653d8a);
-}
-
-/* Firefox */
-.columna-scroll,
-.unidades-scroll {
-    scrollbar-width: thin;
-    scrollbar-color: #667eea #f1f3f5;
-}
-
-/* ============================================================
-   TRIMESTRES (tarjetas colapsables)
-============================================================ */
-.trimestre-card {
-    margin-bottom: 1rem;
-    border-radius: 10px;
-    border: 1px solid #e9ecef;
-    overflow: hidden;
-    transition: box-shadow 0.2s;
-}
-
-.trimestre-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+/* frontend_ssam/src/pages/DashboardMaestro/PlanificacionGestion.css
+   ============================================================
+   Estilos de Planificación de Gestión — Sistema SSAM
+   Con scroll independiente por columna
+   ============================================================ */
+
+@import '../../styles/theme.css';
+
+/* ==================== BASE ==================== */
+.pg-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ==================== HEADER ==================== */
+.pg-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.pg-header__titles {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
+}
+
+.pg-header__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pg-header__title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-ink);
+  letter-spacing: -0.2px;
+}
+
+.pg-header__subtitle {
+  font-size: 13px;
+  color: var(--color-ink-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==================== BOTONES ==================== */
+.pg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.pg-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pg-btn--sm {
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
+.pg-btn--primary {
+  background: var(--color-accent);
+  color: white;
+}
+.pg-btn--primary:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.pg-btn--ghost {
+  background: var(--color-surface);
+  color: var(--color-ink-muted);
+  border-color: var(--color-border);
+}
+.pg-btn--ghost:hover:not(:disabled) {
+  background: var(--color-bg-alt);
+  color: var(--color-ink);
+  border-color: var(--color-ink-soft);
 }
-
-.trimestre-titulo {
-    transition: all 0.2s;
-    padding: 0.8rem 1rem;
-    background: #f8f9fa;
-    margin: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-    cursor: pointer;
-    user-select: none;
-}
-
-.trimestre-titulo:hover {
-    background: #e9ecef;
-}
-
-.trimestre-titulo.activo {
-    background: #e7f3ff;
-    border-left: 4px solid #667eea;
-    color: #004085;
-}
-
-.trimestre-fechas {
-    font-size: 0.75rem;
-    color: #6c757d;
-    font-weight: 400;
-    margin-left: 0.5rem;
-}
-
-.trimestre-colapsado {
-    padding: 0.8rem 1rem;
-    text-align: center;
-    color: #6c757d;
-    font-style: italic;
-    font-size: 0.85rem;
-    background: #fafbfc;
-    border-top: 1px dashed #dee2e6;
-}
-
-/* ============================================================
-   SEMANAS (grid dentro de cada trimestre)
-============================================================ */
-.semanas-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 0.8rem;
-    padding: 1rem;
-    background: #fafbfc;
-    border-top: 1px solid #e9ecef;
+
+/* ==================== TOOLBAR ==================== */
+.pg-toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-4);
+  align-items: end;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+}
+
+.pg-selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.pg-selector__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--color-ink-muted);
+}
+
+.pg-selector__select {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-ink);
+  padding: 10px 14px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.pg-selector__select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+}
+
+/* ==================== PROGRESO ==================== */
+.pg-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 240px;
+}
+
+.pg-progress__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.pg-progress__label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--color-ink-muted);
+}
+
+.pg-progress__value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.pg-progress__track {
+  height: 6px;
+  background: var(--color-bg-alt);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.pg-progress__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-primary) 100%);
+  border-radius: var(--radius-full);
+  transition: width var(--transition-base);
+}
+
+.pg-progress__detail {
+  font-size: 12px;
+  color: var(--color-ink-soft);
+}
+
+/* ==================== LOADING ==================== */
+.pg-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-8);
+  color: var(--color-ink-muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pg-spin {
+  animation: pg-spin 0.9s linear infinite;
+}
+
+@keyframes pg-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==================== BODY (GRID 2 COLUMNAS) ==================== */
+.pg-body {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--space-4);
+  align-items: stretch;
+  height: 70vh;
+  min-height: 520px;
+}
+
+.pg-column {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  height: 100%;
+}
+
+.pg-column__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-alt);
+  color: var(--color-ink);
+  flex-shrink: 0;
+}
+
+.pg-column__head h3 {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.pg-column__head svg {
+  color: var(--color-primary);
+}
+
+.pg-column__scroll {
+  flex: 1 1 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  scrollbar-width: thin;
+}
+
+.pg-column__scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.pg-column__scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.pg-column__scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+.pg-column__scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-soft);
+}
+
+/* ==================== TAB-BAR DE GRADOS ==================== */
+.pg-grados-tabs {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.pg-grados-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+.pg-grados-tabs::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+.pg-grado-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 7px 14px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pg-grado-tab:hover {
+  background: var(--color-bg-alt);
+  border-color: var(--color-ink-soft);
+  color: var(--color-ink);
+}
+
+.pg-grado-tab.is-active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.25);
+}
+
+.pg-grado-tab__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  background: var(--color-bg-alt);
+  color: var(--color-ink-muted);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+}
+
+.pg-grado-tab.is-active .pg-grado-tab__badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+}
+
+/* ==================== TRIMESTRES ==================== */
+.pg-trimestre {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.pg-trimestre__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
+  transition: background var(--transition-fast);
+}
+
+.pg-trimestre__head.is-active {
+  background: var(--color-primary-light);
+}
+
+.pg-trimestre__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink);
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.pg-trimestre__head.is-active .pg-trimestre__toggle {
+  color: var(--color-primary);
+}
+
+.pg-trimestre__chevron {
+  display: flex;
+  align-items: center;
+  color: var(--color-ink-soft);
+  flex-shrink: 0;
+}
+
+.pg-trimestre__head.is-active .pg-trimestre__chevron {
+  color: var(--color-primary);
+}
+
+.pg-trimestre__title {
+  flex: 1;
+  font-weight: 700;
+}
+
+/* Barra de progreso por trimestre */
+.pg-trimestre__progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 110px;
+}
+
+.pg-trimestre__progress-track {
+  flex: 1;
+  height: 5px;
+  background: var(--color-bg-alt);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.pg-trimestre__progress-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width var(--transition-base);
+}
+
+.pg-trimestre__progress-value {
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 32px;
+  text-align: right;
+}
+
+.pg-trimestre__progress--empty .pg-trimestre__progress-fill {
+  background: var(--color-border);
 }
+.pg-trimestre__progress--empty .pg-trimestre__progress-value {
+  color: var(--color-ink-soft);
+}
+
+.pg-trimestre__progress--low .pg-trimestre__progress-fill {
+  background: var(--color-warning);
+}
+.pg-trimestre__progress--low .pg-trimestre__progress-value {
+  color: var(--color-warning);
+}
+
+.pg-trimestre__progress--mid .pg-trimestre__progress-fill {
+  background: var(--color-primary);
+}
+.pg-trimestre__progress--mid .pg-trimestre__progress-value {
+  color: var(--color-primary);
+}
+
+.pg-trimestre__progress--complete .pg-trimestre__progress-fill {
+  background: var(--color-accent);
+}
+.pg-trimestre__progress--complete .pg-trimestre__progress-value {
+  color: var(--color-accent-hover);
+}
+
+/* Botón limpiar */
+.pg-trimestre__clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.pg-trimestre__clear:hover:not(:disabled) {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.pg-trimestre__clear:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ==================== SEMANAS ==================== */
+.pg-trimestre__semanas {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-2);
+  gap: var(--space-1);
+  background: var(--color-bg-alt);
+}
+
+.pg-semana {
+  display: grid;
+  grid-template-columns: 56px 130px 1fr;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1.5px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  min-height: 52px;
+  flex-shrink: 0;
+}
+
+.pg-semana:hover {
+  border-color: var(--color-ink-soft);
+  background: var(--color-surface-card);
+}
+
+.pg-semana.drop-active {
+  border-color: var(--color-accent);
+  border-style: solid;
+  background: var(--color-accent-light);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.pg-semana.drop-invalid {
+  border-color: var(--color-danger);
+  border-style: solid;
+  background: var(--color-danger-light);
+}
+
+.pg-semana__num {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+
+.pg-semana__num-value {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: -0.3px;
+}
+
+.pg-semana__num-trim {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+.pg-semana__dates {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+}
+
+.pg-semana__dates svg {
+  color: var(--color-ink-soft);
+  flex-shrink: 0;
+}
+
+.pg-semana__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  align-items: center;
+  min-width: 0;
+}
 
-.semana-item {
-    background: white;
-    border-radius: 8px;
-    padding: 0.7rem;
-    border: 2px dashed #dee2e6;
-    transition: all 0.2s;
-    min-height: 90px;
-    display: flex;
-    flex-direction: column;
-}
-
-.semana-item:hover {
-    border-color: #667eea;
-}
+.pg-semana__empty {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--color-ink-soft);
+}
+
+.pg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 4px 3px 10px;
+  border-radius: var(--radius-full);
+  max-width: 100%;
+  transition: all var(--transition-fast);
+}
+
+.pg-chip:hover {
+  background: var(--color-primary-soft);
+}
+
+.pg-chip__remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
 
-.semana-item.drop-active {
-    border-color: #28a745 !important;
-    background: #f0fff4 !important;
-    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+.pg-chip__remove:hover {
+  background: var(--color-primary);
+  color: white;
 }
 
-.semana-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.4rem;
-}
-
-.semana-numero {
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: #2c3e50;
-}
-
-.semana-trimestre {
-    background: #e7f3ff;
-    color: #004085;
-    padding: 0.1rem 0.5rem;
-    border-radius: 10px;
-    font-size: 0.7rem;
-    font-weight: 600;
-}
-
-.semana-items {
-    flex: 1;
-    min-height: 30px;
-    margin: 0.3rem 0;
+/* ==================== UNIDADES ==================== */
+.pg-unidad {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
 }
 
-.item-asignado {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #e7f3ff;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    border-left: 3px solid #667eea;
-    margin-bottom: 0.3rem;
+.pg-unidad__head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast);
 }
 
-.empty-semana {
-    font-size: 0.75rem;
-    color: #adb5bd;
-    font-style: italic;
-    text-align: center;
-    padding: 0.5rem;
+.pg-unidad__head:hover {
+  background: var(--color-bg-alt);
 }
 
-.btn-quitar-item {
-    background: transparent;
-    border: none;
-    color: #dc3545;
-    cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: bold;
-    padding: 0 0.3rem;
+.pg-unidad__head.is-active {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
 }
 
-.btn-quitar-item:hover {
-    color: #c82333;
-}
-
-.semana-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0.3rem;
-    font-size: 0.65rem;
-    color: #6c757d;
+.pg-unidad__chevron {
+  display: flex;
+  align-items: center;
+  color: var(--color-ink-soft);
+  flex-shrink: 0;
 }
 
-.semana-fechas {
-    font-size: 0.65rem;
+.pg-unidad__head.is-active .pg-unidad__chevron {
+  color: var(--color-primary);
 }
 
-.semana-item-count {
-    background: #e9ecef;
-    padding: 0.1rem 0.5rem;
-    border-radius: 10px;
-    font-weight: 600;
+.pg-unidad__title {
+  flex: 1;
+  font-weight: 700;
 }
 
-/* ============================================================
-   UNIDADES TEMÁTICAS — ACORDEÓN
-============================================================ */
-.unidad-card {
-    margin-bottom: 0.8rem;
-    border-radius: 10px;
-    border: 1px solid #e9ecef;
-    overflow: hidden;
-    transition: box-shadow 0.2s;
+.pg-unidad__badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-ink-muted);
+  background: var(--color-bg-alt);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  min-width: 24px;
+  text-align: center;
 }
-
-.unidad-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-}
-
-/* ⭐ Header clickeable de la unidad */
-.unidad-titulo {
-    transition: all 0.2s;
-    padding: 0.7rem 1rem;
-    background: #f8f9fa;
-    margin: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    cursor: pointer;
-    user-select: none;
-    color: #2c3e50;
-}
-
-.unidad-titulo:hover {
-    background: #e9ecef;
-}
-
-.unidad-titulo.activo {
-    background: #e7f3ff;
-    border-left: 4px solid #667eea;
-    color: #004085;
-}
-
-.unidad-badge {
-    background: #667eea;
-    color: white;
-    padding: 0.15rem 0.6rem;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    white-space: nowrap;
+
+.pg-unidad__head.is-active .pg-unidad__badge {
+  background: rgba(30, 58, 138, 0.1);
+  color: var(--color-primary);
 }
-
-.unidad-titulo.activo .unidad-badge {
-    background: #004085;
+
+.pg-unidad__body {
+  padding: var(--space-3);
+  background: var(--color-bg-alt);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
-/* ⭐ Contenido desplegable */
-.unidad-contenido {
-    padding: 0.8rem 1rem;
-    background: #fafbfc;
-    border-top: 1px solid #e9ecef;
-    animation: slideDown 0.2s ease;
+.pg-unidad__objetivo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-primary);
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.pg-unidad__objetivo svg {
+  color: var(--color-primary);
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
-.unidad-objetivo {
-    margin: 0 0 0.7rem 0;
-    font-size: 0.8rem;
-    color: #6c757d;
-    font-style: italic;
-    line-height: 1.4;
+.pg-unidad__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
-.items-lista {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
+.pg-unidad__empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--color-ink-soft);
+  padding: var(--space-2);
 }
 
-.empty-items {
-    color: #adb5bd;
-    font-size: 0.8rem;
-    font-style: italic;
-    text-align: center;
-    padding: 0.5rem;
-    margin: 0;
+/* ==================== ITEM ARRASTRABLE ==================== */
+.pg-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink);
+  transition: all var(--transition-fast);
+  user-select: none;
 }
 
-/* ⭐ Estado colapsado */
-.unidad-colapsada {
-    padding: 0.6rem 1rem;
-    text-align: center;
-    color: #6c757d;
-    font-style: italic;
-    font-size: 0.8rem;
-    background: #fafbfc;
-    border-top: 1px dashed #dee2e6;
+.pg-item:hover {
+  border-color: var(--color-primary);
+  transform: translateX(2px);
 }
 
-/* ============================================================
-   ITEMS ARRASTRABLES
-============================================================ */
-.item-unidad {
-    cursor: grab;
-    user-select: none;
-    transition: all 0.2s;
-    padding: 0.5rem 0.8rem;
-    background: white;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.85rem;
+.pg-item__grip {
+  color: var(--color-ink-soft);
+  flex-shrink: 0;
 }
 
-.item-unidad.disponible:hover {
-    border-color: #667eea;
-    transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+.pg-item__name {
+  flex: 1;
+  line-height: 1.3;
+  min-width: 0;
 }
 
-.item-unidad.asignado {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background: #f1f3f5;
+.pg-item__badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-alt);
+  color: var(--color-ink-muted);
+  flex-shrink: 0;
 }
 
-.item-unidad.dragging {
-    opacity: 0.3;
-    transform: scale(0.95);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+.pg-item.disponible {
+  border-color: var(--color-border);
 }
 
-.item-icon {
-    margin-right: 0.3rem;
+.pg-item.una-semana {
+  border-color: var(--color-accent);
+  background: var(--color-accent-light);
 }
+.pg-item.una-semana .pg-item__badge {
+  background: var(--color-accent);
+  color: white;
+}
 
-.item-nombre {
-    flex: 1;
-    text-align: left;
+.pg-item.dos-semanas {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+.pg-item.dos-semanas .pg-item__badge {
+  background: var(--color-primary);
+  color: white;
+}
+.pg-item.dos-semanas .pg-item__grip {
+  color: var(--color-primary);
+}
+.pg-item.dos-semanas:hover {
+  transform: none;
+  cursor: not-allowed;
 }
 
-.badge-asignado {
-    margin-left: auto;
-    font-size: 0.85rem;
+.pg-item.is-dragging {
+  opacity: 0.5;
 }
 
-/* ============================================================
-   ESTADOS VACÍOS
-============================================================ */
-.empty-state {
-    text-align: center;
-    padding: 2rem 1rem;
-    color: #6c757d;
+/* ==================== EMPTY STATE ==================== */
+.pg-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-10) var(--space-4);
+  text-align: center;
+  color: var(--color-ink-soft);
 }
 
-.empty-state p {
-    margin: 0.3rem 0;
-    font-size: 0.95rem;
+.pg-empty svg {
+  color: var(--color-ink-soft);
+  opacity: 0.5;
 }
 
-.empty-hint {
-    font-size: 0.8rem !important;
-    color: #adb5bd !important;
-    font-style: italic;
+.pg-empty p {
+  font-size: 13px;
+  font-style: italic;
 }
 
-/* ============================================================
-   FOOTER
-============================================================ */
-.planificacion-footer {
-    margin-top: 1rem;
-    display: flex;
-    justify-content: flex-end;
-    flex-shrink: 0;
+/* ==================== FOOTER ==================== */
+.pg-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
 }
 
-.btn-guardar-planificacion {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    border: none;
-    padding: 0.7rem 1.8rem;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+/* ==================== TOAST ==================== */
+.pg-toast {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: var(--shadow-xl);
+  animation: pg-toast-in 0.25s ease;
+  max-width: 460px;
+  border: 1px solid transparent;
 }
 
-.btn-guardar-planificacion:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+@keyframes pg-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.btn-guardar-planificacion:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    box-shadow: none;
+.pg-toast--success {
+  background: var(--color-accent-light);
+  color: var(--color-accent-hover);
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
-/* ============================================================
-   LOADING
-============================================================ */
-.loading-spinner {
-    text-align: center;
-    padding: 2rem;
-    color: #667eea;
-    font-size: 1rem;
-    font-weight: 500;
+.pg-toast--error {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
-/* ============================================================
-   RESPONSIVE — móvil/tablet
-============================================================ */
+/* ==================== RESPONSIVE ==================== */
 @media (max-width: 1024px) {
-    .planificacion-body {
-        grid-template-columns: 1fr;
-    }
-    
-    .planificacion-trimestres,
-    .planificacion-unidades {
-        height: 500px;
-    }
+  .pg-body {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 0;
+  }
+
+  .pg-column {
+    height: auto;
+    max-height: 60vh;
+  }
+
+  .pg-column__scroll {
+    max-height: calc(60vh - 60px);
+  }
+
+  .pg-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .pg-progress {
+    min-width: 0;
+  }
 }
 
-/* ============================================================
-   TOAST DE NOTIFICACIONES
-============================================================ */
-.toast-notificacion {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.8rem 1.2rem;
-    border-radius: 10px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    font-size: 0.9rem;
-    font-weight: 500;
-    max-width: 350px;
-    animation: toastSlideIn 0.3s ease;
-}
+@media (max-width: 640px) {
+  .pg-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-@keyframes toastSlideIn {
-    from {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
+  .pg-semana {
+    grid-template-columns: 48px 1fr;
+    gap: var(--space-2);
+  }
 
-.toast-exito {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    color: white;
-}
+  .pg-semana__dates {
+    grid-column: 1 / -1;
+    font-size: 11px;
+  }
 
-.toast-error {
-    background: linear-gradient(135deg, #dc3545, #e74c3c);
-    color: white;
-}
+  .pg-trimestre__progress {
+    min-width: 80px;
+  }
 
-.toast-icono {
-    font-size: 1.1rem;
-}
+  .pg-trimestre__progress-value {
+    display: none;
+  }
 
-.toast-mensaje {
-    line-height: 1.3;
-}
+  .pg-footer {
+    flex-direction: column-reverse;
+  }
 
-/* ============================================================
-   ITEMS ASIGNADOS (colores según semanas)
-============================================================ */
-.item-unidad.una-semana {
-    background: #d4edda;
-    border-color: #28a745;
-    color: #155724;
-}
+  .pg-footer .pg-btn {
+    width: 100%;
+  }
 
-.item-unidad.una-semana:hover {
-    background: #c3e6cb;
-    border-color: #1e7e34;
-}
-
-.item-unidad.dos-semanas {
-    background: #a8d5b5;
-    border-color: #1e7e34;
-    color: #0b2e13;
-}
-
-.item-unidad.dos-semanas:hover {
-    background: #96c9a4;
-}
-
-/* Badge con las semanas donde está el item */
-.badge-semanas {
-    background: #1e7e34;
-    color: white;
-    padding: 0.15rem 0.5rem;
-    border-radius: 10px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    white-space: nowrap;
-    margin-left: auto;
-}
-
-/* ============================================================
-   SEMANA CON DROP INVÁLIDO (hover rojo cuando no se puede)
-============================================================ */
-.semana-item.drop-invalid {
-    border-color: #dc3545 !important;
-    background: #fff5f5 !important;
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+  .pg-toast {
+    left: var(--space-4);
+    right: var(--space-4);
+    bottom: var(--space-4);
+  }
 }

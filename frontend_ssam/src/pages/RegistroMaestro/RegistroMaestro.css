@@ -1,0 +1,427 @@
+/* frontend_ssam/src/pages/RegistroMaestro/RegistroMaestro.css
+   ============================================================
+   Estilos del formulario de registro de Maestro
+   Mismo sistema de diseño SSAM, con acento ámbar
+   ============================================================ */
+
+@import '../../styles/theme.css';
+
+/* ==================== BASE ==================== */
+.rm-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-alt) 100%);
+  font-family: var(--font-sans);
+  position: relative;
+}
+
+/* ==================== BOTÓN VOLVER ==================== */
+.rm-back {
+  position: absolute;
+  top: var(--space-6);
+  left: var(--space-6);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-ink-muted);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.rm-back:hover {
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+  transform: translateX(-2px);
+}
+
+/* ==================== CARD ==================== */
+.rm-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  padding: var(--space-10);
+  max-width: 720px;
+  width: 100%;
+}
+
+.rm-card--success {
+  text-align: center;
+  max-width: 480px;
+  padding: var(--space-12) var(--space-8);
+}
+
+/* ==================== HEADER ==================== */
+.rm-header {
+  text-align: center;
+  margin-bottom: var(--space-8);
+}
+
+.rm-header-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+}
+
+.rm-header-icon--warning {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.rm-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--color-ink);
+  margin-bottom: var(--space-2);
+  letter-spacing: -0.3px;
+}
+
+.rm-subtitle {
+  font-size: 15px;
+  color: var(--color-ink-muted);
+  line-height: 1.5;
+}
+
+.rm-department-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  margin-top: var(--space-4);
+}
+
+/* ==================== ALERTAS ==================== */
+.rm-alert {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: var(--space-5);
+}
+
+.rm-alert--error {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* ==================== FORM ==================== */
+.rm-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.rm-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.rm-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.rm-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink);
+  letter-spacing: 0.2px;
+}
+
+.rm-label-optional {
+  color: var(--color-ink-soft);
+  font-weight: 400;
+  font-size: 12px;
+}
+
+/* ==================== INPUTS ==================== */
+.rm-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.rm-input-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--color-ink-soft);
+  pointer-events: none;
+  transition: color var(--transition-fast);
+  z-index: 1;
+}
+
+.rm-input {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.rm-input--standalone {
+  padding-left: 14px;
+}
+
+.rm-input::placeholder {
+  color: var(--color-ink-soft);
+}
+
+.rm-input:hover {
+  border-color: var(--color-ink-soft);
+}
+
+.rm-input:focus {
+  border-color: var(--color-warning);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+
+.rm-input-wrapper:focus-within .rm-input-icon {
+  color: var(--color-warning);
+}
+
+.rm-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+.rm-field-error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 13px;
+  color: var(--color-danger);
+  margin-top: var(--space-1);
+}
+
+/* ==================== DIVISOR DE SECCIÓN ==================== */
+.rm-section-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-2) 0;
+}
+
+.rm-section-line {
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.rm-section-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+/* ==================== BOTÓN SUBMIT ==================== */
+.rm-btn-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 14px 24px;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  margin-top: var(--space-2);
+}
+
+.rm-btn-submit--warning {
+  background: var(--color-warning);
+  color: var(--color-ink-inverse);
+}
+.rm-btn-submit--warning:hover:not(:disabled) {
+  background: #D97706;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.rm-btn-submit--warning:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.rm-btn-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.rm-btn-spinner {
+  animation: rm-spin 1s linear infinite;
+}
+
+@keyframes rm-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==================== FOOTER ==================== */
+.rm-footer {
+  text-align: center;
+  margin-top: var(--space-5);
+  color: var(--color-ink-muted);
+  font-size: 14px;
+}
+
+.rm-link {
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.rm-link:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+/* ==================== VISTA ÉXITO ==================== */
+.rm-success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent-light);
+  color: var(--color-accent-hover);
+  border-radius: 50%;
+}
+
+.rm-success-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-ink);
+  margin-bottom: var(--space-3);
+}
+
+.rm-success-text {
+  font-size: 15px;
+  color: var(--color-ink-muted);
+  margin-bottom: var(--space-4);
+  line-height: 1.5;
+}
+
+.rm-success-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-5);
+}
+
+.rm-success-hint {
+  font-size: 14px;
+  color: var(--color-ink-soft);
+  margin-bottom: var(--space-4);
+}
+
+.rm-success-spinner {
+  color: var(--color-primary);
+  animation: rm-spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 640px) {
+  .rm-page {
+    padding: var(--space-6) var(--space-3);
+    justify-content: flex-start;
+  }
+
+  .rm-back {
+    position: static;
+    margin-bottom: var(--space-4);
+    align-self: flex-start;
+  }
+
+  .rm-card {
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+  }
+
+  .rm-row {
+    grid-template-columns: 1fr;
+  }
+
+  .rm-title {
+    font-size: 22px;
+  }
+}
+/* ==================== TOGGLE DE CONTRASEÑA ==================== */
+
+/* Cuando hay toggle, el input necesita padding extra a la derecha */
+.rm-input--with-toggle {
+  padding-right: 44px;
+}
+
+/* Botón del ojito */
+.rm-input-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--color-ink-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  z-index: 2;
+}
+
+.rm-input-toggle:hover {
+  color: var(--color-warning);
+  background: var(--color-warning-light);
+}
+
+.rm-input-toggle:focus-visible {
+  outline: 2px solid var(--color-warning);
+  outline-offset: 1px;
+}

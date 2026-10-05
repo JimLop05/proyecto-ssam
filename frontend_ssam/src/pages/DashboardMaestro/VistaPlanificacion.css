@@ -1,374 +1,583 @@
-/* ============================================================
-   CONTENEDOR EXTERNO (fondo gris)
-============================================================ */
-.vista-planificacion-container {
-    min-height: 100vh;
-    background: #e9ecef;
-    padding: 2rem 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* frontend_ssam/src/pages/DashboardMaestro/VistaPlanificacion.css
+   ============================================================
+   Vista previa de planificación — Formato documento oficial
+   ============================================================ */
+
+@import '../../styles/theme.css';
+
+/* ==================== BASE ==================== */
+.vp-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 1000px;
+  margin: 0 auto;
+  padding-bottom: var(--space-8);
 }
 
-.vista-header-actions {
+/* ==================== BARRA DE ACCIONES ==================== */
+.vp-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.vp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.vp-btn--ghost {
+  background: var(--color-surface);
+  color: var(--color-ink-muted);
+  border-color: var(--color-border);
+}
+.vp-btn--ghost:hover {
+  background: var(--color-bg-alt);
+  color: var(--color-ink);
+}
+
+.vp-btn--primary {
+  background: var(--color-primary);
+  color: white;
+}
+.vp-btn--primary:hover {
+  background: var(--color-primary-hover);
+  box-shadow: var(--shadow-md);
+}
+
+/* ==================== DOCUMENTO ==================== */
+.vp-doc {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  color: var(--color-ink);
+}
+
+/* ==================== ENCABEZADO INSTITUCIONAL ==================== */
+.vp-doc__header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--space-5);
+  align-items: center;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 2px solid var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: white;
+}
+
+.vp-doc__header-logo {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.vp-doc__header-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.vp-doc__header-title {
+  min-width: 0;
+}
+
+.vp-doc__header-title h1 {
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: white;
+  line-height: 1.2;
+}
+
+.vp-doc__header-subtitle {
+  font-size: 12px;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.vp-doc__header-year {
+  font-size: 11px;
+  opacity: 0.75;
+  margin-top: 2px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.vp-doc__header-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  text-align: right;
+  opacity: 0.95;
+}
+
+.vp-doc__meta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  justify-content: flex-end;
+}
+
+.vp-doc__meta-row svg {
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.vp-doc__meta-row strong {
+  font-weight: 700;
+}
+
+/* ==================== DATOS GENERALES ==================== */
+.vp-doc__data {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.vp-doc__data-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+}
+
+.vp-doc__data-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-ink-muted);
+}
+
+.vp-doc__data-label svg {
+  flex-shrink: 0;
+}
+
+.vp-doc__data-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink);
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* ==================== CUERPO ==================== */
+.vp-doc__body {
+  padding: var(--space-5) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ==================== TRIMESTRE ==================== */
+.vp-trimestre {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.vp-trimestre__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-bg-alt);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.vp-trimestre__head h2 {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.vp-trimestre__fechas {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-ink-muted);
+  flex: 1;
+}
+
+.vp-trimestre__count {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-ink-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ==================== TABLA ==================== */
+.vp-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.vp-tabla thead th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-ink-muted);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.vp-tabla tbody tr {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.vp-tabla tbody tr:last-child {
+  border-bottom: none;
+}
+
+.vp-tabla tbody tr:nth-child(even) {
+  background: rgba(248, 250, 252, 0.5);
+}
+
+.vp-tabla tbody td {
+  padding: var(--space-3);
+  vertical-align: top;
+  color: var(--color-ink);
+  line-height: 1.4;
+}
+
+/* Columnas */
+.vp-th-num,
+.vp-td-num {
+  width: 52px;
+  text-align: center;
+}
+
+.vp-th-fechas,
+.vp-td-fechas {
+  width: 120px;
+  white-space: nowrap;
+  font-weight: 500;
+  color: var(--color-ink-muted);
+}
+
+.vp-th-unidad,
+.vp-td-unidad {
+  width: 30%;
+  font-weight: 600;
+  color: var(--color-primary);
+  font-size: 11px;
+}
+
+.vp-th-item,
+.vp-td-item {
+  font-weight: 400;
+  color: var(--color-ink);
+}
+
+/* Badge de semana */
+.vp-sem-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  padding: 3px 8px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.3px;
+}
+
+/* Separador de fechas */
+.vp-fecha-sep {
+  color: var(--color-ink-soft);
+  margin: 0 2px;
+}
+
+/* Filas continuadas */
+.vp-tabla tbody tr.vp-row-cont {
+  border-top: none;
+}
+
+.vp-tabla tbody tr.vp-row-cont td {
+  padding-top: 4px;
+}
+
+.vp-tabla tbody tr.vp-row-first td {
+  padding-bottom: 4px;
+}
+
+.vp-tabla tbody tr.vp-row-first {
+  border-top: 1px solid var(--color-border);
+}
+
+.vp-tabla tbody tr.vp-row-cont + tr.vp-row-cont {
+  border-top: none;
+}
+
+/* ==================== VACÍOS ==================== */
+.vp-trimestre__empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--color-ink-soft);
+  background: var(--color-surface);
+}
+
+.vp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-10) var(--space-4);
+  text-align: center;
+  color: var(--color-ink-soft);
+}
+
+.vp-empty svg {
+  opacity: 0.4;
+}
+
+.vp-empty p {
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* ==================== PIE DE FIRMAS ==================== */
+.vp-doc__footer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-10) var(--space-6);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-alt);
+}
+
+.vp-firma {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+}
+
+.vp-firma__line {
+  width: 100%;
+  max-width: 200px;
+  height: 1px;
+  background: var(--color-ink-muted);
+  margin-bottom: var(--space-2);
+}
+
+.vp-firma__name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-ink);
+  line-height: 1.3;
+  min-height: 16px;
+}
+
+.vp-firma__role {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-ink-muted);
+}
+
+/* ==================== PIE DE EMISIÓN ==================== */
+.vp-doc__emision {
+  padding: var(--space-3) var(--space-6);
+  text-align: center;
+  font-size: 10px;
+  font-style: italic;
+  color: var(--color-ink-soft);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+/* ==================== IMPRESIÓN ==================== */
+@media print {
+  /* Ocultar todo, mostrar solo el documento */
+  body * {
+    visibility: hidden;
+  }
+
+  .vp-container,
+  .vp-container * {
+    visibility: visible;
+  }
+
+  .vp-actions,
+  .no-print {
+    display: none !important;
+  }
+
+  .vp-container {
+    position: absolute;
+    left: 0;
+    top: 0;
     width: 100%;
-    max-width: 900px;
-    margin-bottom: 1rem;
-    display: flex;
-    justify-content: flex-start;
-}
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+    gap: 0;
+  }
 
-.btn-volver-editor {
-    background: #6c757d;
-    color: white;
+  .vp-doc,
+  .vp-doc * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+
+  .vp-doc {
     border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .vp-trimestre,
+  .vp-tabla tbody tr,
+  .vp-doc__footer,
+  .vp-firma {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm 10mm;
+  }
 }
 
-.btn-volver-editor:hover {
-    background: #5a6268;
-    transform: translateX(-3px);
-}
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 900px) {
+  .vp-doc__header {
+    grid-template-columns: auto 1fr;
+  }
 
-/* ============================================================
-   DOCUMENTO (hoja blanca)
-============================================================ */
-.documento-planificacion {
-    background: white;
-    width: 100%;
-    max-width: 900px;
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    padding: 2.5rem 3rem;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #212529;
-    line-height: 1.5;
-}
-
-/* ============================================================
-   ENCABEZADO
-============================================================ */
-.doc-encabezado {
-    display: grid;
-    grid-template-columns: 80px 1fr auto;
-    gap: 1.5rem;
-    align-items: center;
-    padding-bottom: 1.5rem;
-    border-bottom: 3px solid #667eea;
-    margin-bottom: 1.5rem;
-}
-
-.doc-logo img {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
-}
-
-.doc-titulo-principal h1 {
-    margin: 0;
-    font-size: 1.4rem;
-    letter-spacing: 0.5px;
-    color: #2c3e50;
-    text-transform: uppercase;
-}
-
-.doc-subtitulo {
-    margin: 0.2rem 0 0 0;
-    font-size: 0.8rem;
-    color: #6c757d;
-    font-style: italic;
-}
-
-.doc-gestion {
-    margin: 0.3rem 0 0 0;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #667eea;
-}
-
-.doc-ue-info {
-    text-align: right;
-    font-size: 0.8rem;
-    color: #495057;
-}
-
-.doc-ue-info p {
-    margin: 0.15rem 0;
-}
-
-/* ============================================================
-   DATOS GENERALES
-============================================================ */
-.doc-datos-generales {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem 2rem;
-    background: #f8f9fa;
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    border-left: 4px solid #667eea;
-    margin-bottom: 2rem;
-}
-
-.doc-campo {
-    display: flex;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    padding: 0.2rem 0;
-}
-
-.doc-label {
-    font-weight: 600;
-    color: #495057;
-    min-width: 130px;
-}
-
-.doc-valor {
-    color: #212529;
-    flex: 1;
-}
-
-/* ============================================================
-   TRIMESTRES
-============================================================ */
-.doc-cuerpo {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.doc-trimestre {
-    page-break-inside: avoid; /* 👈 Importante para el PDF */
-}
-
-.doc-trimestre-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px 8px 0 0;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.doc-trimestre-header h2 {
-    margin: 0;
-    font-size: 1rem;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-}
-
-.doc-trimestre-fechas {
-    font-size: 0.8rem;
-    font-style: italic;
-    opacity: 0.95;
-}
-
-/* ============================================================
-   TABLA
-============================================================ */
-.doc-tabla {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.85rem;
-    border: 1px solid #dee2e6;
-    border-top: none;
-}
-
-.doc-tabla thead {
-    background: #f1f3f5;
-}
-
-.doc-tabla th {
-    padding: 0.6rem 0.8rem;
+  .vp-doc__header-meta {
+    grid-column: 1 / -1;
     text-align: left;
-    font-weight: 700;
-    color: #495057;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid #dee2e6;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    justify-content: flex-start;
+  }
+
+  .vp-doc__meta-row {
+    justify-content: flex-start;
+  }
+
+  .vp-doc__data {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .vp-doc__footer {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
 }
 
-.doc-tabla td {
-    padding: 0.7rem 0.8rem;
-    vertical-align: top;
-    border-bottom: 1px solid #e9ecef;
-}
+@media (max-width: 640px) {
+  .vp-actions {
+    flex-direction: column-reverse;
+  }
 
-.doc-tabla tbody tr:nth-child(even) {
-    background: #fafbfc;
-}
+  .vp-actions .vp-btn {
+    width: 100%;
+  }
 
-.doc-tabla tbody tr:hover {
-    background: #f1f3f5;
-}
-
-.doc-td-semana {
+  .vp-doc__header {
+    padding: var(--space-4);
+    grid-template-columns: 1fr;
     text-align: center;
-    font-size: 1rem;
-    color: #667eea;
-}
+  }
 
-.doc-td-fechas {
-    font-size: 0.75rem;
-    color: #6c757d;
+  .vp-doc__header-logo {
+    margin: 0 auto;
+  }
+
+  .vp-doc__header-title h1 {
+    font-size: 15px;
+  }
+
+  .vp-doc__header-meta {
     text-align: center;
-    line-height: 1.4;
-}
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+  }
 
-.doc-fecha-sep {
-    font-style: italic;
-    font-size: 0.7rem;
-}
+  .vp-doc__meta-row {
+    justify-content: center;
+  }
 
-/* ============================================================
-   CONTENIDOS (agrupados por unidad)
-============================================================ */
-.doc-td-contenidos {
-    padding: 0.6rem 1rem;
-}
+  .vp-doc__data {
+    grid-template-columns: 1fr;
+  }
 
-.doc-grupo-unidad {
-    margin-bottom: 0.6rem;
-}
+  .vp-doc__body {
+    padding: var(--space-3);
+  }
 
-.doc-grupo-unidad:last-child {
-    margin-bottom: 0;
-}
+  .vp-tabla {
+    font-size: 11px;
+  }
 
-.doc-unidad-nombre {
-    font-weight: 700;
-    color: #495057;
-    font-size: 0.85rem;
-    margin-bottom: 0.2rem;
-}
+  .vp-th-num,
+  .vp-td-num {
+    width: 44px;
+  }
 
-.doc-items-lista {
-    margin: 0;
-    padding-left: 1.5rem;
-    list-style-type: '•';
-}
+  .vp-th-fechas,
+  .vp-td-fechas {
+    width: 100px;
+  }
 
-.doc-items-lista li {
-    font-size: 0.82rem;
-    color: #212529;
-    margin-bottom: 0.15rem;
-    line-height: 1.4;
-}
-
-.doc-vacio {
-    color: #adb5bd;
-    font-size: 0.8rem;
-    font-style: italic;
-}
-
-/* ============================================================
-   TRIMESTRE VACÍO
-============================================================ */
-.doc-trimestre-vacio {
-    padding: 1rem;
-    text-align: center;
-    color: #6c757d;
-    font-style: italic;
-    font-size: 0.85rem;
-    background: #fafbfc;
-    border: 1px solid #dee2e6;
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-}
-
-.doc-empty {
-    padding: 3rem 1rem;
-    text-align: center;
-    color: #6c757d;
-}
-
-/* ============================================================
-   FIRMAS
-============================================================ */
-.doc-firmas {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-    margin-top: 3rem;
-    padding-top: 2rem;
-}
-
-.doc-firma {
-    text-align: center;
-}
-
-.doc-firma-linea {
-    border-top: 1px solid #495057;
-    margin-bottom: 0.5rem;
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.doc-firma-nombre {
-    margin: 0;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #212529;
-}
-
-.doc-firma-rol {
-    margin: 0.15rem 0 0 0;
-    font-size: 0.75rem;
-    color: #6c757d;
-    font-style: italic;
-}
-
-/* ============================================================
-   FECHA DE EMISIÓN
-============================================================ */
-.doc-fecha-emision {
-    text-align: right;
-    margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px dashed #dee2e6;
-    font-size: 0.75rem;
-    color: #adb5bd;
-    font-style: italic;
-}
-
-/* ============================================================
-   RESPONSIVE
-============================================================ */
-@media (max-width: 768px) {
-    .documento-planificacion {
-        padding: 1.5rem;
-    }
-    
-    .doc-encabezado {
-        grid-template-columns: 1fr;
-        text-align: center;
-    }
-    
-    .doc-ue-info {
-        text-align: center;
-    }
-    
-    .doc-datos-generales {
-        grid-template-columns: 1fr;
-    }
-    
-    .doc-firmas {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
-    
-    .doc-tabla {
-        font-size: 0.75rem;
-    }
+  .vp-tabla tbody td {
+    padding: var(--space-2);
+  }
 }

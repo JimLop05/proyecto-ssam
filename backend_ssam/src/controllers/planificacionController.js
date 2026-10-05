@@ -63,9 +63,14 @@ const getDatosClase = async (req, res) => {
             [id_gestion]
         );
 
-        // Obtener unidades temáticas e items de la asignatura y grado de la clase
+                // ⭐ NUEVO: Obtener TODAS las unidades temáticas de la asignatura
+        // (sin filtrar por grado, para permitir planificación cruzada
+        //  por disparidad de avance en la región).
+        // Se agrupan por grado en el frontend.
         const unidadesQuery = await pool.query(
             `SELECT ut.id_unid_tem, ut.nombreut, ut.objetivo,
+                ut.id_grado,
+                g.titulog AS nombre_grado,
                 json_agg(
                     json_build_object(
                         'id_item', i.id_item,
@@ -74,10 +79,11 @@ const getDatosClase = async (req, res) => {
                 ) as items
              FROM UNIDADTEMATICA ut
              LEFT JOIN ITEM i ON ut.id_unid_tem = i.id_unid_tem
-             WHERE ut.id_grado = $1 AND ut.id_asig = $2
-             GROUP BY ut.id_unid_tem
-             ORDER BY ut.id_unid_tem`,
-            [claseQuery.rows[0].id_grado, claseQuery.rows[0].id_asig]
+             LEFT JOIN GRADO g ON ut.id_grado = g.id_grado
+             WHERE ut.id_asig = $1
+             GROUP BY ut.id_unid_tem, ut.id_grado, g.titulog
+             ORDER BY ut.id_grado, ut.id_unid_tem`,
+            [claseQuery.rows[0].id_asig]
         );
 
         // Verificar si ya existe una planificación para esta clase

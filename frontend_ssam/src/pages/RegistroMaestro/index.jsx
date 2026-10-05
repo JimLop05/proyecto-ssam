@@ -1,11 +1,30 @@
+// frontend_ssam/src/pages/RegistroMaestro/index.jsx
 // ============================================================
-// REGISTRO DE MAESTRO CON CÓDIGO DE VERIFICACIÓN (VERSIÓN FINAL)
-// Valida el código contra la tabla DEPARTAMENTO en la BD
+// REGISTRO DE MAESTRO CON CÓDIGO DE VERIFICACIÓN
+// Paso 1: Código → Paso 2: Formulario → Paso 3: Éxito
 // ============================================================
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import {
+    Presentation,
+    KeyRound,
+    User,
+    Mail,
+    Lock,
+    Eye,
+    EyeOff,
+    ArrowLeft,
+    ArrowRight,
+    CheckCircle2,
+    AlertCircle,
+    Loader2,
+    Building2,
+    BookOpen,
+    Award,
+} from 'lucide-react';
 import api from '../../api/axios';
+import './RegistroMaestro.css';
 
 function RegistroMaestro() {
     const navigate = useNavigate();
@@ -16,8 +35,12 @@ function RegistroMaestro() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
-    
-    // Datos del formulario
+
+    // Estados para mostrar/ocultar contraseñas
+    const [showCodigo, setShowCodigo] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
     const [formData, setFormData] = useState({
         username: '',
         nombre: '',
@@ -37,8 +60,8 @@ function RegistroMaestro() {
         setLoading(true);
 
         try {
-            const response = await api.post('/auth/validar-codigo-maestro', { 
-                codigo: codigo.trim() 
+            const response = await api.post('/auth/validar-codigo-maestro', {
+                codigo: codigo.trim(),
             });
 
             if (response.data.success) {
@@ -46,7 +69,9 @@ function RegistroMaestro() {
                 setStep('formulario');
             }
         } catch (err) {
-            setCodigoError('❌ Código de maestro inválido. Verifica e intenta de nuevo.');
+            setCodigoError(
+                'Código de maestro inválido. Verifica e intenta de nuevo.'
+            );
         } finally {
             setLoading(false);
         }
@@ -56,7 +81,7 @@ function RegistroMaestro() {
     const handleChange = (e) => {
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value
+            [e.target.name]: e.target.value,
         });
     };
 
@@ -66,7 +91,6 @@ function RegistroMaestro() {
         setError('');
         setLoading(true);
 
-        // Validaciones
         if (formData.password !== formData.confirmPassword) {
             setError('Las contraseñas no coinciden');
             setLoading(false);
@@ -92,70 +116,161 @@ function RegistroMaestro() {
                 idDepartamento: departamentoInfo.id_departamento,
             };
 
+            // 1. Crear la cuenta de maestro
             const response = await api.post('/auth/registro-maestro', payload);
             console.log('✅ Registro exitoso:', response.data);
 
+            // 2. Login automático con las mismas credenciales
+            const loginResponse = await api.post('/auth/login', {
+                email: formData.email,
+                password: formData.password,
+            });
+
+            const { token, user } = loginResponse.data;
+
+            // 3. Guardar sesión
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(user));
+
+            // 4. Mostrar éxito y redirigir
             setSuccess(true);
             setLoading(false);
 
             setTimeout(() => {
-                navigate('/login');
-            }, 2500);
-
+                navigate('/dashboard/maestro', { replace: true });
+            }, 2000);
         } catch (err) {
             console.error('❌ Error en registro:', err);
-            setError(err.response?.data?.message || 'Error al registrar. Intenta de nuevo.');
+            setError(
+                err.response?.data?.message ||
+                    'Error al registrar. Intenta de nuevo.'
+            );
             setLoading(false);
         }
     };
 
-    // ========== PANTALLA DE ÉXITO ==========
+    // ==================== ÉXITO ====================
     if (success) {
         return (
-            <div style={styles.container}>
-                <div style={styles.successCard}>
-                    <h1 style={{ color: '#28a745' }}>✅ ¡Registro exitoso!</h1>
-                    <p>Tu cuenta de maestro ha sido creada correctamente.</p>
-                    <p><strong>Departamento asignado:</strong> {departamentoInfo?.nombre}</p>
-                    <p>Serás redirigido a la página de inicio de sesión...</p>
+            <div className="rm-page">
+                <div className="rm-card rm-card--success">
+                    <div className="rm-success-icon">
+                        <CheckCircle2 size={48} />
+                    </div>
+                    <h1 className="rm-success-title">¡Registro exitoso!</h1>
+                    <p className="rm-success-text">
+                        Tu cuenta de maestro ha sido creada correctamente.
+                    </p>
+                    {departamentoInfo?.nombre && (
+                        <div className="rm-success-badge">
+                            <Building2 size={16} />
+                            {departamentoInfo.nombre}
+                        </div>
+                    )}
+                    <p className="rm-success-hint">
+                        Redirigiendo a tu panel de maestro...
+                    </p>
+                    <Loader2 className="rm-success-spinner" size={20} />
                 </div>
             </div>
         );
     }
 
-    // ========== PANTALLA DE CÓDIGO ==========
+    // ==================== PASO 1: CÓDIGO ====================
     if (step === 'codigo') {
         return (
-            <div style={styles.container}>
-                <div style={styles.card}>
-                    <h1 style={styles.title}>👨‍🏫 Registro de Maestro</h1>
-                    <p style={styles.subtitle}>Ingresa el código de verificación para continuar</p>
+            <div className="rm-page">
+                <button
+                    className="rm-back"
+                    onClick={() => navigate('/')}
+                    type="button"
+                >
+                    <ArrowLeft size={18} />
+                    Volver al inicio
+                </button>
 
-                    <form onSubmit={handleValidarCodigo} style={styles.form}>
-                        <div style={styles.field}>
-                            <label>Código de Maestro</label>
-                            <input
-                                type="password"
-                                value={codigo}
-                                onChange={(e) => setCodigo(e.target.value)}
-                                required
-                                style={styles.input}
-                                placeholder="Ej: LP2026"
-                                disabled={loading}
-                            />
-                            {codigoError && <p style={styles.errorText}>{codigoError}</p>}
+                <div className="rm-card">
+                    <header className="rm-header">
+                        <div className="rm-header-icon rm-header-icon--warning">
+                            <Presentation size={28} />
+                        </div>
+                        <h1 className="rm-title">Registro de Maestro</h1>
+                        <p className="rm-subtitle">
+                            Ingresa el código de verificación para continuar
+                        </p>
+                    </header>
+
+                    <form onSubmit={handleValidarCodigo} className="rm-form">
+                        <div className="rm-field">
+                            <label htmlFor="codigo" className="rm-label">
+                                Código de Maestro
+                            </label>
+                            <div className="rm-input-wrapper">
+                                <KeyRound className="rm-input-icon" size={18} />
+                                <input
+                                    id="codigo"
+                                    type={showCodigo ? 'text' : 'password'}
+                                    value={codigo}
+                                    onChange={(e) => setCodigo(e.target.value)}
+                                    required
+                                    className="rm-input rm-input--with-toggle"
+                                    placeholder="*******"
+                                    disabled={loading}
+                                    autoComplete="off"
+                                    autoFocus
+                                />
+                                <button
+                                    type="button"
+                                    className="rm-input-toggle"
+                                    onClick={() => setShowCodigo(!showCodigo)}
+                                    aria-label={
+                                        showCodigo
+                                            ? 'Ocultar código'
+                                            : 'Mostrar código'
+                                    }
+                                    tabIndex={-1}
+                                >
+                                    {showCodigo ? (
+                                        <EyeOff size={18} />
+                                    ) : (
+                                        <Eye size={18} />
+                                    )}
+                                </button>
+                            </div>
+                            {codigoError && (
+                                <p className="rm-field-error">
+                                    <AlertCircle size={14} />
+                                    {codigoError}
+                                </p>
+                            )}
                         </div>
 
-                        <button 
-                            type="submit" 
-                            style={styles.btnValidar}
+                        <button
+                            type="submit"
+                            className="rm-btn-submit rm-btn-submit--warning"
                             disabled={loading}
                         >
-                            {loading ? 'Validando...' : 'Validar Código'}
+                            {loading ? (
+                                <>
+                                    <Loader2
+                                        className="rm-btn-spinner"
+                                        size={18}
+                                    />
+                                    Validando...
+                                </>
+                            ) : (
+                                <>
+                                    Validar Código
+                                    <ArrowRight size={18} />
+                                </>
+                            )}
                         </button>
 
-                        <p style={styles.footer}>
-                            ¿Ya tienes cuenta? <span onClick={() => navigate('/login')} style={styles.link}>Inicia Sesión</span>
+                        <p className="rm-footer">
+                            ¿Ya tienes cuenta?{' '}
+                            <Link to="/login" className="rm-link">
+                                Inicia Sesión
+                            </Link>
                         </p>
                     </form>
                 </div>
@@ -163,276 +278,317 @@ function RegistroMaestro() {
         );
     }
 
-    // ========== PANTALLA DE FORMULARIO ==========
+    // ==================== PASO 2: FORMULARIO ====================
     return (
-        <div style={styles.container}>
-            <div style={styles.card}>
-                <h1 style={styles.title}>👨‍🏫 Registro de Maestro</h1>
-                <p style={styles.subtitle}>
-                    Validado para: <strong>{departamentoInfo?.nombre}</strong>
-                </p>
+        <div className="rm-page">
+            <button
+                className="rm-back"
+                onClick={() => setStep('codigo')}
+                type="button"
+            >
+                <ArrowLeft size={18} />
+                Volver al código
+            </button>
 
-                {error && <div style={styles.error}>{error}</div>}
+            <div className="rm-card">
+                <header className="rm-header">
+                    <div className="rm-header-icon rm-header-icon--warning">
+                        <Presentation size={28} />
+                    </div>
+                    <h1 className="rm-title">Datos del Maestro</h1>
+                    <p className="rm-subtitle">
+                        Completa tu información profesional
+                    </p>
 
-                <form onSubmit={handleSubmit} style={styles.form}>
-                    {/* DATOS PERSONALES */}
-                    <div style={styles.row}>
-                        <div style={styles.field}>
-                            <label>Usuario *</label>
-                            <input
-                                type="text"
-                                name="username"
-                                value={formData.username}
-                                onChange={handleChange}
-                                required
-                                style={styles.input}
-                                placeholder="ej: juan.perez"
-                            />
+                    {departamentoInfo?.nombre && (
+                        <div className="rm-department-badge">
+                            <Building2 size={16} />
+                            {departamentoInfo.nombre}
                         </div>
-                        <div style={styles.field}>
-                            <label>Nombre *</label>
+                    )}
+                </header>
+
+                {error && (
+                    <div className="rm-alert rm-alert--error" role="alert">
+                        <AlertCircle size={18} />
+                        <span>{error}</span>
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="rm-form">
+                    {/* ===== Datos personales ===== */}
+                    <div className="rm-row">
+                        <div className="rm-field">
+                            <label htmlFor="username" className="rm-label">
+                                Usuario
+                            </label>
+                            <div className="rm-input-wrapper">
+                                <User className="rm-input-icon" size={18} />
+                                <input
+                                    id="username"
+                                    type="text"
+                                    name="username"
+                                    value={formData.username}
+                                    onChange={handleChange}
+                                    required
+                                    className="rm-input"
+                                    placeholder="ej: juan.perez"
+                                    autoComplete="username"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="rm-field">
+                            <label htmlFor="nombre" className="rm-label">
+                                Nombre
+                            </label>
                             <input
+                                id="nombre"
                                 type="text"
                                 name="nombre"
                                 value={formData.nombre}
                                 onChange={handleChange}
                                 required
-                                style={styles.input}
+                                className="rm-input rm-input--standalone"
                                 placeholder="Juan"
+                                autoComplete="given-name"
                             />
                         </div>
                     </div>
 
-                    <div style={styles.row}>
-                        <div style={styles.field}>
-                            <label>Apellido Paterno *</label>
+                    <div className="rm-row">
+                        <div className="rm-field">
+                            <label htmlFor="apellido1" className="rm-label">
+                                Apellido Paterno
+                            </label>
                             <input
+                                id="apellido1"
                                 type="text"
                                 name="apellido1"
                                 value={formData.apellido1}
                                 onChange={handleChange}
                                 required
-                                style={styles.input}
+                                className="rm-input rm-input--standalone"
                                 placeholder="Pérez"
+                                autoComplete="family-name"
                             />
                         </div>
-                        <div style={styles.field}>
-                            <label>Apellido Materno</label>
+
+                        <div className="rm-field">
+                            <label htmlFor="apellido2" className="rm-label">
+                                Apellido Materno{' '}
+                                <span className="rm-label-optional">
+                                    (opcional)
+                                </span>
+                            </label>
                             <input
+                                id="apellido2"
                                 type="text"
                                 name="apellido2"
                                 value={formData.apellido2}
                                 onChange={handleChange}
-                                style={styles.input}
-                                placeholder="García (opcional)"
+                                className="rm-input rm-input--standalone"
+                                placeholder="García"
+                                autoComplete="family-name"
                             />
                         </div>
                     </div>
 
-                    <div style={styles.field}>
-                        <label>Correo Electrónico *</label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                            style={styles.input}
-                            placeholder="juan@email.com"
-                        />
-                    </div>
-
-                    {/* CONTRASEÑAS */}
-                    <div style={styles.row}>
-                        <div style={styles.field}>
-                            <label>Contraseña *</label>
+                    <div className="rm-field">
+                        <label htmlFor="email" className="rm-label">
+                            Correo Electrónico
+                        </label>
+                        <div className="rm-input-wrapper">
+                            <Mail className="rm-input-icon" size={18} />
                             <input
-                                type="password"
-                                name="password"
-                                value={formData.password}
+                                id="email"
+                                type="email"
+                                name="email"
+                                value={formData.email}
                                 onChange={handleChange}
                                 required
-                                style={styles.input}
-                                placeholder="Mínimo 6 caracteres"
-                            />
-                        </div>
-                        <div style={styles.field}>
-                            <label>Confirmar Contraseña *</label>
-                            <input
-                                type="password"
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                required
-                                style={styles.input}
-                                placeholder="Repite tu contraseña"
+                                className="rm-input"
+                                placeholder="juan@email.com"
+                                autoComplete="email"
                             />
                         </div>
                     </div>
 
-                    {/* DATOS PROFESIONALES */}
-                    <div style={styles.row}>
-                        <div style={styles.field}>
-                            <label>Especialidad</label>
-                            <select
-                                name="especialidad"
-                                value={formData.especialidad}
-                                onChange={handleChange}
-                                style={styles.input}
-                            >
-                                <option value="Matemáticas">Matemáticas</option>
-                            </select>
+                    {/* ===== Contraseñas ===== */}
+                    <div className="rm-row">
+                        <div className="rm-field">
+                            <label htmlFor="password" className="rm-label">
+                                Contraseña
+                            </label>
+                            <div className="rm-input-wrapper">
+                                <Lock className="rm-input-icon" size={18} />
+                                <input
+                                    id="password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                    className="rm-input rm-input--with-toggle"
+                                    placeholder="Mínimo 6 caracteres"
+                                    autoComplete="new-password"
+                                />
+                                <button
+                                    type="button"
+                                    className="rm-input-toggle"
+                                    onClick={() =>
+                                        setShowPassword(!showPassword)
+                                    }
+                                    aria-label={
+                                        showPassword
+                                            ? 'Ocultar contraseña'
+                                            : 'Mostrar contraseña'
+                                    }
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? (
+                                        <EyeOff size={18} />
+                                    ) : (
+                                        <Eye size={18} />
+                                    )}
+                                </button>
+                            </div>
                         </div>
-                        <div style={styles.field}>
-                            <label>Categoría</label>
-                            <select
-                                name="categoria"
-                                value={formData.categoria}
-                                onChange={handleChange}
-                                style={styles.input}
+
+                        <div className="rm-field">
+                            <label
+                                htmlFor="confirmPassword"
+                                className="rm-label"
                             >
-                                <option value="Primera">Primera</option>
-                                <option value="Segunda">Segunda</option>
-                                <option value="Tercera">Tercera</option>
-                                <option value="cuarta">Cuarta</option>
-                                <option value="Quinta">Quinta</option>
-                            </select>
+                                Confirmar Contraseña
+                            </label>
+                            <div className="rm-input-wrapper">
+                                <Lock className="rm-input-icon" size={18} />
+                                <input
+                                    id="confirmPassword"
+                                    type={
+                                        showConfirmPassword
+                                            ? 'text'
+                                            : 'password'
+                                    }
+                                    name="confirmPassword"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    required
+                                    className="rm-input rm-input--with-toggle"
+                                    placeholder="Repite tu contraseña"
+                                    autoComplete="new-password"
+                                />
+                                <button
+                                    type="button"
+                                    className="rm-input-toggle"
+                                    onClick={() =>
+                                        setShowConfirmPassword(
+                                            !showConfirmPassword
+                                        )
+                                    }
+                                    aria-label={
+                                        showConfirmPassword
+                                            ? 'Ocultar contraseña'
+                                            : 'Mostrar contraseña'
+                                    }
+                                    tabIndex={-1}
+                                >
+                                    {showConfirmPassword ? (
+                                        <EyeOff size={18} />
+                                    ) : (
+                                        <Eye size={18} />
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <button 
-                        type="submit" 
-                        style={styles.btnRegistrar}
+                    {/* ===== Datos profesionales ===== */}
+                    <div className="rm-section-label">
+                        <span className="rm-section-line" />
+                        <span className="rm-section-text">
+                            Datos profesionales
+                        </span>
+                        <span className="rm-section-line" />
+                    </div>
+
+                    <div className="rm-row">
+                        <div className="rm-field">
+                            <label htmlFor="especialidad" className="rm-label">
+                                Especialidad
+                            </label>
+                            <div className="rm-input-wrapper">
+                                <BookOpen className="rm-input-icon" size={18} />
+                                <select
+                                    id="especialidad"
+                                    name="especialidad"
+                                    value={formData.especialidad}
+                                    onChange={handleChange}
+                                    className="rm-input rm-select"
+                                >
+                                    <option value="Matemáticas">
+                                        Matemáticas
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="rm-field">
+                            <label htmlFor="categoria" className="rm-label">
+                                Categoría
+                            </label>
+                            <div className="rm-input-wrapper">
+                                <Award className="rm-input-icon" size={18} />
+                                <select
+                                    id="categoria"
+                                    name="categoria"
+                                    value={formData.categoria}
+                                    onChange={handleChange}
+                                    className="rm-input rm-select"
+                                >
+                                    <option value="Primera">Primera</option>
+                                    <option value="Segunda">Segunda</option>
+                                    <option value="Tercera">Tercera</option>
+                                    <option value="Cuarta">Cuarta</option>
+                                    <option value="Quinta">Quinta</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ===== Submit ===== */}
+                    <button
+                        type="submit"
+                        className="rm-btn-submit rm-btn-submit--warning"
                         disabled={loading}
                     >
-                        {loading ? 'Registrando...' : 'Registrarme como Maestro'}
+                        {loading ? (
+                            <>
+                                <Loader2
+                                    className="rm-btn-spinner"
+                                    size={18}
+                                />
+                                Registrando...
+                            </>
+                        ) : (
+                            <>
+                                <Presentation size={18} />
+                                Registrarme como Maestro
+                            </>
+                        )}
                     </button>
 
-                    <p style={styles.footer}>
-                        ¿Ya tienes cuenta? <span onClick={() => navigate('/login')} style={styles.link}>Inicia Sesión</span>
+                    <p className="rm-footer">
+                        ¿Ya tienes cuenta?{' '}
+                        <Link to="/login" className="rm-link">
+                            Inicia Sesión
+                        </Link>
                     </p>
                 </form>
             </div>
         </div>
     );
 }
-
-// ==================== ESTILOS ========================
-const styles = {
-    container: {
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f4f6f8',
-        padding: '20px',
-        fontFamily: 'Arial, sans-serif'
-    },
-    card: {
-        backgroundColor: 'white',
-        borderRadius: '15px',
-        padding: '40px',
-        maxWidth: '700px',
-        width: '100%',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-    },
-    successCard: {
-        backgroundColor: 'white',
-        borderRadius: '15px',
-        padding: '40px',
-        maxWidth: '500px',
-        width: '100%',
-        textAlign: 'center',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-    },
-    title: {
-        fontSize: '28px',
-        color: '#F39C12',
-        marginBottom: '5px',
-        textAlign: 'center'
-    },
-    subtitle: {
-        fontSize: '16px',
-        color: '#777',
-        marginBottom: '25px',
-        textAlign: 'center'
-    },
-    form: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '15px'
-    },
-    row: {
-        display: 'flex',
-        gap: '15px',
-        flexWrap: 'wrap'
-    },
-    field: {
-        flex: '1',
-        minWidth: '200px'
-    },
-    label: {
-        display: 'block',
-        marginBottom: '5px',
-        fontWeight: 'bold',
-        color: '#333'
-    },
-    input: {
-        width: '100%',
-        padding: '10px',
-        border: '1px solid #ddd',
-        borderRadius: '5px',
-        fontSize: '16px',
-        boxSizing: 'border-box'
-    },
-    btnValidar: {
-        backgroundColor: '#F39C12',
-        color: 'white',
-        border: 'none',
-        padding: '14px',
-        borderRadius: '5px',
-        fontSize: '18px',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        marginTop: '10px',
-        transition: 'background 0.2s'
-    },
-    btnRegistrar: {
-        backgroundColor: '#F39C12',
-        color: 'white',
-        border: 'none',
-        padding: '14px',
-        borderRadius: '5px',
-        fontSize: '18px',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        marginTop: '10px',
-        transition: 'background 0.2s'
-    },
-    error: {
-        backgroundColor: '#fee',
-        color: '#c00',
-        padding: '10px',
-        borderRadius: '5px',
-        marginBottom: '15px',
-        textAlign: 'center'
-    },
-    errorText: {
-        color: '#c00',
-        fontSize: '14px',
-        marginTop: '5px'
-    },
-    footer: {
-        marginTop: '20px',
-        textAlign: 'center',
-        color: '#555'
-    },
-    link: {
-        color: '#1A5276',
-        cursor: 'pointer',
-        fontWeight: 'bold',
-        textDecoration: 'underline'
-    }
-};
 
 export default RegistroMaestro;
