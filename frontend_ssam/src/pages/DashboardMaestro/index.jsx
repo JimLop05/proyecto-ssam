@@ -1,7 +1,7 @@
 // frontend_ssam/src/pages/DashboardMaestro/index.jsx
 // ============================================================
 // DASHBOARD DEL MAESTRO
-// Secciones: Perfil · Clases · Planificación
+// Secciones: Perfil · Clases · Planificación · Estadísticas
 // ============================================================
 
 import { useState, useEffect } from 'react';
@@ -30,6 +30,7 @@ import api from '../../api/axios';
 import './DashboardMaestro.css';
 import PlanificacionGestion from './PlanificacionGestion';
 import AdministrarEstudiantes from './AdministrarEstudiantes';
+import EstadisticasClase from './EstadisticasClase';
 
 function DashboardMaestro() {
     const navigate = useNavigate();
@@ -43,6 +44,7 @@ function DashboardMaestro() {
     const [administrarEstudiantes, setAdministrarEstudiantes] = useState(false);
     const [claseSeleccionada, setClaseSeleccionada] = useState(null);
     const [config, setConfig] = useState(null);
+    const [showEstadisticas, setShowEstadisticas] = useState(false);
 
     const [formData, setFormData] = useState({
         nombreC: '',
@@ -233,6 +235,15 @@ function DashboardMaestro() {
             );
         }
 
+        if (showEstadisticas && claseSeleccionada) {
+            return (
+                <EstadisticasClase
+                    clase={claseSeleccionada}
+                    volver={() => setShowEstadisticas(false)}
+                />
+            );
+        }
+
         if (showPlanificacion) {
             return (
                 <PlanificacionGestion
@@ -265,6 +276,7 @@ function DashboardMaestro() {
                         onAdministrarEstudiantes={() =>
                             setAdministrarEstudiantes(true)
                         }
+                        onVerEstadisticas={() => setShowEstadisticas(true)}
                     />
                 );
             case 'planificacion':
@@ -331,7 +343,7 @@ function DashboardMaestro() {
                         title="Cerrar sesión"
                     >
                         <LogOut size={16} />
-                        Salir
+                        Cerrar Sesión
                     </button>
                 </div>
             </header>
@@ -864,7 +876,12 @@ function MiPlanificacion({ onPlanificar }) {
     );
 }
 
-function DetalleClase({ clase, volver, onAdministrarEstudiantes }) {
+function DetalleClase({
+    clase,
+    volver,
+    onAdministrarEstudiantes,
+    onVerEstadisticas,
+}) {
     if (!clase) return null;
 
     const items = [
@@ -937,7 +954,10 @@ function DetalleClase({ clase, volver, onAdministrarEstudiantes }) {
                         <GraduationCap size={16} />
                         Ver Estudiantes
                     </button>
-                    <button className="dm-btn dm-btn--ghost">
+                    <button
+                        className="dm-btn dm-btn--ghost"
+                        onClick={onVerEstadisticas}
+                    >
                         <BarChart3 size={16} />
                         Ver Estadísticas
                     </button>

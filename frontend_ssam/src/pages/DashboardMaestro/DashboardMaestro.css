@@ -24,10 +24,6 @@
   z-index: 30;
 }
 
-.dm-header__left,
-.dm-header__right {
-  /* contenedor con max-width */
-}
 
 .dm-header {
   display: flex;
@@ -878,10 +874,6 @@
     width: 36px;
   }
 
-  .dm-btn span,
-  .dm-btn:not(:has(svg)) {
-    /* si el botón solo tiene texto, se muestra */
-  }
 
   .dm-btn {
     padding: 8px 12px;

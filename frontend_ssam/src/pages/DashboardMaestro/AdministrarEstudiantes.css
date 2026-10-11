@@ -1,171 +1,643 @@
-/* frontend_ssam/src/pages/DashboardMaestro/AdministrarEstudiantes.css */
+/* frontend_ssam/src/pages/DashboardMaestro/AdministrarEstudiantes.css
+   ============================================================
+   Administrar Estudiantes — Sistema SSAM
+   ============================================================ */
 
-.admin-estudiantes {
-    padding: 25px;
-}
+@import '../../styles/theme.css';
 
-/* ========== INFO DE LA CLASE ========== */
-.info-clase-resumen {
+/* ==================== BASE ==================== */
+.ae-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 15px 20px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    border-left: 4px solid #1a3a5c;
-    margin-bottom: 20px;
+    flex-direction: column;
+    gap: var(--space-5);
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-.info-clase-resumen span {
-    font-size: 14px;
-    color: #555;
-}
-
-.info-clase-resumen strong {
-    color: #1a3a5c;
-}
-
-/* ========== TOOLBAR ========== */
-.admin-toolbar {
+/* ==================== HEADER ==================== */
+.ae-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
+    gap: var(--space-4);
 }
 
-.input-busqueda {
+.ae-header__titles {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
     flex: 1;
-    min-width: 250px;
-    padding: 10px 15px;
-    border: 1px solid #ced4da;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: all 0.3s ease;
+    min-width: 0;
 }
 
-.input-busqueda:focus {
-    outline: none;
-    border-color: #1a3a5c;
-    box-shadow: 0 0 0 3px rgba(26, 58, 92, 0.1);
+.ae-header__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
-.contador-estudiantes {
-    background-color: #e9ecef;
-    padding: 8px 16px;
-    border-radius: 20px;
+.ae-header__title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--color-ink);
+    letter-spacing: -0.2px;
+}
+
+.ae-header__subtitle {
     font-size: 13px;
-    color: #495057;
+    color: var(--color-ink-muted);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ==================== BOTONES ==================== */
+.ae-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition-fast);
     white-space: nowrap;
 }
 
-.contador-estudiantes strong {
-    color: #1a3a5c;
+.ae-btn--sm {
+    padding: 7px 12px;
+    font-size: 13px;
 }
 
-/* ========== ESTADO VACÍO ========== */
-.estado-vacio {
+.ae-btn--ghost {
+    background: var(--color-surface);
+    color: var(--color-ink-muted);
+    border-color: var(--color-border);
+}
+.ae-btn--ghost:hover {
+    background: var(--color-bg-alt);
+    color: var(--color-ink);
+    border-color: var(--color-ink-soft);
+}
+
+/* ==================== INFO BAR ==================== */
+.ae-info-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-5);
+}
+
+.ae-info-bar__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 13px;
+    color: var(--color-ink);
+    font-weight: 500;
+    padding-right: var(--space-4);
+    border-right: 1px solid var(--color-border);
+}
+
+.ae-info-bar__item:last-child {
+    border-right: none;
+    padding-right: 0;
+}
+
+.ae-info-bar__item svg {
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+/* ==================== LOADING ==================== */
+.ae-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-8);
+    color: var(--color-ink-muted);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.ae-spin {
+    animation: ae-spin 0.9s linear infinite;
+}
+
+@keyframes ae-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ==================== ALERTAS ==================== */
+.ae-alert {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.ae-alert--error {
+    background: var(--color-danger-light);
+    color: var(--color-danger);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* ==================== TOAST ==================== */
+.ae-toast {
+    position: fixed;
+    bottom: var(--space-6);
+    right: var(--space-6);
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: var(--shadow-xl);
+    animation: ae-toast-in 0.25s ease;
+    max-width: 460px;
+    border: 1px solid transparent;
+}
+
+@keyframes ae-toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ae-toast--success {
+    background: var(--color-accent-light);
+    color: var(--color-accent-hover);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.ae-toast--error {
+    background: var(--color-danger-light);
+    color: var(--color-danger);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* ==================== TOOLBAR ==================== */
+.ae-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    flex-wrap: wrap;
+}
+
+.ae-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 240px;
+    max-width: 500px;
+}
+
+.ae-search__icon {
+    position: absolute;
+    left: 12px;
+    color: var(--color-ink-soft);
+    pointer-events: none;
+}
+
+.ae-search__input {
+    width: 100%;
+    padding: 9px 36px 9px 38px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--color-ink);
+    background: var(--color-surface);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: all var(--transition-fast);
+}
+
+.ae-search__input::placeholder {
+    color: var(--color-ink-soft);
+}
+
+.ae-search__input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+}
+
+.ae-search__clear {
+    position: absolute;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-bg-alt);
+    border: none;
+    color: var(--color-ink-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.ae-search__clear:hover {
+    background: var(--color-ink-soft);
+    color: white;
+}
+
+.ae-counter {
+    font-size: 13px;
+    color: var(--color-ink-muted);
+    margin-left: auto;
+}
+
+.ae-counter strong {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+/* ==================== EMPTY STATE ==================== */
+.ae-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-12) var(--space-6);
+    background: var(--color-surface);
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-lg);
     text-align: center;
-    padding: 40px 20px;
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    border: 2px dashed #ced4da;
 }
 
-/* ========== TABLA ========== */
-.tabla-wrapper {
-    background-color: white;
-    border-radius: 10px;
+.ae-empty__icon {
+    color: var(--color-ink-soft);
+    opacity: 0.5;
+    margin-bottom: var(--space-2);
+}
+
+.ae-empty__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-ink);
+}
+
+.ae-empty__text {
+    font-size: 14px;
+    color: var(--color-ink-muted);
+    max-width: 400px;
+    line-height: 1.5;
+}
+
+.ae-empty__text strong {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+/* ==================== TABLA ==================== */
+.ae-table-wrapper {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.tabla-estudiantes {
+.ae-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
 }
 
-.tabla-estudiantes thead {
-    background: linear-gradient(135deg, #1a3a5c 0%, #2a5f7a 100%);
-    color: white;
-}
-
-.tabla-estudiantes thead th {
-    padding: 14px 16px;
+.ae-table thead th {
     text-align: left;
-    font-weight: 600;
-    font-size: 13px;
-    letter-spacing: 0.5px;
+    font-size: 11px;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-ink-muted);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg-alt);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
 }
 
-.tabla-estudiantes tbody tr {
-    border-bottom: 1px solid #e9ecef;
-    transition: background-color 0.2s ease;
+.ae-table tbody tr {
+    border-bottom: 1px solid var(--color-border);
+    transition: background var(--transition-fast);
 }
 
-.tabla-estudiantes tbody tr:hover {
-    background-color: #f8f9fa;
-}
-
-.tabla-estudiantes tbody tr:last-child {
+.ae-table tbody tr:last-child {
     border-bottom: none;
 }
 
-.tabla-estudiantes tbody td {
-    padding: 14px 16px;
-    color: #333;
+.ae-table tbody tr:hover {
+    background: var(--color-bg-alt);
+}
+
+.ae-table tbody td {
+    padding: var(--space-3) var(--space-4);
     vertical-align: middle;
+    color: var(--color-ink);
 }
 
-.tabla-estudiantes tbody td strong {
-    color: #1a3a5c;
-}
-
-/* ========== BADGE DE ESTADO ========== */
-.badge-estado {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 15px;
-    font-size: 12px;
+.ae-th-num,
+.ae-td-num {
+    width: 50px;
+    text-align: center;
+    color: var(--color-ink-soft);
     font-weight: 600;
+}
+
+.ae-th-actions {
+    width: 140px;
+    text-align: right;
+}
+
+.ae-td-mono {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--color-ink-muted);
+}
+
+.ae-td-muted {
+    color: var(--color-ink-muted);
+    font-size: 13px;
+}
+
+/* ==================== CELDA USUARIO ==================== */
+.ae-cell-user {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.ae-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    flex-shrink: 0;
 }
 
-.badge-estado.activo {
-    background-color: #d4edda;
-    color: #155724;
+.ae-cell-user__info {
+    min-width: 0;
 }
 
-.badge-estado.inactivo {
-    background-color: #f8d7da;
-    color: #721c24;
+.ae-cell-user__name {
+    font-weight: 600;
+    color: var(--color-ink);
+    line-height: 1.3;
 }
 
-.badge-estado.suspendido {
-    background-color: #fff3cd;
-    color: #856404;
+/* ==================== BADGES ==================== */
+.ae-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
 }
 
-/* ========== RESPONSIVE ========== */
+.ae-badge--activo {
+    background: var(--color-accent-light);
+    color: var(--color-accent-hover);
+}
+
+.ae-badge--suspendido {
+    background: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+.ae-badge--inactivo {
+    background: var(--color-bg-alt);
+    color: var(--color-ink-muted);
+}
+
+/* ==================== ACCIONES ==================== */
+.ae-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    justify-content: flex-end;
+}
+
+.ae-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--color-ink-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.ae-icon-btn:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    border-color: rgba(30, 58, 138, 0.2);
+}
+
+.ae-icon-btn--danger:hover {
+    background: var(--color-danger-light);
+    color: var(--color-danger);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+/* ==================== MODAL DETALLE ==================== */
+.ae-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    animation: ae-modal-fade 0.2s ease;
+}
+
+@keyframes ae-modal-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.ae-modal__content {
+    position: relative;
+    background: var(--color-surface);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35);
+    padding: var(--space-8) var(--space-6) var(--space-6);
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    animation: ae-modal-pop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes ae-modal-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.94);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.ae-modal__close {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--color-ink-soft);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.ae-modal__close:hover {
+    background: var(--color-bg-alt);
+    color: var(--color-ink);
+}
+
+.ae-modal__avatar {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--space-4);
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 28px;
+    text-transform: uppercase;
+}
+
+.ae-modal__name {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--color-ink);
+    margin-bottom: var(--space-3);
+    letter-spacing: -0.2px;
+}
+
+.ae-modal__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-border);
+}
+
+.ae-modal__row {
+    display: grid;
+    grid-template-columns: 20px 90px 1fr;
+    gap: var(--space-2);
+    align-items: center;
+    text-align: left;
+    font-size: 13px;
+}
+
+.ae-modal__row svg {
+    color: var(--color-ink-soft);
+}
+
+.ae-modal__label {
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.4px;
+}
+
+.ae-modal__value {
+    color: var(--color-ink);
+    font-weight: 500;
+    word-break: break-word;
+}
+
+/* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
-    .tabla-wrapper {
-        overflow-x: auto;
-    }
-
-    .tabla-estudiantes {
-        min-width: 700px;
-    }
-
-    .admin-toolbar {
+    .ae-toolbar {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .input-busqueda {
-        min-width: 100%;
+    .ae-search {
+        max-width: none;
+    }
+
+    .ae-counter {
+        text-align: right;
+        margin-left: 0;
+    }
+
+    .ae-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .ae-table {
+        min-width: 700px;
+    }
+
+    .ae-info-bar {
+        flex-direction: column;
+    }
+
+    .ae-info-bar__item {
+        border-right: none;
+        padding-right: 0;
     }
 }
