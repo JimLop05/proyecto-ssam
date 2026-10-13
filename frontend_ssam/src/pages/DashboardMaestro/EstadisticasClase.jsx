@@ -21,11 +21,13 @@ import ReporteClaseTab from './ReporteClaseTab';
 import ReporteEstudianteTab from './ReporteEstudianteTab';
 import './EstadisticasClase.css';
 
-function EstadisticasClase({ clase, volver }) {
+function EstadisticasClase({ clase, volver, estudianteInicialId = null }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [resumen, setResumen] = useState(null);
-    const [tabActiva, setTabActiva] = useState('clase'); // 'clase' | 'estudiante'
+    const [tabActiva, setTabActiva] = useState(
+        estudianteInicialId ? 'estudiante' : 'clase'
+    );
 
     useEffect(() => {
         if (!clase?.id_clase) return;
@@ -211,7 +213,10 @@ function EstadisticasClase({ clase, volver }) {
                     <ReporteClaseTab idClase={clase.id_clase} />
                 )}
                 {tabActiva === 'estudiante' && (
-                    <ReporteEstudianteTab idClase={clase.id_clase} />
+                    <ReporteEstudianteTab
+                        idClase={clase.id_clase}
+                        estudianteInicialId={estudianteInicialId}
+                    />
                 )}
             </div>
         </div>

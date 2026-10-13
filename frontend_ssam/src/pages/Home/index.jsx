@@ -3,15 +3,16 @@
 // PÁGINA PRINCIPAL — Landing + Elección de rol
 // ============================================================
 
+import Hero from '../../components/sections/Hero';
+import ModuleTiles from '../../components/sections/ModuleTiles';
+import About from '../../components/sections/About';
+import Footer from '../../components/sections/Footer';
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    BarChart3,
-    Target,
-    BookOpen,
     GraduationCap,
     Presentation,
-    Mail,
     ArrowRight,
     Loader2,
 } from 'lucide-react';
@@ -28,24 +29,6 @@ const logoFallback =
                   font-weight="700" text-anchor="middle" fill="#FFFFFF">SS</text>
         </svg>`
     );
-
-const FEATURES = [
-    {
-        icon: BarChart3,
-        title: 'Métricas en tiempo real',
-        desc: 'Visualiza el rendimiento académico con reportes claros y accionables.',
-    },
-    {
-        icon: Target,
-        title: 'Seguimiento personalizado',
-        desc: 'Cada estudiante tiene su propio panel de progreso por unidad y clase.',
-    },
-    {
-        icon: BookOpen,
-        title: 'Planificación docente',
-        desc: 'Crea, organiza y evalúa tus clases de matemáticas con herramientas diseñadas para docentes.',
-    },
-];
 
 function Home() {
     const [config, setConfig] = useState(null);
@@ -75,7 +58,7 @@ function Home() {
         );
     }
 
-    const systemName = config?.nombre_plataforma || 'SSAM';
+    const systemName = config?.nombre_plataforma || 'SSRA';
     const vision = config?.vision || 'Bienvenido a la Plataforma';
     const mision = config?.mision || 'Sistema de seguimiento y rendimiento académico en matemáticas';
 
@@ -85,13 +68,11 @@ function Home() {
 
     return (
         <div className="home">
+
             {/* ==================== HEADER ==================== */}
             <header className="home__header">
                 <div className="home__header-inner">
-                    <button
-                        className="home__brand"
-                        onClick={() => navigate('/')}
-                    >
+                    <button className="home__brand" onClick={() => navigate('/')}>
                         <img
                             src={config?.logo_url || logoFallback}
                             alt="Logo"
@@ -121,48 +102,22 @@ function Home() {
             </header>
 
             {/* ==================== HERO ==================== */}
-            <section className="home__hero">
-                <div className="home__hero-inner">
-                     <h1 className="home__hero-title">{vision}</h1>
-                    <p className="home__hero-subtitle">{mision}</p>
+            <Hero
+                vision={vision}
+                mision={mision}
+                onComenzar={handleScrollToRegistro}
+                onLogin={() => navigate('/login')}
+            />
 
-                    <div className="home__hero-actions">
-                        <button
-                            className="btn btn--primary btn--lg"
-                            onClick={handleScrollToRegistro}
-                        >
-                            Comenzar ahora
-                            <ArrowRight size={18} />
-                        </button>
-                        <button
-                            className="btn btn--outline-light btn--lg"
-                            onClick={() => navigate('/login')}
-                        >
-                            Ya tengo cuenta
-                        </button>
-                    </div>
-                </div>
-            </section>
+            {/* ==================== MÓDULOS (TILES) ==================== */}
+            <ModuleTiles onModuleClick={() => navigate('/login')} />
 
-            {/* ==================== FEATURES ==================== */}
-            <section className="home__features">
-                <div className="home__section-head">
-                    <h2>Todo lo que necesitas en un solo lugar</h2>
-                    <p>Diseñado para estudiantes, docentes y directivos de instituciones educativas.</p>
-                </div>
-
-                <div className="home__features-grid">
-                    {FEATURES.map(({ icon: Icon, title, desc }) => (
-                        <article key={title} className="feature-card">
-                            <div className="feature-card__icon">
-                                <Icon size={26} strokeWidth={2} />
-                            </div>
-                            <h3>{title}</h3>
-                            <p>{desc}</p>
-                        </article>
-                    ))}
-                </div>
-            </section>
+            {/* ==================== ABOUT / QUIÉNES SOMOS ==================== */}
+            <About
+                vision={vision}
+                mision={mision}
+                systemName={systemName}
+            />
 
             {/* ==================== REGISTRO / ELEGIR ROL ==================== */}
             <section id="registro" className="home__registro">
@@ -222,38 +177,12 @@ function Home() {
             </section>
 
             {/* ==================== FOOTER ==================== */}
-            <footer className="home__footer">
-                <div className="home__footer-inner">
-                    <div className="home__footer-col">
-                        <div className="home__footer-brand">
-                            <img
-                                src={config?.logo_url || logoFallback}
-                                alt="Logo SSAM"
-                                className="home__footer-logo"
-                                onError={(e) => { e.target.src = logoFallback; }}
-                            />
-                            <p className="home__footer-tagline">Plataforma Educativa Institucional</p>
-                        </div>
-                    </div>
+            <Footer
+                config={config}
+                logoFallback={logoFallback}
+                systemName={systemName}
+            />
 
-                    <div className="home__footer-col">
-                        <h4>Recursos</h4>
-                        <a href={config?.url_manual_usuario || '#'}>
-                            <BookOpen size={14} />
-                            Manual de Usuario
-                        </a>
-                    </div>
-
-                    <div className="home__footer-col">
-                        <h4>Institución</h4>
-                        <p>Dirección Departamental de Educación La Paz</p>
-                    </div>
-                </div>
-
-                <div className="home__footer-bottom">
-                    <p>© {new Date().getFullYear()} {systemName}. Todos los derechos reservados.</p>
-                </div>
-            </footer>
         </div>
     );
 }

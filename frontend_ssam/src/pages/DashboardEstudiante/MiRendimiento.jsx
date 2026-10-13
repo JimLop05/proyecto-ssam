@@ -2,22 +2,23 @@
 // ============================================================
 // MI RENDIMIENTO (vista principal)
 // - Lista de clases con promedio y rúbrica de colores
-// - Próximamente: click en clase → detalle con pestañas
+// - Click en clase → detalle con pestañas
 // ============================================================
 
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import './MiRendimiento.css';
 import RendimientoClaseDetalle from './RendimientoClaseDetalle';
+import { ArrowRight } from 'lucide-react';
 
 // ============================================================
 // Rúbrica de colores institucional
 // Terminología motivadora para estudiantes de secundaria
 // ============================================================
 export const RUBRICA = [
-    { min: 90, max: 100, nivel: 'Óptimo',       color: '#2e7d32', clase: 'optimo' },
-    { min: 75, max: 89,  nivel: 'Bueno',        color: '#66bb6a', clase: 'bueno' },
-    { min: 51, max: 74,  nivel: 'Aceptable',    color: '#f9a825', clase: 'aceptable' },
+    { min: 90, max: 100, nivel: 'Óptimo',        color: '#2e7d32', clase: 'optimo' },
+    { min: 75, max: 89,  nivel: 'Bueno',         color: '#66bb6a', clase: 'bueno' },
+    { min: 51, max: 74,  nivel: 'Aceptable',     color: '#f9a825', clase: 'aceptable' },
     { min: 0,  max: 50,  nivel: 'En Desarrollo', color: '#c62828', clase: 'en-desarrollo' },
 ];
 
@@ -55,25 +56,26 @@ function MiRendimiento() {
         }
     };
 
-        // Detalle de clase
-        if (claseSeleccionada) {
-            return (
-                <RendimientoClaseDetalle
-                    idClase={claseSeleccionada.id_clase}
-                    volver={() => setClaseSeleccionada(null)}
-                />
-            );
-        }
-        if (loading) {
-            return (
-                <div className="section">
-                    <div className="loading-inline">
-                        <div className="loading-spinner"></div>
-                        <p>Cargando tu rendimiento...</p>
-                    </div>
+    // Detalle de clase
+    if (claseSeleccionada) {
+        return (
+            <RendimientoClaseDetalle
+                idClase={claseSeleccionada.id_clase}
+                volver={() => setClaseSeleccionada(null)}
+            />
+        );
+    }
+
+    if (loading) {
+        return (
+            <div className="section">
+                <div className="loading-inline">
+                    <div className="loading-spinner"></div>
+                    <p>Cargando tu rendimiento...</p>
                 </div>
-            );
-        }
+            </div>
+        );
+    }
 
     if (error) {
         return (
@@ -117,7 +119,7 @@ function MiRendimiento() {
                             return (
                                 <div
                                     key={clase.id_clase}
-                                    className="clase-rendimiento-card"
+                                    className={`clase-rendimiento-card card-rubrica-${rub.clase}`}
                                     onClick={() => setClaseSeleccionada(clase)}
                                     role="button"
                                     tabIndex={0}
@@ -128,12 +130,14 @@ function MiRendimiento() {
                                         }
                                     }}
                                 >
-                                    {/* Asignatura resaltada */}
+                                    {/* Header: asignatura + gestión */}
                                     <div className="clase-header">
                                         <span className={`asignatura-badge ${rub.clase}`}>
                                             {clase.asignatura || 'Sin asignatura'}
                                         </span>
-                                        <span className="clase-periodo">{clase.periodo}</span>
+                                        <span className="clase-periodo">
+                                            Gestión {clase.periodo}
+                                        </span>
                                     </div>
 
                                     <h4 className="clase-nombre">{clase.nombrec}</h4>
@@ -165,27 +169,9 @@ function MiRendimiento() {
                                         </div>
                                     </div>
 
-                                    {/* Stats de unidades */}
-                                    <div className="clase-stats-mini">
-                                        <div className="mini-stat">
-                                            <span className="mini-stat-label">Unidades</span>
-                                            <span className="mini-stat-value">
-                                                {clase.unidades_evaluadas}/{clase.total_unidades}
-                                            </span>
-                                        </div>
-                                        <div className="mini-stat">
-                                            <span className="mini-stat-label">Aprobadas</span>
-                                            <span
-                                                className="mini-stat-value"
-                                                style={{ color: '#2e7d32' }}
-                                            >
-                                                {clase.unidades_aprobadas}
-                                            </span>
-                                        </div>
-                                    </div>
-
                                     <button className="btn-ver-detalle">
-                                        Ver detalle
+                                        <span>Ver detalle</span>
+                                        <ArrowRight size={16} />
                                     </button>
                                 </div>
                             );

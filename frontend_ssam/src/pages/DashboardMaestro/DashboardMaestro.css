@@ -1,6 +1,9 @@
 /* frontend_ssam/src/pages/DashboardMaestro/DashboardMaestro.css
    ============================================================
    Estilos del Dashboard del Maestro
+   - Header estilo portada (hamburguesa + badge "Panel Maestro")
+   - Sidebar colapsable / off-canvas en móvil
+   - Usa variables globales de theme.css
    ============================================================ */
 
 @import '../../styles/theme.css';
@@ -12,6 +15,7 @@
   flex-direction: column;
   background: var(--color-bg);
   font-family: var(--font-sans);
+  color: var(--color-ink);
 }
 
 /* ==================== HEADER ==================== */
@@ -21,28 +25,51 @@
   box-shadow: var(--shadow-md);
   position: sticky;
   top: 0;
-  z-index: 30;
+  z-index: 100;
 }
 
-
-.dm-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.dm-header__inner {
+  max-width: 1600px;
+  margin: 0 auto;
   padding: var(--space-3) var(--space-6);
-  gap: var(--space-4);
+  display: flex;
+  align-items: center;      /* ← clave: centrado vertical de todo */
+  gap: var(--space-3);
+  min-height: 64px;          /* ← altura mínima consistente con Estudiante */
 }
 
-.dm-header__left {
+/* Hamburguesa */
+.dm-header__toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.dm-header__toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Brand */
+.dm-header__brand {
+  display: flex;
+  align-items: center;      /* ← alinea logo con el bloque de texto */
   gap: var(--space-3);
-  min-width: 0;
+  flex-shrink: 0;
 }
 
 .dm-header__logo {
-  height: 44px;
-  width: 44px;
+  height: 40px;
+  width: 40px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -52,6 +79,7 @@
   flex-direction: column;
   line-height: 1.15;
   min-width: 0;
+  justify-content: center;
 }
 
 .dm-header__title {
@@ -59,64 +87,58 @@
   font-weight: 700;
   color: var(--color-ink-inverse);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin: 0;
 }
 
 .dm-header__subtitle {
   font-size: 11px;
-  opacity: 0.75;
+  opacity: 0.7;
   color: var(--color-ink-inverse);
+  margin: 0;
+}
+
+/* Badge "Panel Maestro" */
+.dm-header__panel-badge {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.92);
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  margin-left: var(--space-3);
 }
 
 .dm-header__right {
+  margin-left: auto;
   display: flex;
   align-items: center;
   gap: var(--space-3);
 }
 
-/* ==================== USER CHIP ==================== */
-.dm-user-chip {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: 4px 12px 4px 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-full);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.dm-user-chip__avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--color-accent);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 12px;
-  text-transform: uppercase;
-  flex-shrink: 0;
-}
-
-.dm-user-chip__info {
+/* ==================== USER INFO (estilo estudiante) ==================== */
+.dm-header__user {
   display: flex;
   flex-direction: column;
-  line-height: 1.15;
+  align-items: flex-end;
+  line-height: 1.25;
+  padding: 0 var(--space-2);
 }
 
-.dm-user-chip__name {
-  font-size: 13px;
+.dm-header__user-name {
+  font-size: 14px;
   font-weight: 600;
   color: var(--color-ink-inverse);
+  white-space: nowrap;
 }
 
-.dm-user-chip__role {
+.dm-header__user-role {
   font-size: 11px;
-  opacity: 0.7;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
 /* ==================== BOTONES ==================== */
@@ -189,6 +211,11 @@
   grid-template-columns: 260px 1fr;
   gap: 0;
   min-height: 0;
+  transition: grid-template-columns var(--transition-base);
+}
+
+.dm-body--collapsed {
+  grid-template-columns: 72px 1fr;
 }
 
 /* ==================== SIDEBAR ==================== */
@@ -203,6 +230,32 @@
   top: 68px;
   height: calc(100vh - 68px);
   overflow-y: auto;
+  transition: width var(--transition-base), padding var(--transition-base);
+  width: 260px;
+}
+
+.dm-sidebar--collapsed {
+  width: 72px;
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+}
+
+.dm-sidebar__close {
+  display: none;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.dm-sidebar__close:hover {
+  background: var(--color-bg-alt);
 }
 
 .dm-sidebar__nav {
@@ -227,6 +280,21 @@
   cursor: pointer;
   transition: all var(--transition-fast);
   width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.dm-sidebar__item svg { flex-shrink: 0; }
+
+.dm-sidebar--collapsed .dm-sidebar__item {
+  justify-content: center;
+  padding: 11px;
+}
+
+.dm-sidebar--collapsed .dm-sidebar__label,
+.dm-sidebar--collapsed .dm-sidebar__badge,
+.dm-sidebar--collapsed .dm-sidebar__hint {
+  display: none;
 }
 
 .dm-sidebar__item:hover {
@@ -266,6 +334,16 @@
   color: var(--color-ink-soft);
   text-align: center;
   line-height: 1.4;
+}
+
+/* Overlay móvil */
+.dm-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  z-index: 90;
+  animation: dm-fade 0.15s ease;
 }
 
 /* ==================== MAIN ==================== */
@@ -633,7 +711,7 @@
   inset: 0;
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(4px);
-  z-index: 100;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -805,51 +883,368 @@
   color: var(--color-danger);
 }
 
+/* ============================================================
+   MODAL CREAR CLASE — SECCIONES DEL FORMULARIO
+   ============================================================ */
+.dm-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px 18px 16px;
+    background: var(--color-bg-alt, #f8fafc);
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: var(--radius-md, 10px);
+    margin-bottom: 16px;
+}
+
+.dm-form-section__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--color-primary, #1e3a5f);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border, #e2e8f0);
+    margin-bottom: 4px;
+}
+
+.dm-form-section__header svg {
+    color: var(--color-primary, #1e3a5f);
+}
+
+/* Info box (contraseña automática) */
+.dm-form-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: var(--radius-md, 10px);
+    font-size: 13px;
+    color: #1e40af;
+    line-height: 1.4;
+    margin-bottom: 16px;
+}
+
+.dm-form-info svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* ============================================================
+   MODAL DE ÉXITO — CLASE CREADA
+   ============================================================ */
+.dm-modal__content--success {
+    max-width: 480px;
+    padding: 32px 28px;
+}
+
+.dm-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+}
+
+.dm-success__icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #dcfce7;
+    color: #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+    animation: dm-success-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes dm-success-pop {
+    0%   { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1);   opacity: 1; }
+}
+
+.dm-success__title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--color-ink, #1a202c);
+}
+
+.dm-success__subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-ink-muted, #64748b);
+}
+
+.dm-success__password-block {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.dm-success__password-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--color-ink-muted, #64748b);
+    margin-bottom: 10px;
+}
+
+.dm-success__password-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: linear-gradient(135deg, #f0f5fa 0%, #ffffff 100%);
+    border: 2px dashed var(--color-primary, #1e3a5f);
+    border-radius: var(--radius-lg, 14px);
+    padding: 16px 20px;
+}
+
+.dm-success__password-value {
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 6px;
+    color: var(--color-primary, #1e3a5f);
+    user-select: all;
+    flex: 1;
+    text-align: center;
+}
+
+.dm-success__copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-primary, #1e3a5f);
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: var(--radius-md, 10px);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, transform 0.1s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.dm-success__copy-btn:hover {
+    background: var(--color-primary-hover, #2c5282);
+}
+
+.dm-success__copy-btn:active {
+    transform: scale(0.96);
+}
+
+.dm-success__hint {
+    margin: 4px 0 0 0;
+    font-size: 13px;
+    color: var(--color-ink-muted, #64748b);
+    line-height: 1.5;
+    max-width: 340px;
+}
+
+.dm-success__close-btn {
+    margin-top: 12px;
+    width: 100%;
+    justify-content: center;
+    padding: 12px 24px;
+}
+
+/* Móvil chico (por si acaso, aunque el panel sea desktop-first) */
+@media (max-width: 480px) {
+    .dm-success__password-box {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .dm-success__password-value {
+        font-size: 24px;
+        letter-spacing: 4px;
+    }
+
+    .dm-success__copy-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ============================================================
+   CONTRASEÑA CON BOTÓN COPIAR (Detalle de clase)
+   ============================================================ */
+.dm-password-card {
+    background: linear-gradient(135deg, #f0f5fa 0%, #ffffff 100%);
+    border: 2px dashed var(--color-primary, #1e3a5f);
+    border-radius: var(--radius-lg, 14px);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dm-password-card__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--color-primary, #1e3a5f);
+}
+
+.dm-password-card__body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.dm-password-card__value {
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    color: var(--color-primary, #1e3a5f);
+    user-select: all;
+    flex: 1;
+}
+
+.dm-password-card__copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-primary, #1e3a5f);
+    color: #fff;
+    border: none;
+    padding: 9px 16px;
+    border-radius: var(--radius-md, 10px);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, transform 0.1s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.dm-password-card__copy:hover {
+    background: var(--color-primary-hover, #2c5282);
+}
+
+.dm-password-card__copy:active {
+    transform: scale(0.96);
+}
+
+/* Móvil chico */
+@media (max-width: 480px) {
+    .dm-password-card__body {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dm-password-card__value {
+        font-size: 20px;
+        letter-spacing: 3px;
+        text-align: center;
+    }
+
+    .dm-password-card__copy {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Estado "Copiado" del botón */
+.dm-password-card__copy.is-copiado {
+    background: #16a34a; /* verde éxito */
+    pointer-events: none; /* evita doble click mientras muestra "Copiado" */
+}
+
+.dm-password-card__copy.is-copiado svg {
+    animation: dm-check-pop 0.3s ease;
+}
+
+@keyframes dm-check-pop {
+    0%   { transform: scale(0.5); }
+    60%  { transform: scale(1.2); }
+    100% { transform: scale(1);   }
+}
+
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 900px) {
-  .dm-body {
+  .dm-body,
+  .dm-body--collapsed {
     grid-template-columns: 1fr;
   }
 
+  /* Sidebar como off-canvas */
   .dm-sidebar {
-    position: static;
-    height: auto;
-    padding: var(--space-3);
-    border-right: none;
-    border-bottom: 1px solid var(--color-border);
-    flex-direction: row;
-    overflow-x: auto;
-    gap: var(--space-2);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    z-index: 95;
+    transform: translateX(-100%);
+    transition: transform var(--transition-base);
+    box-shadow: var(--shadow-xl);
+    padding-top: var(--space-8);
   }
 
-  .dm-sidebar__nav {
-    flex-direction: row;
-    flex: 1;
+  .dm-sidebar--open {
+    transform: translateX(0);
   }
 
-  .dm-sidebar__footer {
-    display: none;
+  .dm-sidebar--collapsed {
+    /* En móvil ignoramos el estado colapsado */
+    width: 280px;
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
   }
 
-  .dm-sidebar__item {
-    white-space: nowrap;
+  .dm-sidebar--collapsed .dm-sidebar__label,
+  .dm-sidebar--collapsed .dm-sidebar__badge,
+  .dm-sidebar--collapsed .dm-sidebar__hint {
+    display: initial;
   }
+
+  .dm-sidebar--collapsed .dm-sidebar__item {
+    justify-content: flex-start;
+    padding: 11px 14px;
+  }
+
+  .dm-sidebar__close {
+    display: flex;
+  }
+
+  .dm-sidebar-overlay {
+    display: block;
+  }
+
+  .dm-header__panel-badge { display: none; }
+  .dm-header__subtitle    { display: none; }
 
   .dm-main {
     padding: var(--space-5) var(--space-4);
   }
 
-  .dm-header__right {
-    gap: var(--space-2);
-  }
-
-  .dm-user-chip__info {
-    display: none;
-  }
-
-  .dm-user-chip {
-    padding: 4px;
-  }
+  .dm-user-chip__info { display: none; }
+  .dm-user-chip { padding: 4px; }
 
   .dm-row {
     grid-template-columns: 1fr;
@@ -857,23 +1252,17 @@
 }
 
 @media (max-width: 640px) {
-  .dm-header {
+  .dm-header__inner {
     padding: var(--space-2) var(--space-4);
+    gap: var(--space-2);
   }
 
-  .dm-header__title {
-    font-size: 14px;
-  }
-
-  .dm-header__subtitle {
-    display: none;
-  }
+  .dm-header__title { font-size: 14px; }
 
   .dm-header__logo {
     height: 36px;
     width: 36px;
   }
-
 
   .dm-btn {
     padding: 8px 12px;
@@ -886,28 +1275,18 @@
     text-align: center;
   }
 
-  .dm-profile-card__name {
-    font-size: 18px;
-  }
+  .dm-profile-card__name { font-size: 18px; }
 
-  .dm-section__title {
-    font-size: 18px;
-  }
+  .dm-section__title { font-size: 18px; }
 
-  .dm-planning-hero {
-    padding: var(--space-8) var(--space-5);
-  }
+  .dm-planning-hero { padding: var(--space-8) var(--space-5); }
 
-  .dm-planning-hero__title {
-    font-size: 22px;
-  }
+  .dm-planning-hero__title { font-size: 22px; }
 
   .dm-detail-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .dm-detail-header .dm-badge {
-    margin-left: 0;
-  }
+  .dm-detail-header .dm-badge { margin-left: 0; }
 }

@@ -136,8 +136,10 @@ function VistaPlanificacion({
                             <Building2 size={13} />
                             <span>
                                 <strong>UE:</strong>{' '}
-                                {claseSeleccionada?.nombre_ue ||
-                                    `ID #${claseSeleccionada?.id_ue || '—'}`}
+                                {claseSeleccionada?.nombre_ue
+                                    || claseSeleccionada?.nombreUE
+                                    || claseSeleccionada?.nombreue
+                                    || `UE #${claseSeleccionada?.id_ue || '—'}`}
                             </span>
                         </div>
                         <div className="vp-doc__meta-row">
@@ -145,13 +147,6 @@ function VistaPlanificacion({
                             <span>
                                 <strong>Asignatura:</strong>{' '}
                                 {claseSeleccionada?.nombre_asignatura || '—'}
-                            </span>
-                        </div>
-                        <div className="vp-doc__meta-row">
-                            <Calendar size={13} />
-                            <span>
-                                <strong>Semanas:</strong>{' '}
-                                {totalSemanasPlanificadas} de {totalSemanas}
                             </span>
                         </div>
                     </div>

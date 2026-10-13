@@ -1,0 +1,130 @@
+/* src/components/sections/Contact.css
+   ============================================================
+   Sección de contacto — 4 tarjetas con datos institucionales
+   ============================================================ */
+
+.contact {
+  background: var(--color-surface);
+  padding: var(--space-20) var(--space-6);
+  width: 100%;
+}
+
+.contact__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.contact__head {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto var(--space-12);
+}
+
+.contact__badge {
+  display: inline-block;
+  background: var(--color-accent-light);
+  color: var(--color-accent-hover);
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
+}
+
+.contact__head h2 {
+  font-size: clamp(24px, 3.5vw, 36px);
+  font-weight: 800;
+  color: var(--color-ink);
+  letter-spacing: -0.5px;
+  margin-bottom: var(--space-3);
+}
+
+.contact__head p {
+  font-size: 17px;
+  color: var(--color-ink-muted);
+  line-height: 1.55;
+}
+
+/* ==================== GRID ==================== */
+.contact__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-5);
+}
+
+.contact__card {
+  background: var(--color-bg-alt);
+  padding: var(--space-8) var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  text-align: center;
+  transition: all var(--transition-base);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contact__card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  background: var(--color-surface);
+  border-color: var(--color-primary-soft);
+}
+
+.contact__card-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-ink-inverse);
+  margin-bottom: var(--space-4);
+  transition: all var(--transition-base);
+}
+
+.contact__card:hover .contact__card-icon {
+  background: var(--color-accent);
+  transform: scale(1.08);
+}
+
+.contact__card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin-bottom: var(--space-3);
+}
+
+.contact__card-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.contact__card-lines a,
+.contact__card-lines span {
+  font-size: 14px;
+  color: var(--color-ink-muted);
+  line-height: 1.5;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.contact__card-lines a:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 640px) {
+  .contact {
+    padding: var(--space-12) var(--space-4);
+  }
+
+  .contact__grid {
+    grid-template-columns: 1fr;
+  }
+}

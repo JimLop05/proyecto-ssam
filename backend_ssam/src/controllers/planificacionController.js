@@ -87,19 +87,14 @@ const getDatosClase = async (req, res) => {
         );
 
         // Verificar si ya existe una planificación para esta clase
+               // Verificar si ya existe una planificación para ESTA CLASE
         const planificacionQuery = await pool.query(
             `SELECT p.id_planificacion, p.anio, p.descripcion, p.estado
              FROM PLANIFICACION p
-             WHERE p.id_maestro = $1 AND p.anio = EXTRACT(YEAR FROM CURRENT_DATE)
-             AND EXISTS (
-                 SELECT 1 FROM ESTA_FORMADO ef
-                 JOIN SEMANA s ON ef.id_semana = s.id_semana
-                 JOIN TRIMESTRE t ON s.id_trimestre = t.id_trimestre
-                 JOIN GESTION g ON t.id_gestion = g.id_gestion
-                 WHERE ef.id_planificacion = p.id_planificacion
-                 AND g.id_gestion = $2
-             )`,
-            [id_usuario, id_gestion]
+             WHERE p.id_maestro = $1 
+               AND p.id_clase = $2
+               AND p.anio = EXTRACT(YEAR FROM CURRENT_DATE)`,
+            [id_usuario, id_clase]
         );
 
         let planificacion = null;
@@ -152,7 +147,7 @@ const getDatosClase = async (req, res) => {
 // ============================================================
 const guardarPlanificacion = async (req, res) => {
     const client = await pool.connect();
-    
+
     try {
         const { id_clase, id_planificacion, itemsAsignados } = req.body;
         const id_usuario = req.user.id;
@@ -179,15 +174,36 @@ const guardarPlanificacion = async (req, res) => {
 
         let planificacionId = id_planificacion;
 
-        // Si no hay planificación, crear una nueva
+        // 🔧 Si no hay planificación, buscar por id_clase o crear una nueva
         if (!planificacionId) {
-            const insertPlanificacion = await client.query(
-                `INSERT INTO PLANIFICACION (anio, descripcion, fecha_creacion, estado, id_maestro)
-                 VALUES ($1, $2, CURRENT_DATE, $3, $4)
-                 RETURNING id_planificacion`,
-                [anioActual, `Planificación ${anioActual}`, 'BORRADOR', id_usuario]
+            // Buscar si ya existe una planificación para esta clase este año
+            const existingQuery = await client.query(
+                `SELECT id_planificacion FROM PLANIFICACION
+                 WHERE id_maestro = $1 
+                   AND id_clase = $2 
+                   AND anio = $3`,
+                [id_usuario, id_clase, anioActual]
             );
-            planificacionId = insertPlanificacion.rows[0].id_planificacion;
+
+            if (existingQuery.rows.length > 0) {
+                planificacionId = existingQuery.rows[0].id_planificacion;
+            } else {
+                // Crear nueva planificación CON id_clase
+                const insertPlanificacion = await client.query(
+                    `INSERT INTO PLANIFICACION 
+                        (anio, descripcion, fecha_creacion, estado, id_maestro, id_clase)
+                     VALUES ($1, $2, CURRENT_DATE, $3, $4, $5)
+                     RETURNING id_planificacion`,
+                    [
+                        anioActual,
+                        `Planificación ${anioActual}`,
+                        'BORRADOR',
+                        id_usuario,
+                        id_clase
+                    ]
+                );
+                planificacionId = insertPlanificacion.rows[0].id_planificacion;
+            }
         }
 
         // Eliminar items anteriores de esta planificación
@@ -241,11 +257,16 @@ const getClasesMaestro = async (req, res) => {
         const id_usuario = req.user.id;
 
         const query = await pool.query(
-            `SELECT c.id_clase, c.nombrec, a.nombrea as nombre_asignatura,
-                    g.titulog as nombre_grado
+            `SELECT 
+                c.id_clase, 
+                c.nombrec, 
+                a.nombrea as nombre_asignatura,
+                g.titulog as nombre_grado,
+                ue.nombre as nombre_ue
              FROM CLASE c
              LEFT JOIN ASIGNATURA a ON c.id_asig = a.id_asig
              LEFT JOIN GRADO g ON c.id_grado = g.id_grado
+             LEFT JOIN UE ue ON c.id_ue = ue.id_ue
              WHERE c.id_maestro = $1
              ORDER BY c.nombrec`,
             [id_usuario]

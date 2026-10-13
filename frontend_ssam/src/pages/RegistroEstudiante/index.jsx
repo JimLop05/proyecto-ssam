@@ -15,6 +15,9 @@ import {
     CheckCircle2,
     AlertCircle,
     Loader2,
+    Calendar,
+    Mars,
+    Venus,
 } from 'lucide-react';
 import api from '../../api/axios';
 import './RegistroEstudiante.css';
@@ -29,6 +32,8 @@ function RegistroEstudiante() {
         email: '',
         password: '',
         confirmPassword: '',
+        sexo: '',
+        fecha_nacimiento: '',
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -41,10 +46,21 @@ function RegistroEstudiante() {
         });
     };
 
+    const handleSexo = (valor) => {
+        setFormData({ ...formData, sexo: valor });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
+
+        // Validar sexo
+        if (!formData.sexo) {
+            setError('Por favor selecciona tu sexo');
+            setLoading(false);
+            return;
+        }
 
         // Validar que las contraseñas coincidan
         if (formData.password !== formData.confirmPassword) {
@@ -61,60 +77,58 @@ function RegistroEstudiante() {
         }
 
         try {
-    const payload = {
-        username: formData.username,
-        nombre: formData.nombre,
-        apellido1: formData.apellido1,
-        apellido2: formData.apellido2 || '',
-        email: formData.email,
-        password: formData.password,
-        rol: 'ESTUDIANTE',
-        fecha_nacimiento: '2000-01-01',
-        sexo: 'M',
-        tipo_estudiante: 'PUBLICO',
-    };
+            const payload = {
+                username: formData.username,
+                nombre: formData.nombre,
+                apellido1: formData.apellido1,
+                apellido2: formData.apellido2 || '',
+                email: formData.email,
+                password: formData.password,
+                rol: 'ESTUDIANTE',
+                sexo: formData.sexo,
+                fecha_nacimiento: formData.fecha_nacimiento || null,
+                tipo_estudiante: 'PUBLICO',
+            };
 
-    // 1. Crear la cuenta
-    const registerResponse = await api.post('/auth/register', payload);
-    console.log('✅ Registro exitoso:', registerResponse.data);
+            // 1. Crear la cuenta
+            await api.post('/auth/register', payload);
 
-    // 2. Login automático con las mismas credenciales
-    const loginResponse = await api.post('/auth/login', {
-        email: formData.email,
-        password: formData.password,
-    });
+            // 2. Login automático con las mismas credenciales
+            const loginResponse = await api.post('/auth/login', {
+                email: formData.email,
+                password: formData.password,
+            });
 
-    const { token, user } = loginResponse.data;
+            const { token, user } = loginResponse.data;
 
-    // 3. Guardar sesión
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
+            // 3. Guardar sesión
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(user));
 
-    // 4. Mostrar éxito y redirigir al dashboard
-    setSuccess(true);
-    setLoading(false);
+            // 4. Mostrar éxito y redirigir al dashboard
+            setSuccess(true);
+            setLoading(false);
 
-    setTimeout(() => {
-        // Redirigir según rol (por si acaso el backend devuelve otro)
-        switch (user?.rol) {
-            case 'ESTUDIANTE':
-                navigate('/dashboard/estudiante');
-                break;
-            case 'MAESTRO':
-                navigate('/dashboard/maestro');
-                break;
-            default:
-                navigate('/dashboard/estudiante');
+            setTimeout(() => {
+                switch (user?.rol) {
+                    case 'ESTUDIANTE':
+                        navigate('/dashboard/estudiante');
+                        break;
+                    case 'MAESTRO':
+                        navigate('/dashboard/maestro');
+                        break;
+                    default:
+                        navigate('/dashboard/estudiante');
+                }
+            }, 1500);
+        } catch (err) {
+            console.error('❌ Error en registro:', err);
+            setError(
+                err.response?.data?.message ||
+                    'Error al registrar. Intenta de nuevo.'
+            );
+            setLoading(false);
         }
-    }, 1500);
-} catch (err) {
-    console.error('❌ Error en registro:', err);
-    setError(
-        err.response?.data?.message ||
-            'Error al registrar. Intenta de nuevo.'
-    );
-    setLoading(false);
-}
     };
 
     // ==================== VISTA ÉXITO ====================
@@ -130,9 +144,7 @@ function RegistroEstudiante() {
                         Tu cuenta de estudiante ha sido creada correctamente.
                     </p>
                     <p className="re-success-hint">
-                        <p className="re-success-hint">
-                            Redirigiendo a tu panel de estudiante...
-                        </p>
+                        Redirigiendo a tu panel de estudiante...
                     </p>
                     <Loader2 className="re-success-spinner" />
                 </div>
@@ -217,7 +229,7 @@ function RegistroEstudiante() {
 
                         <div className="re-field">
                             <label htmlFor="apellido1" className="re-label">
-                                Apellido Paterno
+                                Apellido Paterno (opcional)
                             </label>
                             <input
                                 id="apellido1"
@@ -225,7 +237,6 @@ function RegistroEstudiante() {
                                 name="apellido1"
                                 value={formData.apellido1}
                                 onChange={handleChange}
-                                required
                                 className="re-input re-input--standalone"
                                 placeholder="Pérez"
                                 autoComplete="family-name"
@@ -237,7 +248,7 @@ function RegistroEstudiante() {
                     <div className="re-row">
                         <div className="re-field">
                             <label htmlFor="apellido2" className="re-label">
-                                Apellido Materno{' '}
+                                Apellido Materno (opcional)
                             </label>
                             <input
                                 id="apellido2"
@@ -269,6 +280,50 @@ function RegistroEstudiante() {
                                     autoComplete="email"
                                 />
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Sexo */}
+                    <div className="re-field">
+                        <label className="re-label">
+                            Sexo <span className="re-required">*</span>
+                        </label>
+                        <div className="re-sexo-group">
+                            <button
+                                type="button"
+                                className={`re-sexo-btn ${formData.sexo === 'M' ? 'is-active' : ''}`}
+                                onClick={() => handleSexo('M')}
+                            >
+                                <Mars size={20} />
+                                <span>Masculino</span>
+                            </button>
+                            <button
+                                type="button"
+                                className={`re-sexo-btn ${formData.sexo === 'F' ? 'is-active' : ''}`}
+                                onClick={() => handleSexo('F')}
+                            >
+                                <Venus size={20} />
+                                <span>Femenino</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Fecha de nacimiento (opcional) */}
+                    <div className="re-field">
+                        <label htmlFor="fecha_nacimiento" className="re-label">
+                            Fecha de Nacimiento (opcional)
+                        </label>
+                        <div className="re-input-wrapper">
+                            <Calendar className="re-input-icon" size={18} />
+                            <input
+                                id="fecha_nacimiento"
+                                type="date"
+                                name="fecha_nacimiento"
+                                value={formData.fecha_nacimiento}
+                                onChange={handleChange}
+                                className="re-input"
+                                max={new Date().toISOString().split('T')[0]}
+                            />
                         </div>
                     </div>
 

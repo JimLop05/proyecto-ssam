@@ -8,4 +8,8 @@ export default defineConfig({
     react(),
     tailwindcss(), // 2. Agregar el plugin
   ],
+  server: {
+    host: true,          // 👈 expone en toda la red local (para el celular)
+    port: 5173,
+  },
 })

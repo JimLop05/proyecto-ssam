@@ -21,21 +21,25 @@ import {
     CheckCircle2,
     Mail,
     User as UserIcon,
+    Mars,
+    Venus,
+    CircleHelp,
+    Calendar,
+    Clock,
+    BarChart3,
 } from 'lucide-react';
+import api from '../../api/axios';
 import ConfirmModal from '../../components/ui/ConfirmModal';
 import './AdministrarEstudiantes.css';
 
-function AdministrarEstudiantes({ clase, volver }) {
+function AdministrarEstudiantes({ clase, volver, onVerRendimiento }) {
     const [estudiantes, setEstudiantes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [busqueda, setBusqueda] = useState('');
     const [toast, setToast] = useState(null);
 
-    // Modal de confirmación para eliminar
     const [estudianteAEliminar, setEstudianteAEliminar] = useState(null);
-
-    // Modal para ver detalle
     const [estudianteDetalle, setEstudianteDetalle] = useState(null);
 
     const mostrarToast = (mensaje, tipo = 'exito') => {
@@ -51,21 +55,15 @@ function AdministrarEstudiantes({ clase, volver }) {
         try {
             setLoading(true);
             setError('');
-            const token = localStorage.getItem('token');
-            const response = await fetch(
-                `http://localhost:5000/api/clases/${clase.id_clase}/estudiantes`,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-            const data = await response.json();
-
-            if (data.success) {
-                setEstudiantes(data.data.estudiantes || []);
+            const res = await api.get(`/clases/${clase.id_clase}/estudiantes`);
+            if (res.data.success) {
+                setEstudiantes(res.data.data.estudiantes || []);
             } else {
-                setError(data.message || 'Error al cargar los estudiantes');
+                setError(res.data.message || 'Error al cargar los estudiantes');
             }
         } catch (err) {
             console.error('Error:', err);
-            setError('Error al conectar con el servidor');
+            setError(err.response?.data?.message || 'Error al conectar con el servidor');
         } finally {
             setLoading(false);
         }
@@ -76,83 +74,103 @@ function AdministrarEstudiantes({ clase, volver }) {
         if (!estudianteAEliminar) return;
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(
-                `http://localhost:5000/api/clases/${clase.id_clase}/estudiantes/${estudianteAEliminar.id_usuario}`,
-                {
-                    method: 'DELETE',
-                    headers: { Authorization: `Bearer ${token}` },
-                }
+            const res = await api.delete(
+                `/clases/${clase.id_clase}/estudiantes/${estudianteAEliminar.id_usuario}`
             );
-            const data = await response.json();
 
-            if (data.success) {
+            if (res.data.success) {
                 setEstudiantes((prev) =>
-                    prev.filter(
-                        (e) => e.id_usuario !== estudianteAEliminar.id_usuario
-                    )
+                    prev.filter((e) => e.id_usuario !== estudianteAEliminar.id_usuario)
                 );
                 mostrarToast(
                     `"${estudianteAEliminar.nombre} ${estudianteAEliminar.apellido1}" fue quitado de la clase`,
                     'exito'
                 );
             } else {
-                mostrarToast(
-                    data.message || 'No se pudo eliminar al estudiante',
-                    'error'
-                );
+                mostrarToast(res.data.message || 'No se pudo eliminar al estudiante', 'error');
             }
         } catch (err) {
             console.error('Error:', err);
-            mostrarToast('Error al conectar con el servidor', 'error');
+            mostrarToast(err.response?.data?.message || 'Error al conectar con el servidor', 'error');
         } finally {
             setEstudianteAEliminar(null);
         }
     };
 
     const handleToggleEstado = async (estudiante) => {
-        const nuevoEstado =
-            estudiante.estado_usuario === 'ACTIVO' ? 'SUSPENDIDO' : 'ACTIVO';
+        const estadoActual = estudiante.estado_en_clase || 'ACTIVO';
+        const nuevoEstado = estadoActual === 'ACTIVO' ? 'SUSPENDIDO' : 'ACTIVO';
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(
-                `http://localhost:5000/api/usuarios/${estudiante.id_usuario}/estado`,
-                {
-                    method: 'PATCH',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ estado_usuario: nuevoEstado }),
-                }
+            const res = await api.patch(
+                `/clases/${clase.id_clase}/estudiantes/${estudiante.id_usuario}/estado`,
+                { estado_en_clase: nuevoEstado }
             );
-            const data = await response.json();
 
-            if (data.success) {
+            if (res.data.success) {
                 setEstudiantes((prev) =>
                     prev.map((e) =>
                         e.id_usuario === estudiante.id_usuario
-                            ? { ...e, estado_usuario: nuevoEstado }
+                            ? { ...e, estado_en_clase: nuevoEstado }
                             : e
                     )
                 );
                 mostrarToast(
-                    `Estudiante ${
-                        nuevoEstado === 'ACTIVO' ? 'reactivado' : 'suspendido'
-                    } correctamente`,
+                    `Estudiante ${nuevoEstado === 'ACTIVO' ? 'reactivado' : 'suspendido'} correctamente`,
                     'exito'
                 );
             } else {
-                mostrarToast(
-                    data.message || 'No se pudo cambiar el estado',
-                    'error'
-                );
+                mostrarToast(res.data.message || 'No se pudo cambiar el estado', 'error');
             }
         } catch (err) {
             console.error('Error:', err);
-            mostrarToast('Error al conectar con el servidor', 'error');
+            mostrarToast(err.response?.data?.message || 'Error al conectar con el servidor', 'error');
         }
+    };
+
+    // ========== HELPERS ==========
+    const calcularEdad = (fechaNac) => {
+        if (!fechaNac) return null;
+        const hoy = new Date();
+        const nac = new Date(fechaNac);
+        let edad = hoy.getFullYear() - nac.getFullYear();
+        const mes = hoy.getMonth() - nac.getMonth();
+        if (mes < 0 || (mes === 0 && hoy.getDate() < nac.getDate())) edad--;
+        return edad;
+    };
+
+    const formatearFecha = (fecha) => {
+        if (!fecha) return '—';
+        return new Date(fecha).toLocaleDateString('es-BO', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+        });
+    };
+
+    const formatearFechaHora = (fecha) => {
+        if (!fecha) return '—';
+        const d = new Date(fecha);
+        return d.toLocaleString('es-BO', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
+
+    const IconoSexo = ({ sexo }) => {
+        if (sexo === 'M') return <Mars size={14} />;
+        if (sexo === 'F') return <Venus size={14} />;
+        return <CircleHelp size={14} />;
+    };
+
+    const labelSexo = (sexo) => {
+        if (sexo === 'M') return 'Masculino';
+        if (sexo === 'F') return 'Femenino';
+        if (sexo === 'O') return 'Otro';
+        return '—';
     };
 
     // ========== FILTRADO ==========
@@ -171,14 +189,8 @@ function AdministrarEstudiantes({ clase, volver }) {
     return (
         <div className="ae-container">
             {toast && (
-                <div
-                    className={`ae-toast ae-toast--${toast.tipo === 'exito' ? 'success' : 'error'}`}
-                >
-                    {toast.tipo === 'exito' ? (
-                        <CheckCircle2 size={18} />
-                    ) : (
-                        <AlertCircle size={18} />
-                    )}
+                <div className={`ae-toast ae-toast--${toast.tipo === 'exito' ? 'success' : 'error'}`}>
+                    {toast.tipo === 'exito' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
                     <span>{toast.mensaje}</span>
                 </div>
             )}
@@ -195,9 +207,7 @@ function AdministrarEstudiantes({ clase, volver }) {
                         <Users size={18} />
                     </div>
                     <div>
-                        <h2 className="ae-header__title">
-                            Estudiantes de la Clase
-                        </h2>
+                        <h2 className="ae-header__title">Estudiantes de la Clase</h2>
                         <p className="ae-header__subtitle">{clase.nombrec}</p>
                     </div>
                 </div>
@@ -271,27 +281,18 @@ function AdministrarEstudiantes({ clase, volver }) {
                     {estudiantes.length === 0 ? (
                         <div className="ae-empty">
                             <Users size={40} className="ae-empty__icon" />
-                            <p className="ae-empty__title">
-                                Aún no hay estudiantes inscritos
-                            </p>
+                            <p className="ae-empty__title">Aún no hay estudiantes inscritos</p>
                             <p className="ae-empty__text">
-                                Comparte la contraseña{' '}
-                                <strong>"{clase.password_clase}"</strong> para
-                                que se unan.
+                                Comparte la contraseña <strong>"{clase.password_clase}"</strong> para que se unan.
                             </p>
                         </div>
                     ) : estudiantesFiltrados.length === 0 ? (
                         <div className="ae-empty">
                             <Search size={40} className="ae-empty__icon" />
-                            <p className="ae-empty__title">
-                                Sin resultados
-                            </p>
-                            <p className="ae-empty__text">
-                                No se encontraron estudiantes con "{busqueda}"
-                            </p>
+                            <p className="ae-empty__title">Sin resultados</p>
+                            <p className="ae-empty__text">No se encontraron estudiantes con "{busqueda}"</p>
                         </div>
                     ) : (
-                        /* TABLA */
                         <div className="ae-table-wrapper">
                             <table className="ae-table">
                                 <thead>
@@ -299,118 +300,78 @@ function AdministrarEstudiantes({ clase, volver }) {
                                         <th className="ae-th-num">#</th>
                                         <th>Estudiante</th>
                                         <th>Usuario</th>
-                                        <th>Correo</th>
                                         <th>Estado</th>
-                                        <th className="ae-th-actions">
-                                            Acciones
-                                        </th>
+                                        <th className="ae-th-actions">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {estudiantesFiltrados.map((est, index) => (
-                                        <tr key={est.id_usuario}>
-                                            <td className="ae-td-num">
-                                                {index + 1}
-                                            </td>
-                                            <td>
-                                                <div className="ae-cell-user">
-                                                    <div className="ae-avatar">
-                                                        {est.nombre?.[0]}
-                                                        {est.apellido1?.[0]}
+                                    {estudiantesFiltrados.map((est, index) => {
+                                        const estaSuspendido = est.estado_en_clase === 'SUSPENDIDO';
+                                        return (
+                                            <tr key={est.id_usuario}>
+                                                <td className="ae-td-num">{index + 1}</td>
+                                                <td>
+                                                    <div className="ae-cell-user">
+                                                        <div className="ae-avatar">
+                                                            {est.nombre?.[0]}
+                                                            {est.apellido1?.[0]}
+                                                        </div>
+                                                        <div className="ae-cell-user__info">
+                                                            <span className="ae-cell-user__name">
+                                                                {est.nombre} {est.apellido1}{' '}
+                                                                {est.apellido2 || ''}
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                    <div className="ae-cell-user__info">
-                                                        <span className="ae-cell-user__name">
-                                                            {est.nombre}{' '}
-                                                            {est.apellido1}{' '}
-                                                            {est.apellido2 || ''}
-                                                        </span>
+                                                </td>
+                                                <td className="ae-td-mono">{est.username}</td>
+                                                <td>
+                                                    <span
+                                                        className={`ae-badge ae-badge--${estaSuspendido ? 'suspendido' : 'activo'}`}
+                                                    >
+                                                        {estaSuspendido ? 'Suspendido' : 'Activo'}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div className="ae-actions">
+                                                        <button
+                                                            className="ae-icon-btn"
+                                                            onClick={() => setEstudianteDetalle(est)}
+                                                            title="Ver detalle"
+                                                            aria-label="Ver detalle"
+                                                            type="button"
+                                                        >
+                                                            <Eye size={15} />
+                                                        </button>
+
+                                                        <button
+                                                            className="ae-icon-btn"
+                                                            onClick={() => handleToggleEstado(est)}
+                                                            title={estaSuspendido ? 'Reactivar' : 'Suspender'}
+                                                            aria-label={estaSuspendido ? 'Reactivar' : 'Suspender'}
+                                                            type="button"
+                                                        >
+                                                            {estaSuspendido ? (
+                                                                <UserCheck size={15} />
+                                                            ) : (
+                                                                <UserX size={15} />
+                                                            )}
+                                                        </button>
+
+                                                        <button
+                                                            className="ae-icon-btn ae-icon-btn--danger"
+                                                            onClick={() => setEstudianteAEliminar(est)}
+                                                            title="Eliminar de la clase"
+                                                            aria-label="Eliminar"
+                                                            type="button"
+                                                        >
+                                                            <Trash2 size={15} />
+                                                        </button>
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td className="ae-td-mono">
-                                                {est.username}
-                                            </td>
-                                            <td className="ae-td-muted">
-                                                {est.email}
-                                            </td>
-                                            <td>
-                                                <span
-                                                    className={`ae-badge ae-badge--${est.estado_usuario?.toLowerCase()}`}
-                                                >
-                                                    {est.estado_usuario ===
-                                                    'ACTIVO'
-                                                        ? 'Activo'
-                                                        : est.estado_usuario ===
-                                                          'SUSPENDIDO'
-                                                        ? 'Suspendido'
-                                                        : est.estado_usuario ||
-                                                          '—'}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div className="ae-actions">
-                                                    <button
-                                                        className="ae-icon-btn"
-                                                        onClick={() =>
-                                                            setEstudianteDetalle(
-                                                                est
-                                                            )
-                                                        }
-                                                        title="Ver detalle"
-                                                        aria-label="Ver detalle"
-                                                        type="button"
-                                                    >
-                                                        <Eye size={15} />
-                                                    </button>
-
-                                                    <button
-                                                        className="ae-icon-btn"
-                                                        onClick={() =>
-                                                            handleToggleEstado(
-                                                                est
-                                                            )
-                                                        }
-                                                        title={
-                                                            est.estado_usuario ===
-                                                            'ACTIVO'
-                                                                ? 'Suspender'
-                                                                : 'Reactivar'
-                                                        }
-                                                        aria-label={
-                                                            est.estado_usuario ===
-                                                            'ACTIVO'
-                                                                ? 'Suspender'
-                                                                : 'Reactivar'
-                                                        }
-                                                        type="button"
-                                                    >
-                                                        {est.estado_usuario ===
-                                                        'ACTIVO' ? (
-                                                            <UserX size={15} />
-                                                        ) : (
-                                                            <UserCheck
-                                                                size={15}
-                                                            />
-                                                        )}
-                                                    </button>
-
-                                                    <button
-                                                        className="ae-icon-btn ae-icon-btn--danger"
-                                                        onClick={() =>
-                                                            setEstudianteAEliminar(
-                                                                est
-                                                            )
-                                                        }
-                                                        title="Eliminar de la clase"
-                                                        aria-label="Eliminar"
-                                                        type="button"
-                                                    >
-                                                        <Trash2 size={15} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
@@ -436,14 +397,8 @@ function AdministrarEstudiantes({ clase, volver }) {
 
             {/* MODAL DETALLE */}
             {estudianteDetalle && (
-                <div
-                    className="ae-modal"
-                    onClick={() => setEstudianteDetalle(null)}
-                >
-                    <div
-                        className="ae-modal__content"
-                        onClick={(e) => e.stopPropagation()}
-                    >
+                <div className="ae-modal" onClick={() => setEstudianteDetalle(null)}>
+                    <div className="ae-modal__content" onClick={(e) => e.stopPropagation()}>
                         <button
                             className="ae-modal__close"
                             onClick={() => setEstudianteDetalle(null)}
@@ -459,33 +414,66 @@ function AdministrarEstudiantes({ clase, volver }) {
                         </div>
 
                         <h3 className="ae-modal__name">
-                            {estudianteDetalle.nombre}{' '}
-                            {estudianteDetalle.apellido1}{' '}
+                            {estudianteDetalle.nombre} {estudianteDetalle.apellido1}{' '}
                             {estudianteDetalle.apellido2 || ''}
                         </h3>
 
                         <span
-                            className={`ae-badge ae-badge--${estudianteDetalle.estado_usuario?.toLowerCase()}`}
+                            className={`ae-badge ae-badge--${estudianteDetalle.estado_en_clase === 'SUSPENDIDO' ? 'suspendido' : 'activo'}`}
                         >
-                            {estudianteDetalle.estado_usuario}
+                            {estudianteDetalle.estado_en_clase === 'SUSPENDIDO' ? 'Suspendido' : 'Activo'}
                         </span>
 
                         <div className="ae-modal__info">
                             <div className="ae-modal__row">
                                 <UserIcon size={14} />
                                 <span className="ae-modal__label">Usuario</span>
-                                <span className="ae-modal__value">
-                                    {estudianteDetalle.username}
-                                </span>
+                                <span className="ae-modal__value">{estudianteDetalle.username}</span>
                             </div>
+
                             <div className="ae-modal__row">
                                 <Mail size={14} />
                                 <span className="ae-modal__label">Correo</span>
+                                <span className="ae-modal__value">{estudianteDetalle.email}</span>
+                            </div>
+
+                            <div className="ae-modal__row">
+                                <IconoSexo sexo={estudianteDetalle.sexo} />
+                                <span className="ae-modal__label">Sexo</span>
+                                <span className="ae-modal__value">{labelSexo(estudianteDetalle.sexo)}</span>
+                            </div>
+
+
+                            <div className="ae-modal__row">
+                                <Calendar size={14} />
+                                <span className="ae-modal__label">Se unió a la clase</span>
                                 <span className="ae-modal__value">
-                                    {estudianteDetalle.email}
+                                    {formatearFecha(estudianteDetalle.fecha_inscripcion_clase)}
+                                </span>
+                            </div>
+
+                            <div className="ae-modal__row">
+                                <Clock size={14} />
+                                <span className="ae-modal__label">Última conexión</span>
+                                <span className="ae-modal__value">
+                                    {formatearFechaHora(estudianteDetalle.fecha_ultimo_acceso)}
                                 </span>
                             </div>
                         </div>
+
+                        {onVerRendimiento && (
+                            <button
+                                className="ae-modal__action-btn"
+                                onClick={() => {
+                                    onVerRendimiento(estudianteDetalle);
+                                    setEstudianteDetalle(null);
+                                }}
+                                type="button"
+                            >
+                                <BarChart3 size={16} />
+                                Ver rendimiento completo
+                            </button>
+                        )}
                     </div>
                 </div>
             )}

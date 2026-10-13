@@ -30,6 +30,7 @@ import {
 import './PlanificacionGestion.css';
 import VistaPlanificacion from './VistaPlanificacion';
 import ConfirmModal from '../../components/ui/ConfirmModal';
+import api from '../../api/axios';
 
 // ============================================================
 // TOAST
@@ -275,17 +276,12 @@ function PlanificacionGestion({ user, volver }) {
     const cargarClasesMaestro = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-            const response = await fetch(
-                'http://localhost:5000/api/planificacion/clases',
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-            const data = await response.json();
+            const res = await api.get('/planificacion/clases');
 
-            if (data.success && data.data.length > 0) {
-                setClases(data.data);
-                setClaseSeleccionada(data.data[0]);
-                await cargarDatosClase(data.data[0].id_clase);
+            if (res.data.success && res.data.data.length > 0) {
+                setClases(res.data.data);
+                setClaseSeleccionada(res.data.data[0]);
+                await cargarDatosClase(res.data.data[0].id_clase);
             } else {
                 mostrarToast('No tienes clases asignadas', 'error');
             }
@@ -300,12 +296,8 @@ function PlanificacionGestion({ user, volver }) {
     const cargarDatosClase = async (idClase) => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-            const response = await fetch(
-                `http://localhost:5000/api/planificacion/datos-clase/${idClase}`,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-            const data = await response.json();
+            const res = await api.get(`/planificacion/datos-clase/${idClase}`);
+            const data = res.data;
 
             if (data.success) {
                 setTrimestres(data.data.trimestres || []);
@@ -458,7 +450,7 @@ function PlanificacionGestion({ user, volver }) {
     };
 
     const guardarPlanificacion = async () => {
-        if (!claseSeleccionada) {
+    if (!claseSeleccionada) {
             mostrarToast('No hay clase seleccionada', 'error');
             return;
         }
@@ -469,30 +461,19 @@ function PlanificacionGestion({ user, volver }) {
 
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-            const response = await fetch(
-                'http://localhost:5000/api/planificacion/guardar',
-                {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        id_clase: claseSeleccionada.id_clase,
-                        id_planificacion: planificacionId,
-                        itemsAsignados,
-                    }),
-                }
-            );
-            const data = await response.json();
-            if (data.success) {
+            const res = await api.post('/planificacion/guardar', {
+                id_clase: claseSeleccionada.id_clase,
+                id_planificacion: planificacionId,
+                itemsAsignados,
+            });
+
+            if (res.data.success) {
                 mostrarToast('Planificación guardada exitosamente', 'exito');
-                if (data.data.id_planificacion) {
-                    setPlanificacionId(data.data.id_planificacion);
+                if (res.data.data.id_planificacion) {
+                    setPlanificacionId(res.data.data.id_planificacion);
                 }
             } else {
-                mostrarToast('Error: ' + data.message, 'error');
+                mostrarToast('Error: ' + res.data.message, 'error');
             }
         } catch (error) {
             console.error('Error guardando planificación:', error);
@@ -526,7 +507,7 @@ function PlanificacionGestion({ user, volver }) {
             />
         );
     }
-
+    
     const semanasPlanificadas = Object.keys(itemsAsignados).filter(
         (key) => itemsAsignados[key]?.length > 0
     ).length;

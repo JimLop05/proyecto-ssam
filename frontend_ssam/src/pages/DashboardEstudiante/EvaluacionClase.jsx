@@ -1,17 +1,18 @@
 /* frontend_ssam/src/pages/DashboardEstudiante/EvaluacionClase.jsx */
 // ============================================================
 // VISTA INTERNA DE UNA CLASE (ESTUDIANTE)
-// Muestra info de la clase + unidades temáticas en mosaicos
-// Los ítems NO se muestran; el mosaico es clickeable
-// Se omiten las unidades tipo "Laboratorio"
+// Muestra info de la clase + unidades temáticas en cards 3D
+// estilo Duolingo. Clic en card → comenzar prueba.
+// Se omiten las unidades tipo "Laboratorio".
 // ============================================================
 
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import './EvaluacionClase.css';
-import DebugPreguntas from './DebugPreguntas';  // TEMPORAL
+import DebugPreguntas from './DebugPreguntas'; // TEMPORAL
+import { ArrowLeft, AlertCircle } from 'lucide-react';
 
-// Paleta rotativa para los mosaicos
+// Paleta rotativa para las cards
 const COLORES_MOSAICO = [
     'verde',
     'azul',
@@ -27,7 +28,7 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
     const [detalle, setDetalle] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [debugTipo, setDebugTipo] = useState(null); // 'preguntas' | 'respuestas' | null TEMPORAL
+    const [debugTipo, setDebugTipo] = useState(null); // TEMPORAL
 
     // Estado del modal de confirmación
     const [unidadPendiente, setUnidadPendiente] = useState(null);
@@ -90,19 +91,41 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
                         <h2>Error</h2>
                         <p className="section-subtitle">No se pudo cargar la información</p>
                     </div>
-                    <button className="btn-volver" onClick={volver}>Volver</button>
+                    <button className="btn-volver" onClick={volver}>
+                        <ArrowLeft size={16} />
+                        Volver
+                    </button>
                 </div>
                 <p className="empty-message">{error}</p>
             </div>
         );
     }
 
-    const { clase, unidades } = detalle;
+    const { clase, unidades, suspendido_en_clase } = detalle;
 
     // Filtrar unidades tipo "Laboratorio"
     const unidadesFiltradas = unidades.filter(
         (u) => !u.nombreut.toLowerCase().includes('laboratorio')
     );
+
+    // ===== Cálculos para el resumen =====
+    const totalUnidades = unidadesFiltradas.length;
+    const unidadesIniciadas = unidadesFiltradas.filter(
+        (u) => (u.evalua?.nro_intentos || 0) > 0
+    ).length;
+    const unidadesDominadas = unidadesFiltradas.filter(
+        (u) => Number(u.evalua?.nota_promedio) === 100
+    ).length;
+
+    // Promedio general: solo de unidades con nota_promedio
+    const notasValidas = unidadesFiltradas
+        .map((u) => Number(u.evalua?.nota_promedio))
+        .filter((n) => !isNaN(n) && n > 0);
+
+    const promedioGeneral =
+        notasValidas.length > 0
+            ? Math.round(notasValidas.reduce((a, b) => a + b, 0) / notasValidas.length)
+            : null;
 
     // TEMPORAL — Vista de debug
     if (debugTipo) {
@@ -138,10 +161,22 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
                         Ver Respuestas
                     </button>
                     <button className="btn-volver" onClick={volver}>
-                        Volver a Mis Clases
+                        <ArrowLeft size={16} />
+                        Volver
                     </button>
                 </div>
             </div>
+
+            {/* ===== AVISO DE SUSPENSIÓN ===== */}
+            {suspendido_en_clase && (
+                <div className="aviso-suspendido">
+                    <AlertCircle size={20} />
+                    <div>
+                        <strong>Estás suspendido en esta clase</strong>
+                        <p>Contacta a tu maestro para más información. No puedes rendir pruebas por el momento.</p>
+                    </div>
+                </div>
+            )}
 
             {/* INFO DE LA CLASE */}
             <div className="info-clase-grid">
@@ -162,7 +197,7 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
                     <p>{clase.unidad_educativa || 'N/A'}</p>
                 </div>
                 <div className="info-item">
-                    <label>Período</label>
+                    <label>Gestión</label>
                     <p>{clase.periodo || 'N/A'}</p>
                 </div>
                 <div className="info-item">
@@ -173,7 +208,33 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
                 </div>
             </div>
 
-            {/* UNIDADES TEMÁTICAS EN MOSAICOS */}
+            {/* ===== RESUMEN DE ESTADÍSTICAS ===== */}
+            <div className="resumen-stats">
+                <div className="resumen-stats__item">
+                    <span className="resumen-stats__label">Unidades</span>
+                    <span className="resumen-stats__valor">{totalUnidades}</span>
+                </div>
+                <div className="resumen-stats__item">
+                    <span className="resumen-stats__label">Iniciadas</span>
+                    <span className="resumen-stats__valor resumen-stats__valor--iniciadas">
+                        {unidadesIniciadas}
+                    </span>
+                </div>
+                <div className="resumen-stats__item">
+                    <span className="resumen-stats__label">Dominadas</span>
+                    <span className="resumen-stats__valor resumen-stats__valor--dominadas">
+                        {unidadesDominadas}
+                    </span>
+                </div>
+                <div className="resumen-stats__item">
+                    <span className="resumen-stats__label">Promedio general</span>
+                    <span className="resumen-stats__valor resumen-stats__valor--promedio">
+                        {promedioGeneral !== null ? `${promedioGeneral}%` : '—'}
+                    </span>
+                </div>
+            </div>
+
+            {/* UNIDADES TEMÁTICAS EN CARDS 3D */}
             <div className="unidades-section">
                 <h3 className="unidades-titulo">Unidades Temáticas</h3>
 
@@ -182,14 +243,31 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
                         Esta clase aún no tiene unidades temáticas asignadas.
                     </p>
                 ) : (
-                    <div className="unidades-mosaico-grid">
+                    <div className="unidades-grid-3d">
                         {unidadesFiltradas.map((unidad, index) => {
-                            const colorClase = COLORES_MOSAICO[index % COLORES_MOSAICO.length];
+                            const colorClase =
+                                COLORES_MOSAICO[index % COLORES_MOSAICO.length];
+
+                            const intentos = unidad.evalua?.nro_intentos || 0;
+                            const notaAlta = unidad.evalua?.nota_alta;
+                            const notaPromedio = Number(unidad.evalua?.nota_promedio);
+
+                            const iniciada = intentos > 0;
+                            const dominada = !isNaN(notaPromedio) && notaPromedio === 100;
+
+                            // Clases de estado
+                            let estadoClase = 'card-unidad--bloqueada';
+                            if (dominada) estadoClase = 'card-unidad--dorada';
+                            else if (iniciada) estadoClase = `card-unidad--${colorClase}`;
+
                             return (
                                 <div
                                     key={unidad.id_unid_tem}
-                                    className={`mosaico-unidad ${colorClase} mosaico-clickeable`}
-                                    onClick={() => handleClickUnidad(unidad)}
+                                    className={`card-unidad ${estadoClase} ${suspendido_en_clase ? 'card-unidad--suspendida' : ''}`}
+                                    onClick={() => {
+                                        if (suspendido_en_clase) return;
+                                        handleClickUnidad(unidad);
+                                    }}
                                     role="button"
                                     tabIndex={0}
                                     onKeyDown={(e) => {
@@ -199,37 +277,28 @@ function EvaluacionClase({ idClase, volver, onIniciarUnidad }) {
                                         }
                                     }}
                                 >
-                                    <div className="mosaico-contenido">
-                                        <div className="mosaico-numero">
-                                            Unidad {index + 1}
-                                        </div>
-                                        <h4>{unidad.nombreut}</h4>
-                                        {unidad.objetivo && (
-                                            <p className="mosaico-objetivo">
-                                                {unidad.objetivo.length > 100
-                                                    ? unidad.objetivo.substring(0, 100) + '...'
-                                                    : unidad.objetivo}
-                                            </p>
-                                        )}
+                                    {/* Badge de stats propio (solo si iniciada) */}
+                                    {iniciada && (
+                                        <span className="card-unidad__badge">
+                                            {intentos} {intentos === 1 ? 'intento' : 'intentos'}
+                                            {notaAlta != null && ` · ${notaAlta}%`}
+                                        </span>
+                                    )}
+
+                                    {/* Círculo 3D con número */}
+                                    <div className="card-unidad__circulo">
+                                        <span className="card-unidad__numero">
+                                            {index + 1}
+                                        </span>
                                     </div>
 
-                                    {/* Datos de rendimiento */}
-                                    <div className="mosaico-stats">
-                                        <div className="mosaico-stat">
-                                            <span className="stat-label">Intentos</span>
-                                            <span className="stat-value">
-                                                {unidad.evalua?.nro_intentos || 0}
-                                            </span>
-                                        </div>
-                                        <div className="mosaico-stat">
-                                            <span className="stat-label">Nota alta</span>
-                                            <span className="stat-value">
-                                                {unidad.evalua?.nota_alta != null
-                                                    ? `${unidad.evalua.nota_alta}%`
-                                                    : '—'}
-                                            </span>
-                                        </div>
-                                    </div>
+                                    {/* Nombre de la unidad */}
+                                    <h4 className="card-unidad__nombre">
+                                        {unidad.nombreut}
+                                    </h4>
+
+                                    {/* Sombra 3D decorativa */}
+                                    <span className="card-unidad__sombra" />
                                 </div>
                             );
                         })}

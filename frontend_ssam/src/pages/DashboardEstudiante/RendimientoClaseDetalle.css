@@ -1,26 +1,8 @@
 /* frontend_ssam/src/pages/DashboardEstudiante/RendimientoClaseDetalle.css */
 /* ============================================================
    DETALLE DE RENDIMIENTO DE UNA CLASE - Estilos
+   Usa variables globales de theme.css
    ============================================================ */
-
-:root {
-    --color-primary: #1e3a5f;
-    --color-primary-light: #2c5282;
-    --color-primary-dark: #15293f;
-    --color-accent: #2e7d32;
-    --color-warning: #f9a825;
-    --color-danger: #c62828;
-    --color-bg: #f5f7fa;
-    --color-surface: #ffffff;
-    --color-border: #e2e8f0;
-    --color-text: #1a202c;
-    --color-text-muted: #64748b;
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-    --radius: 10px;
-    --radius-lg: 14px;
-}
 
 /* ============================================================
    HEADER DEL DETALLE
@@ -34,12 +16,13 @@
     align-items: center;
     gap: 10px;
     margin-bottom: 8px;
+    flex-wrap: wrap;
 }
 
 .asignatura-badge {
     display: inline-block;
     padding: 4px 10px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -56,8 +39,8 @@
 
 .clase-periodo {
     font-size: 12px;
-    color: var(--color-text-muted);
-    font-weight: 500;
+    color: var(--color-ink-muted);
+    font-weight: 600;
 }
 
 /* ============================================================
@@ -80,11 +63,11 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
     cursor: pointer;
     border-bottom: 3px solid transparent;
     margin-bottom: -2px;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
     font-family: inherit;
     white-space: nowrap;
 }
@@ -129,31 +112,31 @@
 
 .resumen-clase-card.destacado {
     background: linear-gradient(135deg, #f0f5fa 0%, #ffffff 100%);
-    border-color: #c9ddf0;
+    border-color: var(--color-primary-soft, #c9ddf0);
 }
 
 .resumen-label {
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.6px;
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
     font-weight: 600;
 }
 
 .resumen-valor {
     font-size: 26px;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--color-primary);
     line-height: 1.1;
 }
 
 .resumen-hint {
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 /* ============================================================
-   GRÁFICO DE BARRAS VERTICALES (Tab 1)
+   GRÁFICO DE BARRAS VERTICALES 3D (Tab 1)
    ============================================================ */
 .grafico-barras-card {
     background: var(--color-surface);
@@ -166,8 +149,8 @@
 .grafico-titulo {
     margin: 0 0 20px 0;
     font-size: 16px;
-    font-weight: 600;
-    color: var(--color-primary-dark);
+    font-weight: 700;
+    color: var(--color-ink);
 }
 
 .grafico-barras-vertical {
@@ -195,7 +178,7 @@
 
 .tick-label {
     font-size: 11px;
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
     font-weight: 600;
     min-width: 32px;
     text-align: right;
@@ -207,7 +190,7 @@
     background: transparent;
 }
 
-/* Barras */
+/* Contenedor de barras */
 .barras-container {
     flex: 1;
     display: flex;
@@ -241,35 +224,61 @@
     position: relative;
 }
 
-.barra-vertical {
+/* ===== BARRA VERTICAL 3D ===== */
+.barra-vertical-3d {
     width: 70%;
     max-width: 60px;
-    min-height: 4px;
-    border-radius: 6px 6px 0 0;
-    transition: height 0.6s ease, background 0.3s ease;
+    min-height: 6px;
+    border-radius: 8px 8px 0 0;
+    transition: height 0.6s ease, transform 0.15s ease, box-shadow 0.15s ease;
     display: flex;
     align-items: flex-start;
     justify-content: center;
     padding-top: 6px;
     position: relative;
+    background: linear-gradient(
+        to bottom,
+        var(--barra-color) 0%,
+        color-mix(in srgb, var(--barra-color) 75%, black) 100%
+    );
+    box-shadow:
+        0 4px 0 color-mix(in srgb, var(--barra-color) 65%, black),
+        0 6px 8px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
 }
 
-.barra-vertical.sin-datos {
+.barra-vertical-3d:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 7px 0 color-mix(in srgb, var(--barra-color) 65%, black),
+        0 10px 14px rgba(0, 0, 0, 0.12);
+}
+
+.barra-vertical-3d.sin-datos {
+    background: transparent;
     border: 2px dashed var(--color-border);
+    box-shadow: none;
     min-height: 40px;
+}
+
+.barra-vertical-3d.sin-datos:hover {
+    transform: none;
+    box-shadow: none;
 }
 
 .barra-valor {
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     color: #fff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    position: relative;
+    z-index: 1;
 }
 
 .barra-label {
     font-size: 11px;
     font-weight: 600;
-    color: var(--color-text);
+    color: var(--color-ink);
     text-align: center;
     word-break: break-word;
     line-height: 1.25;
@@ -278,7 +287,7 @@
 
 .barra-sublabel {
     font-size: 10px;
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
     font-weight: 500;
 }
 
@@ -300,7 +309,7 @@
 .selector-label {
     font-size: 13px;
     font-weight: 600;
-    color: var(--color-text);
+    color: var(--color-ink);
 }
 
 .selector-unidad {
@@ -309,12 +318,12 @@
     padding: 10px 14px;
     font-size: 14px;
     border: 1px solid var(--color-border);
-    border-radius: var(--radius);
+    border-radius: var(--radius-md);
     background: var(--color-surface);
-    color: var(--color-text);
+    color: var(--color-ink);
     font-family: inherit;
     cursor: pointer;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .selector-unidad:focus {
@@ -334,8 +343,8 @@
 
 .unidad-info-titulo {
     font-size: 16px;
-    font-weight: 600;
-    color: var(--color-primary-dark);
+    font-weight: 700;
+    color: var(--color-ink);
     margin-bottom: 14px;
     padding-bottom: 12px;
     border-bottom: 1px solid var(--color-border);
@@ -357,77 +366,93 @@
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.6px;
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
     font-weight: 600;
 }
 
 .info-stat-valor {
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--color-primary);
 }
 
 /* ============================================================
-   BARRAS HORIZONTALES (Tab 2)
+   TAB 2: Lista de ÍTEMS con barra horizontal
    ============================================================ */
-.barras-horizontales {
+.items-lista {
     display: flex;
     flex-direction: column;
     gap: 14px;
 }
 
-.barra-horizontal-row {
+.item-card {
     display: grid;
-    grid-template-columns: 90px 1fr 60px 60px;
+    grid-template-columns: 1fr auto;
     align-items: center;
-    gap: 14px;
-}
-
-.barra-h-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--color-text);
-}
-
-.barra-h-track {
-    width: 100%;
-    height: 22px;
-    background: var(--color-bg);
+    gap: 20px;
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 5px;
-    overflow: hidden;
-    position: relative;
-    cursor: help;
+    border-left: 5px solid var(--item-color, var(--color-border));
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.barra-h-fill {
-    height: 100%;
-    border-radius: 5px;
-    transition: width 0.6s ease, background 0.3s ease;
-    cursor: help;
+.item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
 }
 
-.barra-h-valor {
+.item-card__left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+
+.item-card__nombre {
     font-size: 14px;
     font-weight: 700;
-    text-align: right;
-    cursor: help;
+    color: var(--color-ink);
+    line-height: 1.3;
+    word-break: break-word;
 }
 
-.barra-h-correctas {
-    font-size: 12px;
-    color: var(--color-text-muted);
-    text-align: right;
-    font-weight: 600;
-    cursor: help;
+.item-card__barra-track {
+    width: 100%;
+    height: 10px;
+    background: var(--color-bg-alt);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
 }
 
-.tooltip-hint {
-    margin: 0;
-    font-size: 12px;
-    color: var(--color-text-muted);
-    text-align: center;
-    font-style: italic;
+.item-card__barra-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.6s ease, background 0.3s ease;
+}
+
+.item-card__right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.item-card__porcentaje {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.item-card__nivel {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-ink-muted);
 }
 
 /* ============================================================
@@ -479,7 +504,7 @@
 
 .circulo-fondo {
     fill: none;
-    stroke: var(--color-bg);
+    stroke: var(--color-bg-alt);
     stroke-width: 12;
 }
 
@@ -501,7 +526,7 @@
 
 .circulo-valor {
     font-size: 22px;
-    font-weight: 700;
+    font-weight: 800;
     line-height: 1;
 }
 
@@ -512,7 +537,7 @@
 .circulo-label {
     font-size: 12px;
     font-weight: 600;
-    color: var(--color-text);
+    color: var(--color-ink);
     text-align: center;
     line-height: 1.3;
     word-break: break-word;
@@ -520,7 +545,7 @@
 
 .circulo-hint {
     font-size: 11px;
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 600;
@@ -542,31 +567,9 @@
     margin: 0;
 }
 
-.btn-exportar {
-    background: var(--color-primary);
-    color: #fff;
-    border: none;
-    padding: 9px 18px;
-    border-radius: var(--radius);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 0.2s ease;
-}
-
-.btn-exportar:hover:not(:disabled) {
-    background: var(--color-primary-light);
-}
-
-.btn-exportar:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
 .tabla-wrapper {
     overflow-x: auto;
-    border-radius: var(--radius);
+    border-radius: var(--radius-md);
     border: 1px solid var(--color-border);
 }
 
@@ -577,7 +580,7 @@
 }
 
 .tabla-intentos thead {
-    background: var(--color-bg);
+    background: var(--color-bg-alt);
 }
 
 .tabla-intentos th {
@@ -586,7 +589,7 @@
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.6px;
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
     font-weight: 700;
     border-bottom: 1px solid var(--color-border);
     white-space: nowrap;
@@ -595,7 +598,7 @@
 .tabla-intentos td {
     padding: 12px 14px;
     border-bottom: 1px solid var(--color-border);
-    color: var(--color-text);
+    color: var(--color-ink);
 }
 
 .tabla-intentos tbody tr:last-child td {
@@ -609,30 +612,109 @@
 .estado-chip {
     display: inline-block;
     padding: 3px 10px;
-    border-radius: 20px;
+    border-radius: var(--radius-full);
     font-size: 11px;
     font-weight: 600;
     white-space: nowrap;
 }
 
 /* ============================================================
+   INTENTOS AGRUPADOS POR UNIDAD (Tab 3)
+   ============================================================ */
+.unidades-intentos-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.unidad-intentos-bloque {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-surface);
+}
+
+.unidad-intentos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 18px;
+    background: var(--color-bg-alt);
+    border-bottom: 1px solid var(--color-border);
+    flex-wrap: wrap;
+}
+
+.unidad-intentos-titulo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.unidad-intentos-nombre {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-ink);
+    word-break: break-word;
+}
+
+.unidad-intentos-meta {
+    font-size: 12px;
+    color: var(--color-ink-muted);
+}
+
+.unidad-intentos-promedio {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 6px 14px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    font-weight: 600;
+}
+
+.promedio-mini-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-ink-muted);
+    font-weight: 600;
+}
+
+.promedio-mini-valor {
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.promedio-mini-nivel {
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.85;
+}
+
+/* ============================================================
    BOTONES GENERALES
    ============================================================ */
 .btn-volver {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: var(--color-surface);
     color: var(--color-primary);
     border: 1px solid var(--color-border);
-    padding: 9px 18px;
-    border-radius: var(--radius);
+    padding: 9px 16px;
+    border-radius: var(--radius-md);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
     font-family: inherit;
 }
 
 .btn-volver:hover {
-    background: var(--color-bg);
+    background: var(--color-bg-alt);
     border-color: var(--color-primary);
 }
 
@@ -640,12 +722,12 @@
    EMPTY Y LOADING
    ============================================================ */
 .empty-message {
-    background: var(--color-bg);
+    background: var(--color-bg-alt);
     border: 1px dashed var(--color-border);
-    border-radius: var(--radius);
+    border-radius: var(--radius-md);
     padding: 24px;
     text-align: center;
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
     font-size: 13px;
     margin: 0;
 }
@@ -660,7 +742,7 @@
 }
 
 .loading-inline p {
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
     font-size: 14px;
     margin: 0;
 }
@@ -697,32 +779,25 @@
 .section h2 {
     margin: 8px 0 4px 0;
     font-size: 24px;
-    font-weight: 600;
-    color: var(--color-primary-dark);
+    font-weight: 700;
+    color: var(--color-ink);
 }
 
 .section-subtitle {
     margin: 0;
     font-size: 14px;
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
 }
 
 /* ============================================================
    RESPONSIVE
    ============================================================ */
+
+/* Tablet */
 @media (max-width: 800px) {
-    .barra-horizontal-row {
-        grid-template-columns: 70px 1fr 50px 50px;
-        gap: 8px;
-    }
-
-    .barra-h-label {
-        font-size: 11px;
-    }
-
     .tab-btn {
-        padding: 10px 12px;
-        font-size: 11px;
+        padding: 10px 14px;
+        font-size: 12px;
     }
 
     .circulos-grid {
@@ -736,152 +811,110 @@
     .barras-container {
         min-height: 260px;
     }
-    
-}
-/* ============================================================
-   AGRUPAMIENTO POR ÍTEM (Tab 2)
-   ============================================================ */
-.items-agrupados {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
 }
 
-.item-grupo {
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    background: var(--color-surface);
+/* Móvil */
+@media (max-width: 600px) {
+    .grafico-barras-card,
+    .circulos-card,
+    .tabla-card,
+    .unidad-info-card {
+        padding: 18px;
+    }
+
+    .grafico-barras-vertical {
+        min-height: 220px;
+    }
+
+    .barras-container {
+        min-height: 220px;
+        gap: 6px;
+        padding: 0 6px 0 10px;
+    }
+
+    .barra-vertical-3d {
+        width: 80%;
+        max-width: 48px;
+        border-radius: 6px 6px 0 0;
+        box-shadow: 0 3px 0 color-mix(in srgb, var(--barra-color) 65%, black);
+    }
+
+    .barra-valor {
+        font-size: 10px;
+    }
+
+    .barra-label {
+        font-size: 10px;
+    }
+
+    .barra-sublabel {
+        font-size: 9px;
+    }
+
+    .item-card {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 14px 16px;
+        border-left-width: 4px;
+    }
+
+    .item-card__right {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .item-card__porcentaje {
+        font-size: 20px;
+    }
+
+    .circulo-item.destacado {
+        max-width: 100%;
+        padding: 12px;
+    }
+
+    .unidad-info-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .info-stat-valor {
+        font-size: 16px;
+    }
+
+    .tabla-intentos th,
+    .tabla-intentos td {
+        padding: 10px 8px;
+        font-size: 12px;
+    }
+
+    .unidad-intentos-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .unidad-intentos-promedio {
+        align-self: flex-end;
+    }
 }
 
-.item-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 18px;
-    color: #fff;
-    font-weight: 600;
-    flex-wrap: wrap;
-    transition: opacity 0.2s ease;
-}
+/* Móvil chico */
+@media (max-width: 400px) {
+    .resumen-clase-grid {
+        grid-template-columns: 1fr;
+    }
 
-.item-header:hover {
-    opacity: 1 !important;
-}
+    .resumen-valor {
+        font-size: 22px;
+    }
 
-.item-nombre {
-    font-size: 14px;
-    letter-spacing: 0.3px;
-}
+    .selector-unidad-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
 
-.item-promedio {
-    font-size: 12px;
-    font-weight: 500;
-    background: rgba(255, 255, 255, 0.18);
-    padding: 4px 10px;
-    border-radius: 20px;
-    white-space: nowrap;
-}
-
-.item-nivel {
-    font-weight: 700;
-}
-
-.item-preguntas {
-    padding: 16px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: var(--color-surface);
-}
-/* ============================================================
-   TAB 3: INTENTOS AGRUPADOS POR UNIDAD
-   ============================================================ */
-.unidades-intentos-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.unidad-intentos-bloque {
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    background: var(--color-surface);
-}
-
-.unidad-intentos-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    padding: 14px 18px;
-    background: var(--color-bg);
-    border-bottom: 1px solid var(--color-border);
-    flex-wrap: wrap;
-}
-
-.unidad-intentos-titulo {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.unidad-intentos-nombre {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--color-primary-dark);
-}
-
-.unidad-intentos-meta {
-    font-size: 12px;
-    color: var(--color-text-muted);
-}
-
-.unidad-intentos-promedio {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    padding: 6px 14px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 20px;
-    font-weight: 600;
-}
-
-.promedio-mini-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--color-text-muted);
-    font-weight: 600;
-}
-
-.promedio-mini-valor {
-    font-size: 18px;
-    font-weight: 700;
-}
-
-.promedio-mini-nivel {
-    font-size: 11px;
-    font-weight: 600;
-    opacity: 0.85;
-}
-/* ============================================================
-   HEADER DE GRÁFICO (con subtítulo)
-   ============================================================ */
-.grafico-header {
-    margin-bottom: 20px;
-}
-
-.grafico-header .grafico-titulo {
-    margin: 0 0 4px 0;
-}
-
-.grafico-subtitulo {
-    margin: 0;
-    font-size: 12px;
-    color: var(--color-text-muted);
-    font-style: italic;
+    .selector-unidad {
+        min-width: 0;
+    }
 }

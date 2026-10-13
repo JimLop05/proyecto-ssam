@@ -2,28 +2,36 @@
 
 const express = require('express');
 const router = express.Router();
-const { 
-    getDatosFormulario, 
-    crearClase, 
+const {
+    getDatosFormulario,
+    crearClase,
     getMisClases,
     getEstudiantesDeClase,
     getEstadisticasResumen,
     getEstadisticasMatriz,
-    getEstadisticasEstudiante
+    getEstadisticasEstudiante,
+    cambiarEstadoEstudianteEnClase,
+    quitarEstudianteDeClase,
 } = require('../controllers/claseController');
 const auth = require('../middlewares/auth');
 
-// Ruta para obtener datos del formulario (protegida con JWT)
+// ============================================================
+// FORMULARIO
+// ============================================================
 router.get('/datos-formulario', auth, getDatosFormulario);
 
-// Crear clase
+// ============================================================
+// CLASES
+// ============================================================
 router.post('/crear', auth, crearClase);
-
-// Obtener clases del maestro
 router.get('/mis-clases', auth, getMisClases);
 
-// Obtener estudiantes inscritos en una clase específica
+// ============================================================
+// ESTUDIANTES DE UNA CLASE
+// ============================================================
 router.get('/:id_clase/estudiantes', auth, getEstudiantesDeClase);
+router.patch('/:id_clase/estudiantes/:id_usuarioE/estado', auth, cambiarEstadoEstudianteEnClase);
+router.delete('/:id_clase/estudiantes/:id_usuarioE', auth, quitarEstudianteDeClase);
 
 // ============================================================
 // ESTADÍSTICAS DE LA CLASE

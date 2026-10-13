@@ -1,0 +1,162 @@
+/* src/components/sections/About.css
+   ============================================================
+   Sección "Quiénes somos" — 2 columnas: texto + valores
+   ============================================================ */
+
+.about {
+  background: var(--color-bg-alt);
+  padding: var(--space-20) var(--space-6);
+  width: 100%;
+}
+
+.about__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: var(--space-16);
+  align-items: center;
+}
+
+/* ==================== COLUMNA IZQUIERDA ==================== */
+.about__badge {
+  display: inline-block;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
+}
+
+.about__title {
+  font-size: clamp(24px, 3.5vw, 36px);
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--color-ink);
+  letter-spacing: -0.5px;
+  margin-bottom: var(--space-5);
+}
+
+.about__lead {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-ink);
+  line-height: 1.6;
+  margin-bottom: var(--space-4);
+}
+
+.about__text {
+  font-size: 16px;
+  color: var(--color-ink-muted);
+  line-height: 1.7;
+  margin-bottom: var(--space-8);
+}
+
+/* Stats */
+.about__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.about__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.about__stat strong {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.about__stat span {
+  font-size: 13px;
+  color: var(--color-ink-muted);
+  font-weight: 500;
+}
+
+/* ==================== COLUMNA DERECHA ==================== */
+.about__values {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.about__value {
+  background: var(--color-surface);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-base);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.about__value:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-soft);
+}
+
+.about__value-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.about__value h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin-bottom: 4px;
+}
+
+.about__value p {
+  font-size: 13.5px;
+  color: var(--color-ink-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 900px) {
+  .about__inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-10);
+  }
+
+  .about__values {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .about {
+    padding: var(--space-12) var(--space-4);
+  }
+
+  .about__values {
+    grid-template-columns: 1fr;
+  }
+
+  .about__stats {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+}

@@ -1,13 +1,17 @@
 // Ruta: src/api/axios.js
 // ============================================================
 // CONFIGURACIÓN DE AXIOS
-// Centraliza las peticiones al backend con el token JWT
+// Detecta automáticamente el host: funciona en localhost,
+// en red local (celular) y en producción sin cambiar código.
 // ============================================================
 
 import axios from 'axios';
 
-// URL base de tu backend (cambia si despliegas en otro puerto)
-const API_URL = 'http://localhost:5000/api';
+// window.location.hostname devuelve:
+//   - "localhost"       → cuando abres desde tu PC
+//   - "192.168.X.X"     → cuando abres desde el celular
+// Usamos el mismo host pero puerto 5000 (backend)
+const API_URL = `http://${window.location.hostname}:5000/api`;
 
 const api = axios.create({
     baseURL: API_URL,

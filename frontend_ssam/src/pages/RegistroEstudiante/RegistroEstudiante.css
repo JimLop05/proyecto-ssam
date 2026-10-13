@@ -292,6 +292,77 @@
   margin: 0 auto;
 }
 
+/* ============================================================
+   CAMPO SEXO — Botones tipo "radio cards"
+   ============================================================ */
+.re-required {
+    color: #e53e3e;
+    margin-left: 2px;
+}
+
+.re-sexo-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.re-sexo-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: var(--color-surface, #fff);
+    border: 2px solid var(--color-border, #e2e8f0);
+    border-radius: var(--radius-md, 10px);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-ink-muted, #64748b);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+.re-sexo-btn:hover {
+    border-color: var(--color-primary, #1e3a5f);
+    color: var(--color-primary, #1e3a5f);
+    background: #f0f5fa;
+}
+
+.re-sexo-btn.is-active {
+    border-color: var(--color-primary, #1e3a5f);
+    background: linear-gradient(135deg, #e0eaf5 0%, #f0f5fa 100%);
+    color: var(--color-primary, #1e3a5f);
+    box-shadow: 0 2px 8px rgba(30, 58, 95, 0.15);
+    transform: translateY(-1px);
+}
+
+.re-sexo-btn.is-active svg {
+    color: var(--color-primary, #1e3a5f);
+}
+
+/* Ícono del date picker */
+.re-input[type="date"] {
+    cursor: pointer;
+}
+
+.re-input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.15s ease;
+}
+
+.re-input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .re-sexo-group {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 640px) {
   .re-page {

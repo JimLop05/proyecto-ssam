@@ -12,6 +12,46 @@ import './DashboardEstudiante.css';
 import EvaluacionClase from './EvaluacionClase';
 import PreguntasUnidad from './PreguntasUnidad';
 import MiRendimiento, { getRubrica } from './MiRendimiento';
+import {
+    Menu, User, BarChart3, BookOpen, X,
+    Calculator, Leaf, Atom, FlaskConical, Landmark, Globe,
+    Languages, Activity, Palette, Cpu, Brain, Heart, GraduationCap
+} from 'lucide-react';
+import { useIsMobile } from '../../hooks/useIsMobile';
+
+// ============================================================
+// MAPEO: nombre de asignatura → icono lucide
+// Detecta por palabra clave (sin tildes, case-insensitive)
+// ============================================================
+function getIconoAsignatura(nombreAsignatura = '') {
+    const normalizado = nombreAsignatura
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, ''); // quita tildes
+
+    const mapa = [
+        { claves: ['matem', 'algebra', 'calculo', 'geometr'], Icono: Calculator },
+        { claves: ['lengua', 'literat', 'castellano', 'comunic'], Icono: BookOpen },
+        { claves: ['cienc', 'biolog', 'natural'], Icono: Leaf },
+        { claves: ['fisic'], Icono: Atom },
+        { claves: ['quimic'], Icono: FlaskConical },
+        { claves: ['histori'], Icono: Landmark },
+        { claves: ['geograf'], Icono: Globe },
+        { claves: ['ingles', 'english'], Icono: Languages },
+        { claves: ['educacion fisica', 'deporte'], Icono: Activity },
+        { claves: ['arte', 'musica', 'plastica'], Icono: Palette },
+        { claves: ['tecno', 'informatic', 'computac', 'sistem'], Icono: Cpu },
+        { claves: ['filosof', 'psicolog'], Icono: Brain },
+        { claves: ['religion', 'valores'], Icono: Heart },
+    ];
+
+    for (const { claves, Icono } of mapa) {
+        if (claves.some((clave) => normalizado.includes(clave))) {
+            return Icono;
+        }
+    }
+    return GraduationCap; // default
+}
 
 function DashboardEstudiante() {
     const navigate = useNavigate();
@@ -30,6 +70,10 @@ function DashboardEstudiante() {
     const [mensajeUnirse, setMensajeUnirse] = useState('');
     const [loadingUnirse, setLoadingUnirse] = useState(false);
 
+    const isMobile = useIsMobile();                     // 👈 nuevo
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false); // solo móvil
+
     useEffect(() => {
         const userData = JSON.parse(localStorage.getItem('user'));
         if (!userData) {
@@ -39,6 +83,11 @@ function DashboardEstudiante() {
         setUser(userData);
         cargarDatos();
     }, [navigate]);
+
+    // Auto-cerrar overlay móvil si pasamos a desktop (rotación, resize, zoom)
+    useEffect(() => {
+        if (!isMobile) setSidebarOpenMobile(false);
+    }, [isMobile]);
 
     const cargarDatos = async () => {
         try {
@@ -169,47 +218,119 @@ function DashboardEstudiante() {
     return (
         <div className="dashboard-container">
             <header className="dashboard-header">
-                <div className="header-left">
-                    <img src="/LogoSSAM.png" alt="SSAM" className="logo" />
-                    <div className="header-titles">
-                        <h1>Panel del Estudiante</h1>
-                        <span className="header-subtitle">Sistema de Seguimiento y Rendimiento Académico</span>
-                    </div>
-                </div>
-                <div className="header-right">
-                    <div className="user-info">
-                        <span className="user-name">{user?.nombre} {user?.apellido1}</span>
-                        <span className="user-role">{user?.rol}</span>
-                    </div>
-                    <button onClick={handleLogout} className="btn-logout">
-                        Cerrar Sesión
+                <div className="dashboard-header__inner">
+
+                    {/* Botón hamburguesa */}
+                    <button
+                        className="dashboard-header__toggle"
+                        onClick={() => {
+                            if (isMobile) {
+                                setSidebarOpenMobile(!sidebarOpenMobile);
+                            } else {
+                                setSidebarCollapsed(!sidebarCollapsed);
+                            }
+                        }}
+                        aria-label="Menú"
+                    >
+                        <Menu size={22} />
                     </button>
+
+                    {/* Logo + nombre sistema */}
+                    <div className="dashboard-header__brand">
+                        <img
+                            src="/LogoSSAM.png"
+                            alt="SSRA"
+                            className="dashboard-header__logo"
+                            onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                        <div className="dashboard-header__brand-text">
+                            <span className="dashboard-header__brand-name">SSRA</span>
+                            <span className="dashboard-header__brand-sub">Plataforma Educativa</span>
+                        </div>
+                    </div>
+
+                    {/* Badge panel */}
+                    <span className="dashboard-header__panel-badge">
+                        Panel Estudiante
+                    </span>
+
+                    {/* Derecha: user + logout */}
+                    <div className="dashboard-header__right">
+                        <div className="dashboard-header__user">
+                            <span className="dashboard-header__user-name">
+                                {user?.nombre} {user?.apellido1}
+                            </span>
+                            <span className="dashboard-header__user-role">{user?.rol}</span>
+                        </div>
+                        <button onClick={handleLogout} className="btn-logout">
+                            Cerrar Sesión
+                        </button>
+                    </div>
+
                 </div>
             </header>
 
             <div className="dashboard-body">
-                <aside className="sidebar">
+                <>
+                {/* Overlay para móvil */}
+                {sidebarOpenMobile && (
+                    <div
+                        className="sidebar-overlay"
+                        onClick={() => setSidebarOpenMobile(false)}
+                    />
+                )}
+
+                <aside
+                    className={`sidebar ${sidebarCollapsed ? 'sidebar--collapsed' : ''} ${sidebarOpenMobile ? 'sidebar--open' : ''}`}
+                >
+                    {/* Botón cerrar (solo móvil) */}
+                    <button
+                        className="sidebar__close"
+                        onClick={() => setSidebarOpenMobile(false)}
+                        aria-label="Cerrar menú"
+                    >
+                        <X size={20} />
+                    </button>
+
                     <nav className="sidebar-nav">
                         <button
                             className={`sidebar-item ${activeSection === 'perfil' ? 'active' : ''}`}
-                            onClick={() => setActiveSection('perfil')}
+                            onClick={() => {
+                                setActiveSection('perfil');
+                                if (isMobile) setSidebarOpenMobile(false);
+                            }}
+                            title="Mi Perfil"
                         >
-                            Mi Perfil
+                            <User size={20} />
+                            <span className="sidebar-item__label">Mi Perfil</span>
                         </button>
+
                         <button
                             className={`sidebar-item ${activeSection === 'rendimiento' ? 'active' : ''}`}
-                            onClick={() => setActiveSection('rendimiento')}
+                            onClick={() => {
+                                setActiveSection('rendimiento');
+                                if (isMobile) setSidebarOpenMobile(false);
+                            }}
+                            title="Mi Rendimiento"
                         >
-                            Mi Rendimiento
+                            <BarChart3 size={20} />
+                            <span className="sidebar-item__label">Mi Rendimiento</span>
                         </button>
+
                         <button
                             className={`sidebar-item ${activeSection === 'clases' ? 'active' : ''}`}
-                            onClick={() => setActiveSection('clases')}
+                            onClick={() => {
+                                setActiveSection('clases');
+                                if (isMobile) setSidebarOpenMobile(false);
+                            }}
+                            title="Mis Clases"
                         >
-                            Mis Clases
+                            <BookOpen size={20} />
+                            <span className="sidebar-item__label">Mis Clases</span>
                         </button>
                     </nav>
                 </aside>
+            </>
 
                 <main className="main-content">
                     {renderContent()}
@@ -274,17 +395,6 @@ function DashboardEstudiante() {
 function MiPerfil({ user, estudiante, rendimiento, clases }) {
 
     // Calcular edad a partir de fecha_nacimiento
-    const calcularEdad = (fechaNacimiento) => {
-        if (!fechaNacimiento) return '—';
-        const hoy = new Date();
-        const nac = new Date(fechaNacimiento);
-        let edad = hoy.getFullYear() - nac.getFullYear();
-        const m = hoy.getMonth() - nac.getMonth();
-        if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) {
-            edad--;
-        }
-        return edad;
-    };
 
     // Inicial del username para el avatar
     const inicialUsername = (user?.username || '?')[0].toUpperCase();
@@ -339,13 +449,7 @@ function MiPerfil({ user, estudiante, rendimiento, clases }) {
                 <div className="profile-card">
                     <h3 className="card-title">Información Académica</h3>
                     <div className="datos-grid">
-                        <div className="dato-item">
-                            <span className="dato-label">Edad</span>
-                            <span className="dato-valor">
-                                {calcularEdad(estudiante.fecha_nacimiento)} años
-                            </span>
-                        </div>
-
+                        
                         {clases.length > 0 && (
                             <div className="dato-item">
                                 <span className="dato-label">Unidad Educativa</span>
@@ -460,7 +564,7 @@ function MisClases({ clases, onUnirse, onAbrirClase }) {
                     <h2>Mis Clases</h2>
                     <p className="section-subtitle">Clases en las que estás inscrito</p>
                 </div>
-                <button className="btn-primary" onClick={onUnirse}>
+                <button className="btn-accent" onClick={onUnirse}>
                     Unirme a una Clase
                 </button>
             </div>
@@ -469,25 +573,28 @@ function MisClases({ clases, onUnirse, onAbrirClase }) {
                 <p className="empty-message">No estás inscrito en ninguna clase.</p>
             ) : (
                 <div className="clases-grid">
-                    {clases.map((clase) => (
-                        <div
-                            key={clase.id_clase}
-                            className="clase-card"
-                            onClick={() => onAbrirClase(clase)}
-                        >
-                            <h3>{clase.nombrec}</h3>
-                            <p><strong>Código:</strong> {clase.id_clase}</p>
-                            <p><strong>Asignatura:</strong> {clase.asignatura}</p>
-                            <p><strong>Grado:</strong> {clase.grado}</p>
-                            <p><strong>UE:</strong> {clase.unidad_educativa}</p>
-                            <p><strong>Período:</strong> {clase.periodo}</p>
-                            <p>
-                                <strong>Estado:</strong>{' '}
-                                <span className="estado-badge activo">{clase.estado_clase}</span>
-                            </p>
-                            <button className="btn-ver-clase">Ver Clase</button>
-                        </div>
-                    ))}
+                    {clases.map((clase) => {
+                        const IconoAsig = getIconoAsignatura(clase.asignatura);
+                        return (
+                            <div
+                                key={clase.id_clase}
+                                className="clase-card"
+                                onClick={() => onAbrirClase(clase)}
+                            >
+                                <div className="clase-card__header">
+                                    <span className="clase-card__icono-asig">
+                                        <IconoAsig size={20} />
+                                    </span>
+                                    <h3>{clase.nombrec}</h3>
+                                </div>
+                                <p><strong>Asignatura:</strong> {clase.asignatura}</p>
+                                <p><strong>Grado:</strong> {clase.grado}</p>
+                                <p><strong>UE:</strong> {clase.unidad_educativa}</p>
+                                <p><strong>Gestión:</strong> {clase.periodo}</p>
+                                <button className="btn-ver-clase">Ver Clase</button>
+                            </div>
+                        );
+                    })}
                 </div>
             )}
         </div>

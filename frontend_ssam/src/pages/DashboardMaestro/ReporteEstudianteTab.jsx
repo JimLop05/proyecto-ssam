@@ -1,6 +1,7 @@
 // frontend_ssam/src/pages/DashboardMaestro/ReporteEstudianteTab.jsx
 // ============================================================
 // REPORTE POR ESTUDIANTE · Detalle individual
+// Los ítems se agrupan: cada ítem = 1 celda con su promedio
 // ============================================================
 
 import { useState, useEffect } from 'react';
@@ -12,11 +13,13 @@ import {
     COLOR_SIN_EVALUAR,
 } from '../../utils/rubrica';
 
-function ReporteEstudianteTab({ idClase }) {
+function ReporteEstudianteTab({ idClase, estudianteInicialId = null }) {
     const [loadingEst, setLoadingEst] = useState(true);
     const [errorEst, setErrorEst] = useState('');
     const [estudiantes, setEstudiantes] = useState([]);
-    const [idSeleccionado, setIdSeleccionado] = useState('');
+    const [idSeleccionado, setIdSeleccionado] = useState(
+        estudianteInicialId ? String(estudianteInicialId) : ''
+    );
 
     const [loadingDetalle, setLoadingDetalle] = useState(false);
     const [errorDetalle, setErrorDetalle] = useState('');
@@ -49,6 +52,14 @@ function ReporteEstudianteTab({ idClase }) {
             setLoadingEst(false);
         }
     };
+
+            // 👇 👇 👇 AQUÍ VA EL CAMBIO C 👇 👇 👇
+    useEffect(() => {
+        if (estudianteInicialId) {
+            setIdSeleccionado(String(estudianteInicialId));
+        }
+    }, [estudianteInicialId]);
+    // 👆 👆 👆 AQUÍ VA EL CAMBIO C 👆 👆 👆
 
     useEffect(() => {
         if (!idSeleccionado) {
@@ -83,6 +94,39 @@ function ReporteEstudianteTab({ idClase }) {
         }
     };
 
+    // ============================================================
+    // HELPER: Agrupar preguntas por ítem dentro de cada unidad
+    // ============================================================
+    const agruparPreguntasPorItem = (preguntas) => {
+        const mapa = {};
+        preguntas.forEach((p) => {
+            if (!mapa[p.id_item]) {
+                mapa[p.id_item] = {
+                    id_item: p.id_item,
+                    nombreItem: p.nombreItem || 'Sin ítem',
+                    preguntas: [],
+                };
+            }
+            mapa[p.id_item].preguntas.push(p);
+        });
+        return Object.values(mapa);
+    };
+
+    // ============================================================
+    // HELPER: Promedio simple del ítem (solo preguntas con datos)
+    // ============================================================
+    const calcularPromedioItem = (preguntas) => {
+        const conDatos = preguntas.filter(
+            (p) => p.promedio !== null && p.promedio !== undefined
+        );
+        if (conDatos.length === 0) return null;
+        const suma = conDatos.reduce((acc, p) => acc + Number(p.promedio), 0);
+        return Math.round(suma / conDatos.length);
+    };
+
+    // ============================================================
+    // RENDER: LOADING / ERROR / EMPTY
+    // ============================================================
     if (loadingEst) {
         return (
             <div className="ec-tab-loading">
@@ -200,6 +244,10 @@ function ReporteEstudianteTab({ idClase }) {
                     <div className="ec-est-unidades">
                         {detalle.unidades.map((u) => {
                             const rub = getRubrica(u.promedio_unidad);
+                            const items = agruparPreguntasPorItem(
+                                u.preguntas || []
+                            );
+
                             return (
                                 <div
                                     key={u.id_unid_tem}
@@ -229,42 +277,51 @@ function ReporteEstudianteTab({ idClase }) {
                                         </div>
                                     </div>
 
-                                    <div className="ec-est-unidad-card__grid">
-                                        {u.preguntas.map((p) => {
-                                            const r = getRubrica(p.promedio);
-                                            const bg =
-                                                p.promedio !== null &&
-                                                p.promedio !== undefined
-                                                    ? `${r.color}cc`
-                                                    : `${COLOR_SIN_EVALUAR}33`;
-                                            return (
-                                                <div
-                                                    key={p.id_pregunta}
-                                                    className="ec-est-preg"
-                                                    style={{ background: bg }}
-                                                    title={`Item: ${
-                                                        p.nombreItem || '—'
-                                                    }\nPromedio: ${
-                                                        p.promedio !== null
-                                                            ? `${p.promedio}%`
-                                                            : 'Sin evaluar'
-                                                    }\nIntentos: ${
-                                                        p.intentos
-                                                    }`}
-                                                >
-                                                    <span className="ec-est-preg__num">
-                                                        P{p.numero}
-                                                    </span>
-                                                    <span className="ec-est-preg__val">
-                                                        {p.promedio !== null
-                                                            ? Math.round(
-                                                                  p.promedio
-                                                              )
-                                                            : '—'}
-                                                    </span>
-                                                </div>
-                                            );
-                                        })}
+                                    {/* Grid de ÍTEMS (agrupados) */}
+                                    <div className="ec-est-items-grid">
+                                        {items.length === 0 ? (
+                                            <p className="ec-est-sin-items">
+                                                Sin ítems registrados
+                                            </p>
+                                        ) : (
+                                            items.map((item) => {
+                                                const promItem =
+                                                    calcularPromedioItem(
+                                                        item.preguntas
+                                                    );
+                                                const rubItem =
+                                                    getRubrica(promItem);
+                                                const bg =
+                                                    promItem !== null
+                                                        ? `${rubItem.color}cc`
+                                                        : `${COLOR_SIN_EVALUAR}33`;
+
+                                                const tooltip = [
+                                                    `Ítem: ${item.nombreItem}`,
+                                                    `Promedio: ${promItem !== null ? `${promItem}%` : 'Sin evaluar'}`,
+                                                    `Nivel: ${rubItem.nivel}`,
+                                                    `Preguntas: ${item.preguntas.length}`,
+                                                ].join('\n');
+
+                                                return (
+                                                    <div
+                                                        key={item.id_item}
+                                                        className="ec-est-item"
+                                                        style={{ background: bg }}
+                                                        title={tooltip}
+                                                    >
+                                                        <span className="ec-est-item__nombre">
+                                                            {item.nombreItem}
+                                                        </span>
+                                                        <span className="ec-est-item__val">
+                                                            {promItem !== null
+                                                                ? `${promItem}%`
+                                                                : '—'}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })
+                                        )}
                                     </div>
                                 </div>
                             );

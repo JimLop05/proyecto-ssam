@@ -67,7 +67,7 @@ const register = async (req, res) => {
         } else if (rol === 'ESTUDIANTE') {
             await pool.query(
                 'INSERT INTO estudiante (id_usuarioE, fecha_nacimiento, estado, sexo, tipo_estudiante) VALUES ($1, $2, $3, $4, $5)',
-                [userId, fecha_nacimiento || '2000-01-01', 'ACTIVO', sexo || 'M', tipo_estudiante || 'PUBLICO']
+                [userId, fecha_nacimiento || null, 'ACTIVO', sexo || 'M', tipo_estudiante || 'PUBLICO']
             );
             rolAsignado = 'ESTUDIANTE';
 

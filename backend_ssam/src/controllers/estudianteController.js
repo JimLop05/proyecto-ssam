@@ -125,11 +125,11 @@ const unirseAClase = async (req, res) => {
 
         // 5. Insertar en PERTENECE
         await pool.query(
-            `INSERT INTO pertenece (id_usuarioe, id_clase) 
-             VALUES ($1, $2)`,
+            `INSERT INTO pertenece (id_usuarioe, id_clase, estado_en_clase) 
+             VALUES ($1, $2, 'ACTIVO')`,
             [id_usuarioE, clase.id_clase]
         );
-
+        
         res.json({
             success: true,
             message: `¡Te uniste exitosamente a la clase "${clase.nombrec}"!`,
@@ -339,11 +339,21 @@ const getDetalleClaseEstudiante = async (req, res) => {
             });
         }
 
+                // 6. Verificar si el estudiante está suspendido en esta clase
+        const perteneceEstado = await pool.query(
+            `SELECT estado_en_clase FROM PERTENECE 
+             WHERE id_usuarioe = $1 AND id_clase = $2`,
+            [id_usuarioE, id_clase]
+        );
+
+        const suspendido_en_clase = perteneceEstado.rows[0]?.estado_en_clase === 'SUSPENDIDO';
+
         res.json({
             success: true,
             data: {
                 clase,
-                unidades
+                unidades,
+                suspendido_en_clase    // 👈 nuevo flag
             }
         });
 
@@ -524,6 +534,20 @@ const enviarIntentoUnidad = async (req, res) => {
         const id_usuarioE = req.user.id;
         const { id_unid_tem } = req.params;
         const { id_clase, respuestas } = req.body;
+
+                // Verificar si el estudiante está suspendido en esta clase
+        const perteneceEstado = await client.query(
+            `SELECT estado_en_clase FROM PERTENECE 
+             WHERE id_usuarioe = $1 AND id_clase = $2`,
+            [id_usuarioE, id_clase]
+        );
+
+        if (perteneceEstado.rows[0]?.estado_en_clase === 'SUSPENDIDO') {
+            return res.status(403).json({
+                success: false,
+                message: 'Estás suspendido en esta clase. Contacta a tu maestro para más información.'
+            });
+        }
 
         // 1. Validaciones básicas
         if (!id_clase) {

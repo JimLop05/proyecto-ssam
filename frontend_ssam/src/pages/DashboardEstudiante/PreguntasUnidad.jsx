@@ -11,6 +11,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../../api/axios';
 import './PreguntasUnidad.css';
 import MathText from '../../components/MathText';
+import { ArrowLeft } from 'lucide-react';
 
 // Mezcla un array (Fisher-Yates)
 const mezclar = (arr) => {
@@ -229,7 +230,10 @@ function PreguntasUnidad({ unidad, clase, volver }) {
         return (
             <div className="section">
                 <p className="empty-message">No se seleccionó ninguna unidad.</p>
-                <button className="btn-volver" onClick={volver}>Volver</button>
+                <button className="btn-volver" onClick={volver}>
+                    <ArrowLeft size={16} />
+                    Volver
+                </button>
             </div>
         );
     }
@@ -253,7 +257,10 @@ function PreguntasUnidad({ unidad, clase, volver }) {
                         <h2>Error</h2>
                         <p className="section-subtitle">No se pudieron cargar las preguntas</p>
                     </div>
-                    <button className="btn-volver" onClick={volver}>Volver</button>
+                    <button className="btn-volver" onClick={volver}>
+                        <ArrowLeft size={16} />
+                        Volver
+                    </button>
                 </div>
                 <p className="empty-message">{error}</p>
             </div>
@@ -317,6 +324,7 @@ function PreguntasUnidad({ unidad, clase, volver }) {
             <div className="preguntas-header">
                 <div className="preguntas-header-left">
                     <button className="btn-volver" onClick={volver}>
+                        <ArrowLeft size={16} />
                         Volver a la clase
                     </button>
                     <h2>{unidad.nombreut}</h2>

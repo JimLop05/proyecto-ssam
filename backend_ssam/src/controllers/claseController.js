@@ -9,6 +9,37 @@ const ID_GRADO_FIJO = 6;
 const PREGUNTAS_POR_UNIDAD = 10;
 
 // ============================================================
+// HELPER: Generar contraseña única para una clase
+// Formato: 6 caracteres alfanuméricos en mayúsculas (sin 0/O/I/1)
+// Ejemplo: "A7K2P9", "B8M3Q5"
+// ============================================================
+const _generarPasswordUnica = async () => {
+    // Alfabeto sin caracteres ambiguos (0/O, 1/I/L)
+    const ALFABETO = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    const LONGITUD = 6;
+    const MAX_INTENTOS = 15;
+
+    for (let intento = 0; intento < MAX_INTENTOS; intento++) {
+        let password = '';
+        for (let i = 0; i < LONGITUD; i++) {
+            password += ALFABETO[Math.floor(Math.random() * ALFABETO.length)];
+        }
+
+        // Verificar que no exista en la BD
+        const existe = await pool.query(
+            'SELECT 1 FROM CLASE WHERE password_clase = $1',
+            [password]
+        );
+
+        if (existe.rows.length === 0) {
+            return password;
+        }
+    }
+
+    throw new Error('No se pudo generar una contraseña única después de 15 intentos');
+};
+
+// ============================================================
 // OBTENER DATOS PARA EL FORMULARIO DE CREACIÓN DE CLASES
 // ============================================================
 const getDatosFormulario = async (req, res) => {
@@ -80,25 +111,29 @@ const getDatosFormulario = async (req, res) => {
 
 // ============================================================
 // CREAR CLASE
+// - La contraseña se genera automáticamente (única)
+// - Se valida grado y asignatura
 // ============================================================
 const crearClase = async (req, res) => {
     try {
-        const { 
+        const {
             nombreC, id_ue, id_grado, id_asig, numEst,
-            password_clase, turno, tipo_ue, estado_clase
+            turno, tipo_ue, estado_clase
         } = req.body;
 
         const id_maestro = req.user.id;
 
-        if (!nombreC || !id_ue || !id_grado || !id_asig || !numEst || !password_clase || !turno || !tipo_ue) {
+        // 1. Validar campos obligatorios (ya no incluye password_clase)
+        if (!nombreC || !id_ue || !id_grado || !id_asig || !numEst || !turno || !tipo_ue) {
             return res.status(400).json({
                 success: false,
-                message: 'Faltan campos obligatorios: nombreC, id_ue, id_grado, id_asig, numEst, password_clase, turno, tipo_ue'
+                message: 'Faltan campos obligatorios: nombreC, id_ue, id_grado, id_asig, numEst, turno, tipo_ue'
             });
         }
 
+        // 2. Verificar que sea maestro
         const maestroCheck = await pool.query(
-            'SELECT * FROM MAESTRO WHERE id_usuarioM = $1',
+            'SELECT 1 FROM MAESTRO WHERE id_usuarioM = $1',
             [id_maestro]
         );
 
@@ -109,6 +144,7 @@ const crearClase = async (req, res) => {
             });
         }
 
+        // 3. Validar que la UE existe y su capacidad
         const ueCheck = await pool.query(
             'SELECT num_est FROM UE WHERE id_ue = $1',
             [id_ue]
@@ -129,15 +165,54 @@ const crearClase = async (req, res) => {
             });
         }
 
+        // 4. Validar que el grado existe
+        const gradoCheck = await pool.query(
+            'SELECT 1 FROM GRADO WHERE id_grado = $1',
+            [id_grado]
+        );
+
+        if (gradoCheck.rows.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'El grado seleccionado no existe'
+            });
+        }
+
+        // 5. Validar que la asignatura existe
+        const asigCheck = await pool.query(
+            'SELECT 1 FROM ASIGNATURA WHERE id_asig = $1',
+            [id_asig]
+        );
+
+        if (asigCheck.rows.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'La asignatura seleccionada no existe'
+            });
+        }
+
+        // 6. Generar contraseña única
+        let passwordGenerada;
+        try {
+            passwordGenerada = await _generarPasswordUnica();
+        } catch (errPassword) {
+            console.error('Error generando contraseña:', errPassword);
+            return res.status(500).json({
+                success: false,
+                message: 'No se pudo generar la contraseña de la clase. Intenta de nuevo.'
+            });
+        }
+
+        // 7. Insertar la clase
         const result = await pool.query(
             `INSERT INTO CLASE 
              (nombreC, numEst, password_clase, periodo, estado_clase, id_ue, id_grado, id_maestro, id_asig) 
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
              RETURNING *`,
             [
-                nombreC,
+                nombreC.trim(),
                 parseInt(numEst),
-                password_clase,
+                passwordGenerada,
                 '2026-A',
                 estado_clase || 'ACTIVA',
                 parseInt(id_ue),
@@ -154,11 +229,11 @@ const crearClase = async (req, res) => {
             message: 'Clase creada exitosamente',
             data: {
                 id_clase: nuevaClase.id_clase,
-                nombreC: nuevaClase.nombreC,
+                nombreC: nuevaClase.nombrec || nuevaClase.nombreC,
                 password_clase: nuevaClase.password_clase,
                 periodo: nuevaClase.periodo,
                 estado_clase: nuevaClase.estado_clase,
-                numEst: nuevaClase.numEst
+                numEst: nuevaClase.numest || nuevaClase.numEst
             }
         });
 
@@ -271,14 +346,17 @@ const getEstudiantesDeClase = async (req, res) => {
                 u.apellido2,
                 u.email,
                 u.estado AS estado_usuario,
+                u.fecha_ultimo_acceso,
                 e.fecha_nacimiento,
                 e.sexo,
-                e.tipo_estudiante
-             FROM PERTENECE p
-             INNER JOIN ESTUDIANTE e ON p.id_usuarioE = e.id_usuarioE
-             INNER JOIN USUARIO u ON e.id_usuarioE = u.id_usuario
-             WHERE p.id_clase = $1
-             ORDER BY u.apellido1, u.apellido2, u.nombre`,
+                e.tipo_estudiante,
+                p.fecha_inscripcion_clase,
+                p.estado_en_clase
+            FROM PERTENECE p
+            INNER JOIN ESTUDIANTE e ON p.id_usuarioE = e.id_usuarioE
+            INNER JOIN USUARIO u ON e.id_usuarioE = u.id_usuario
+            WHERE p.id_clase = $1
+            ORDER BY u.apellido1, u.apellido2, u.nombre`,
             [id_clase]
         );
 
@@ -698,6 +776,123 @@ const getEstadisticasEstudiante = async (req, res) => {
     }
 };
 
+// ============================================================
+// CAMBIAR ESTADO DE UN ESTUDIANTE EN LA CLASE
+// PATCH /api/clases/:id_clase/estudiantes/:id_usuarioE/estado
+// Body: { estado_en_clase: 'ACTIVO' | 'SUSPENDIDO' }
+// ============================================================
+const cambiarEstadoEstudianteEnClase = async (req, res) => {
+    try {
+        const id_maestro = req.user.id;
+        const { id_clase, id_usuarioE } = req.params;
+        const { estado_en_clase } = req.body;
+
+        // 1. Validar valor
+        if (!['ACTIVO', 'SUSPENDIDO'].includes(estado_en_clase)) {
+            return res.status(400).json({
+                success: false,
+                message: 'El estado debe ser ACTIVO o SUSPENDIDO'
+            });
+        }
+
+        // 2. Verificar que la clase pertenece al maestro
+        const verif = await _verificarClaseDelMaestro(id_clase, id_maestro);
+        if (verif.error === 'no-maestro') {
+            return res.status(403).json({ success: false, message: 'El usuario no es un maestro registrado' });
+        }
+        if (verif.error === 'no-clase') {
+            return res.status(404).json({ success: false, message: 'Clase no encontrada o sin permiso' });
+        }
+
+        // 3. Verificar que el estudiante está inscrito
+        const inscrito = await pool.query(
+            `SELECT 1 FROM PERTENECE WHERE id_clase = $1 AND id_usuarioE = $2`,
+            [id_clase, id_usuarioE]
+        );
+
+        if (inscrito.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'El estudiante no está inscrito en esta clase'
+            });
+        }
+
+        // 4. Actualizar estado
+        await pool.query(
+            `UPDATE PERTENECE 
+             SET estado_en_clase = $1 
+             WHERE id_clase = $2 AND id_usuarioE = $3`,
+            [estado_en_clase, id_clase, id_usuarioE]
+        );
+
+        res.json({
+            success: true,
+            message: `Estudiante ${estado_en_clase === 'SUSPENDIDO' ? 'suspendido' : 'reactivado'} correctamente`,
+            data: { id_usuarioE: parseInt(id_usuarioE), estado_en_clase }
+        });
+
+    } catch (error) {
+        console.error('Error en cambiarEstadoEstudianteEnClase:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al cambiar el estado del estudiante',
+            error: error.message
+        });
+    }
+};
+
+// ============================================================
+// QUITAR ESTUDIANTE DE LA CLASE
+// DELETE /api/clases/:id_clase/estudiantes/:id_usuarioE
+// ============================================================
+const quitarEstudianteDeClase = async (req, res) => {
+    try {
+        const id_maestro = req.user.id;
+        const { id_clase, id_usuarioE } = req.params;
+
+        // 1. Verificar que la clase pertenece al maestro
+        const verif = await _verificarClaseDelMaestro(id_clase, id_maestro);
+        if (verif.error === 'no-maestro') {
+            return res.status(403).json({ success: false, message: 'El usuario no es un maestro registrado' });
+        }
+        if (verif.error === 'no-clase') {
+            return res.status(404).json({ success: false, message: 'Clase no encontrada o sin permiso' });
+        }
+
+        // 2. Verificar que el estudiante está inscrito
+        const inscrito = await pool.query(
+            `SELECT 1 FROM PERTENECE WHERE id_clase = $1 AND id_usuarioE = $2`,
+            [id_clase, id_usuarioE]
+        );
+
+        if (inscrito.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'El estudiante no está inscrito en esta clase'
+            });
+        }
+
+        // 3. Eliminar de PERTENECE (NO borra al estudiante ni al usuario)
+        await pool.query(
+            `DELETE FROM PERTENECE WHERE id_clase = $1 AND id_usuarioE = $2`,
+            [id_clase, id_usuarioE]
+        );
+
+        res.json({
+            success: true,
+            message: 'Estudiante quitado de la clase correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error en quitarEstudianteDeClase:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al quitar al estudiante de la clase',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     getDatosFormulario,
     crearClase,
@@ -705,5 +900,7 @@ module.exports = {
     getEstudiantesDeClase,
     getEstadisticasResumen,
     getEstadisticasMatriz,
-    getEstadisticasEstudiante
+    getEstadisticasEstudiante,
+    cambiarEstadoEstudianteEnClase,   // 👈 nuevo
+    quitarEstudianteDeClase,           // 👈 nuevo
 };

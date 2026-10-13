@@ -2,8 +2,8 @@
 // ============================================================
 // DETALLE DE RENDIMIENTO DE UNA CLASE
 // 3 pestañas:
-//   1. RENDIMIENTO DE LA CLASE  → barras verticales por unidad
-//   2. RENDIMIENTO POR UNIDAD   → barras horizontales por pregunta
+//   1. RENDIMIENTO DE LA CLASE  → barras verticales 3D por unidad
+//   2. RENDIMIENTO POR UNIDAD   → barras horizontales por ÍTEM
 //   3. REPORTE GLOBAL           → tabla de intentos + círculos
 // ============================================================
 
@@ -11,46 +11,23 @@ import { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import { getRubrica } from './MiRendimiento';
 import './RendimientoClaseDetalle.css';
+import { ArrowLeft } from 'lucide-react';
 
-// Paleta rotativa (misma que en EvaluacionClase.jsx para mantener consistencia)
-const COLORES_MOSAICO = [
-    'verde',
-    'azul',
-    'naranja',
-    'morado',
-    'rojo',
-    'turquesa',
-    'amarillo',
-    'rosa',
-];
-
-// Mapa de color → hex (para usar en estilos inline)
-const COLOR_HEX = {
-    verde:     '#2e7d32',
-    azul:      '#1e3a5f',
-    naranja:   '#e07b39',
-    morado:    '#6b4c9a',
-    rojo:      '#c62828',
-    turquesa:  '#00838f',
-    amarillo:  '#d99e00',
-    rosa:      '#b83a6e',
-};
-// Traduce el estado crudo del backend a un término amigable para el estudiante
-// (el backend guarda APROBADO / REPROBADO / EN_PROGRESO / SIN_INTENTOS)
+// Traduce el estado crudo del backend a un término amigable
 const getEstadoAmigable = (estado) => {
     const mapa = {
-        APROBADO:     { label: 'Óptimo',     color: '#2e7d32' },
+        APROBADO:     { label: 'Óptimo',        color: '#2e7d32' },
         REPROBADO:    { label: 'En Desarrollo', color: '#c62828' },
-        EN_PROGRESO:  { label: 'En Progreso',  color: '#f9a825' },
-        SIN_INTENTOS: { label: 'Sin Evaluar',  color: '#94a3b8' },
+        EN_PROGRESO:  { label: 'En Progreso',   color: '#f9a825' },
+        SIN_INTENTOS: { label: 'Sin Evaluar',   color: '#94a3b8' },
     };
     return mapa[estado] || { label: estado || 'Sin Evaluar', color: '#94a3b8' };
 };
 
 const TABS = [
-    { id: 'clase',     label: 'Rendimiento de la Clase' },
-    { id: 'unidad',    label: 'Rendimiento por Unidad' },
-    { id: 'reporte',   label: 'Reporte Global' },
+    { id: 'clase',   label: 'Rendimiento de la Clase' },
+    { id: 'unidad',  label: 'Rendimiento por Unidad' },
+    { id: 'reporte', label: 'Reporte Global' },
 ];
 
 function RendimientoClaseDetalle({ idClase, volver }) {
@@ -69,14 +46,14 @@ function RendimientoClaseDetalle({ idClase, volver }) {
     const cargarRendimiento = async () => {
         try {
             const res = await api.get(`/estudiante/clase/${idClase}/rendimiento`);
-                        if (res.data.success) {
-                // Filtrar unidades tipo "Laboratorio" (misma regla que EvaluacionClase.jsx)
+            if (res.data.success) {
+                // Filtrar unidades tipo "Laboratorio"
                 const dataFiltrada = { ...res.data.data };
                 dataFiltrada.por_unidad = res.data.data.por_unidad.filter(
                     (u) => !u.nombreut.toLowerCase().includes('laboratorio')
                 );
 
-                // También filtramos por_pregunta para consistencia
+                // Filtrar por_pregunta para consistencia
                 const idsUnidadesValidas = new Set(
                     dataFiltrada.por_unidad.map((u) => u.id_unid_tem)
                 );
@@ -84,7 +61,7 @@ function RendimientoClaseDetalle({ idClase, volver }) {
                     (p) => idsUnidadesValidas.has(p.id_unid_tem)
                 );
 
-                // Recalcular total_unidades en el resumen (para que no cuente laboratorios)
+                // Recalcular total_unidades
                 dataFiltrada.resumen = {
                     ...dataFiltrada.resumen,
                     total_unidades: dataFiltrada.por_unidad.length,
@@ -92,7 +69,7 @@ function RendimientoClaseDetalle({ idClase, volver }) {
 
                 setData(dataFiltrada);
 
-                // Preseleccionar la primera unidad con intentos (o la primera)
+                // Preseleccionar la primera unidad con intentos
                 const conIntentos = dataFiltrada.por_unidad.find((u) => u.nro_intentos > 0);
                 setUnidadSeleccionada(
                     conIntentos?.id_unid_tem ||
@@ -129,7 +106,10 @@ function RendimientoClaseDetalle({ idClase, volver }) {
                         <h2>Error</h2>
                         <p className="section-subtitle">No se pudo cargar el rendimiento</p>
                     </div>
-                    <button className="btn-volver" onClick={volver}>Volver</button>
+                    <button className="btn-volver" onClick={volver}>
+                        <ArrowLeft size={16} />
+                        Volver
+                    </button>
                 </div>
                 <p className="empty-message">{error}</p>
             </div>
@@ -148,14 +128,19 @@ function RendimientoClaseDetalle({ idClase, volver }) {
                         <span className={`asignatura-badge ${rub.clase}`}>
                             {clase.asignatura || 'Sin asignatura'}
                         </span>
-                        <span className="clase-periodo">{clase.periodo}</span>
+                        <span className="clase-periodo">
+                            Gestión {clase.periodo}
+                        </span>
                     </div>
                     <h2>{clase.nombrec}</h2>
                     <p className="section-subtitle">
-                        {clase.grado} · {clase.unidad_educativa} · {clase.maestro || 'Sin maestro'}
+                        {clase.grado} · {clase.unidad_educativa}
                     </p>
                 </div>
-                <button className="btn-volver" onClick={volver}>Volver</button>
+                <button className="btn-volver" onClick={volver}>
+                    <ArrowLeft size={16} />
+                    Volver
+                </button>
             </div>
 
             {/* ===== TABS ===== */}
@@ -203,24 +188,24 @@ function RendimientoClaseDetalle({ idClase, volver }) {
 
 // ============================================================
 // TAB 1: RENDIMIENTO DE LA CLASE
-// Barras verticales por unidad
+// Barras verticales 3D por unidad
 // ============================================================
 function TabRendimientoClase({ resumen, porUnidad }) {
     const rubGeneral = getRubrica(resumen.promedio_clase);
-
-    // Calcular escala de las barras (máx 100 para que siempre se vea la escala completa)
     const MAX_ESCALA = 100;
 
     return (
         <div className="tab-panel">
             {/* Resumen superior */}
-                        <div className="resumen-clase-grid">
+            <div className="resumen-clase-grid">
                 <div className="resumen-clase-card destacado">
                     <span className="resumen-label">Promedio de la Clase</span>
                     <span className="resumen-valor" style={{ color: rubGeneral.color }}>
                         {resumen.promedio_clase !== null ? `${resumen.promedio_clase}%` : '—'}
                     </span>
-                    <span className="resumen-hint">{rubGeneral.nivel}</span>
+                    <span className="resumen-hint" style={{ color: rubGeneral.color }}>
+                        {rubGeneral.nivel}
+                    </span>
                 </div>
                 <div className="resumen-clase-card">
                     <span className="resumen-label">Unidades evaluadas</span>
@@ -230,7 +215,7 @@ function TabRendimientoClase({ resumen, porUnidad }) {
                 </div>
             </div>
 
-            {/* Gráfico de barras verticales */}
+            {/* Gráfico de barras verticales 3D */}
             <div className="grafico-barras-card">
                 <h3 className="grafico-titulo">Rendimiento por Unidad</h3>
 
@@ -238,7 +223,7 @@ function TabRendimientoClase({ resumen, porUnidad }) {
                     <p className="empty-message">Esta clase no tiene unidades temáticas.</p>
                 ) : (
                     <div className="grafico-barras-vertical">
-                        {/* Eje Y (escala) */}
+                        {/* Eje Y */}
                         <div className="eje-y">
                             {[100, 75, 50, 25, 0].map((v) => (
                                 <div key={v} className="eje-y-tick">
@@ -260,17 +245,18 @@ function TabRendimientoClase({ resumen, porUnidad }) {
                                     <div key={u.id_unid_tem} className="barra-columna">
                                         <div className="barra-wrapper">
                                             <div
-                                                className={`barra-vertical ${u.nota_promedio === null ? 'sin-datos' : ''}`}
+                                                className={`barra-vertical-3d ${u.nota_promedio === null ? 'sin-datos' : ''}`}
                                                 style={{
                                                     height: `${altura}%`,
-                                                    background: u.nota_promedio !== null
-                                                        ? rub.color
-                                                        : 'transparent'
+                                                    '--barra-color': rub.color,
+                                                    '--barra-color-dark': rub.color,
                                                 }}
                                                 title={u.nota_promedio !== null ? `${u.nota_promedio}%` : 'Sin intentos'}
                                             >
                                                 {u.nota_promedio !== null && (
-                                                    <span className="barra-valor">{u.nota_promedio}%</span>
+                                                    <span className="barra-valor">
+                                                        {u.nota_promedio}%
+                                                    </span>
                                                 )}
                                             </div>
                                         </div>
@@ -280,7 +266,9 @@ function TabRendimientoClase({ resumen, porUnidad }) {
                                                 : u.nombreut}
                                         </div>
                                         <div className="barra-sublabel">
-                                            {u.nro_intentos > 0 ? `${u.nro_intentos} intento${u.nro_intentos > 1 ? 's' : ''}` : 'Sin intentos'}
+                                            {u.nro_intentos > 0
+                                                ? `${u.nro_intentos} intento${u.nro_intentos > 1 ? 's' : ''}`
+                                                : 'Sin intentos'}
                                         </div>
                                     </div>
                                 );
@@ -295,9 +283,7 @@ function TabRendimientoClase({ resumen, porUnidad }) {
 
 // ============================================================
 // TAB 2: RENDIMIENTO POR UNIDAD
-// Preguntas agrupadas por ÍTEM
-// - Barra lateral con el color de la unidad
-// - Promedio del ítem (simple)
+// Muestra solo ÍTEMS con su promedio (sin preguntas individuales)
 // ============================================================
 function TabRendimientoUnidad({ porUnidad, porPregunta, unidadSeleccionada, setUnidadSeleccionada }) {
     // Filtrar preguntas de la unidad seleccionada
@@ -306,12 +292,7 @@ function TabRendimientoUnidad({ porUnidad, porPregunta, unidadSeleccionada, setU
     // Info de la unidad seleccionada
     const infoUnidad = porUnidad.find((u) => u.id_unid_tem === unidadSeleccionada);
 
-    // Índice de la unidad (para replicar el color de EvaluacionClase.jsx)
-    const indiceUnidad = porUnidad.findIndex((u) => u.id_unid_tem === unidadSeleccionada);
-    const colorClase = COLORES_MOSAICO[indiceUnidad % COLORES_MOSAICO.length];
-    const colorHex = COLOR_HEX[colorClase];
-
-    // Agrupar preguntas por ítem, manteniendo el orden original
+    // Agrupar preguntas por ítem
     const itemsAgrupados = [];
     const itemsMap = {};
 
@@ -328,7 +309,7 @@ function TabRendimientoUnidad({ porUnidad, porPregunta, unidadSeleccionada, setU
         itemsMap[key].preguntas.push(p);
     });
 
-    // Calcular promedio simple del ítem (solo preguntas con respuestas)
+    // Promedio simple del ítem (solo preguntas con respuestas)
     const calcularPromedioItem = (preguntas) => {
         const conRespuestas = preguntas.filter((p) => p.total_respuestas > 0);
         if (conRespuestas.length === 0) return null;
@@ -391,84 +372,51 @@ function TabRendimientoUnidad({ porUnidad, porPregunta, unidadSeleccionada, setU
                 </div>
             )}
 
-            {/* Preguntas agrupadas por ítem */}
+            {/* Ítems con barra de progreso */}
             <div className="grafico-barras-card">
-                <div className="grafico-header">
-                    <h3 className="grafico-titulo">Aciertos por Pregunta</h3>
-                    <p className="grafico-subtitulo">
-                        Basado en los últimos 3 intentos de la unidad
-                    </p>
-                </div>
+                <h3 className="grafico-titulo">Desempeño por Ítem</h3>
 
-                {preguntasDeUnidad.length === 0 ? (
+                {itemsAgrupados.length === 0 ? (
                     <p className="empty-message">
-                        Aún no has rendido esta unidad. Cuando lo hagas, verás aquí el detalle por pregunta.
+                        Aún no has rendido esta unidad. Cuando lo hagas, verás aquí el desempeño por ítem.
                     </p>
                 ) : (
-                    <div className="items-agrupados">
-                        {itemsAgrupados.map((item, idxItem) => {
+                    <div className="items-lista">
+                        {itemsAgrupados.map((item) => {
                             const promedioItem = calcularPromedioItem(item.preguntas);
                             const rubItem = getRubrica(promedioItem);
-                            // Degradado: opacidad baja conforme avanza el índice
-                            const opacidad = Math.max(0.45, 1 - idxItem * 0.12);
 
                             return (
-                                <div key={item.id_item} className="item-grupo">
-                                    {/* Header del ítem */}
-                                    <div
-                                        className="item-header"
-                                        style={{
-                                            background: colorHex,
-                                            opacity: opacidad,
-                                        }}
-                                    >
-                                        <span className="item-nombre">{item.nombre_item}</span>
-                                        <span className="item-promedio">
-                                            Promedio del ítem:{' '}
-                                            {promedioItem !== null ? `${promedioItem}%` : '—'}
-                                            {promedioItem !== null && (
-                                                <span className="item-nivel">
-                                                    {' '}· {rubItem.nivel}
-                                                </span>
-                                            )}
-                                        </span>
+                                <div
+                                    key={item.id_item}
+                                    className="item-card"
+                                    style={{ '--item-color': rubItem.color }}
+                                >
+                                    <div className="item-card__left">
+                                        <div className="item-card__nombre">
+                                            {item.nombre_item}
+                                        </div>
+                                        <div className="item-card__barra-track">
+                                            <div
+                                                className="item-card__barra-fill"
+                                                style={{
+                                                    width: `${promedioItem || 0}%`,
+                                                    background: rubItem.color,
+                                                }}
+                                            />
+                                        </div>
                                     </div>
 
-                                    {/* Preguntas del ítem */}
-                                    <div className="item-preguntas">
-                                        {item.preguntas.map((p, idxPregunta) => {
-                                            // Número de pregunta GLOBAL dentro de la unidad
-                                            const numeroPregunta = preguntasDeUnidad.findIndex(
-                                                (x) => x.id_pregunta === p.id_pregunta
-                                            ) + 1;
-                                            const rub = getRubrica(p.porcentaje);
-
-                                                                                        return (
-                                                <div key={p.id_pregunta} className="barra-horizontal-row">
-                                                    <div className="barra-h-label">
-                                                        Pregunta {numeroPregunta}
-                                                    </div>
-                                                    <div className="barra-h-track">
-                                                        <div
-                                                            className="barra-h-fill"
-                                                            style={{
-                                                                width: `${p.porcentaje}%`,
-                                                                background: rub.color,
-                                                            }}
-                                                        />
-                                                    </div>
-                                                    <div
-                                                        className="barra-h-valor"
-                                                        style={{ color: rub.color }}
-                                                    >
-                                                        {p.porcentaje}%
-                                                    </div>
-                                                    <div className="barra-h-correctas">
-                                                        {p.correctas}/{p.total_respuestas}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
+                                    <div className="item-card__right">
+                                        <span
+                                            className="item-card__porcentaje"
+                                            style={{ color: rubItem.color }}
+                                        >
+                                            {promedioItem !== null ? `${promedioItem}%` : '—'}
+                                        </span>
+                                        <span className="item-card__nivel">
+                                            {rubItem.nivel}
+                                        </span>
                                     </div>
                                 </div>
                             );
@@ -482,16 +430,11 @@ function TabRendimientoUnidad({ porUnidad, porPregunta, unidadSeleccionada, setU
 
 // ============================================================
 // TAB 3: REPORTE GLOBAL
-// - Círculos de promedio por unidad + promedio general
-// - Intentos agrupados por unidad (solo últimos 3 por unidad)
 // ============================================================
 function TabReporteGlobal({ resumen, porUnidad, intentos }) {
-    // Círculos: solo unidades con promedio
     const unidadesConPromedio = porUnidad.filter((u) => u.nota_promedio !== null);
 
-    // Agrupar intentos por unidad
-    // El backend devuelve los intentos ordenados por fecha DESC
-    // Para cada unidad, tomamos solo los primeros 3 (los más recientes)
+    // Agrupar intentos por unidad (solo últimos 3 por unidad)
     const intentosPorUnidad = {};
 
     intentos.forEach((it) => {
@@ -499,13 +442,11 @@ function TabReporteGlobal({ resumen, porUnidad, intentos }) {
         if (!intentosPorUnidad[nombre]) {
             intentosPorUnidad[nombre] = [];
         }
-        // Solo agregamos si aún no llegamos a 3
         if (intentosPorUnidad[nombre].length < 3) {
             intentosPorUnidad[nombre].push(it);
         }
     });
 
-    // Ordenar unidades según el orden de `porUnidad` (mismo que el resto del sistema)
     const unidadesConIntentos = porUnidad
         .filter((u) => intentosPorUnidad[u.nombreut]?.length > 0)
         .map((u) => ({
@@ -535,7 +476,6 @@ function TabReporteGlobal({ resumen, porUnidad, intentos }) {
                             />
                         ))}
 
-                        {/* Círculo destacado: promedio general */}
                         <CirculoPromedio
                             valor={resumen.promedio_clase}
                             label="Promedio General"
@@ -549,10 +489,6 @@ function TabReporteGlobal({ resumen, porUnidad, intentos }) {
             <div className="tabla-card">
                 <div className="tabla-header">
                     <h3 className="grafico-titulo">Últimos Intentos por Unidad</h3>
-                    {/* Botón Exportar PDF - se implementará después */}
-                    <button className="btn-exportar" disabled title="Próximamente">
-                        Exportar PDF
-                    </button>
                 </div>
 
                 {unidadesConIntentos.length === 0 ? (
@@ -563,7 +499,6 @@ function TabReporteGlobal({ resumen, porUnidad, intentos }) {
                             const rubProm = getRubrica(u.nota_promedio);
                             return (
                                 <div key={u.id_unid_tem} className="unidad-intentos-bloque">
-                                    {/* Header de la unidad */}
                                     <div className="unidad-intentos-header">
                                         <div className="unidad-intentos-titulo">
                                             <span className="unidad-intentos-nombre">
@@ -571,7 +506,6 @@ function TabReporteGlobal({ resumen, porUnidad, intentos }) {
                                             </span>
                                             <span className="unidad-intentos-meta">
                                                 {u.nro_intentos} intento{u.nro_intentos > 1 ? 's' : ''} en total
-                                                {u.nro_intentos > 3 && ' · mostrando los últimos 3'}
                                             </span>
                                         </div>
                                         <div
@@ -586,7 +520,6 @@ function TabReporteGlobal({ resumen, porUnidad, intentos }) {
                                         </div>
                                     </div>
 
-                                    {/* Tabla de intentos de esta unidad */}
                                     <div className="tabla-wrapper">
                                         <table className="tabla-intentos">
                                             <thead>
@@ -602,10 +535,7 @@ function TabReporteGlobal({ resumen, porUnidad, intentos }) {
                                             <tbody>
                                                 {u.intentos.map((it, idx) => {
                                                     const rub = getRubrica(it.nota_unidad_tematica);
-                                                    // Numeración: el intento más reciente tiene el número más alto
-                                                    // Si hay 3 intentos mostrados y el total es 5, van del 5 al 3
-                                                    const numeroIntento =
-                                                        u.nro_intentos - idx;
+                                                    const numeroIntento = u.nro_intentos - idx;
                                                     return (
                                                         <tr key={it.id_intento}>
                                                             <td>{numeroIntento}</td>

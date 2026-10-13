@@ -18,6 +18,7 @@ const configRoutes = require('./routes/configRoutes');
 const claseRoutes = require('./routes/claseRoutes');
 // Agregar esta línea con las otras rutas
 const planificacionRoutes = require('./routes/planificacionRoutes');
+const subdirectorRoutes = require('./routes/subdirectorRoutes');
 
 dotenv.config();
 
@@ -54,9 +55,12 @@ app.use('/api/auth', authRoutes); // <-- NUEVO
 // Agregar después de las otras rutas (authRoutes, etc.)
 app.use('/api/clases', claseRoutes);
 
+app.use('/api/subdirector', subdirectorRoutes);
+
 // ================== INICIAR SERVIDOR =========================
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`📱 Accesible en tu red local: http://10.204.255.44:${PORT}`);
     console.log(`📡 Ruta de prueba: http://localhost:${PORT}/api/test`);
     console.log(`📡 Ruta BD: http://localhost:${PORT}/api/test-db`);
     console.log(`🔐 Ruta de registro: http://localhost:${PORT}/api/auth/register`);

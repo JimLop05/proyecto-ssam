@@ -1,26 +1,8 @@
 /* frontend_ssam/src/pages/DashboardEstudiante/MiRendimiento.css */
 /* ============================================================
    MI RENDIMIENTO - Estilos
+   Usa variables globales de theme.css
    ============================================================ */
-
-:root {
-    --color-primary: #1e3a5f;
-    --color-primary-light: #2c5282;
-    --color-primary-dark: #15293f;
-    --color-accent: #2e7d32;
-    --color-warning: #f9a825;
-    --color-danger: #c62828;
-    --color-bg: #f5f7fa;
-    --color-surface: #ffffff;
-    --color-border: #e2e8f0;
-    --color-text: #1a202c;
-    --color-text-muted: #64748b;
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-    --radius: 10px;
-    --radius-lg: 14px;
-}
 
 /* ============================================================
    RÚBRICA (leyenda de colores)
@@ -34,7 +16,7 @@
     padding: 12px 16px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius);
+    border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
 }
 
@@ -43,13 +25,13 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.6px;
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
     margin-right: 6px;
 }
 
 .rubrica-chip {
     padding: 4px 12px;
-    border-radius: 20px;
+    border-radius: var(--radius-full);
     font-size: 12px;
     font-weight: 600;
     color: #fff;
@@ -80,19 +62,22 @@
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    padding: 20px;
+    padding: 22px 22px 20px 22px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
     box-shadow: var(--shadow-sm);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    /* Borde superior de 5px — color por defecto gris */
+    border-top: 5px solid var(--color-border);
 }
 
 .clase-rendimiento-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-    border-color: #c9ddf0;
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
 }
 
 .clase-rendimiento-card:focus {
@@ -100,18 +85,26 @@
     box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.18);
 }
 
-/* Header: asignatura + periodo */
+/* Borde superior según la rúbrica */
+.clase-rendimiento-card.card-rubrica-optimo        { border-top-color: #2e7d32; }
+.clase-rendimiento-card.card-rubrica-bueno         { border-top-color: #66bb6a; }
+.clase-rendimiento-card.card-rubrica-aceptable     { border-top-color: #f9a825; }
+.clase-rendimiento-card.card-rubrica-en-desarrollo { border-top-color: #c62828; }
+.clase-rendimiento-card.card-rubrica-sin-evaluar   { border-top-color: #94a3b8; }
+
+/* Header: asignatura + gestión */
 .clase-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .asignatura-badge {
     display: inline-block;
     padding: 4px 10px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -128,31 +121,37 @@
 
 .clase-periodo {
     font-size: 12px;
-    color: var(--color-text-muted);
-    font-weight: 500;
+    color: var(--color-ink-muted);
+    font-weight: 600;
 }
 
 /* Nombre de la clase */
 .clase-nombre {
     margin: 0;
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--color-primary-dark);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-ink);
     line-height: 1.3;
+    word-break: break-word;
 }
 
 .clase-meta {
     margin: 0;
     font-size: 13px;
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
+    word-break: break-word;
 }
 
-/* Promedio + barra */
+/* ============================================================
+   PROMEDIO + BARRA
+   ============================================================ */
 .clase-promedio {
     margin-top: 6px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-border);
 }
 
 .promedio-info {
@@ -165,72 +164,55 @@
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.6px;
-    color: var(--color-text-muted);
-    font-weight: 600;
+    color: var(--color-ink-muted);
+    font-weight: 700;
 }
 
 .promedio-valor {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1;
 }
 
 .promedio-barra {
     width: 100%;
-    height: 8px;
-    background: var(--color-bg);
-    border-radius: 4px;
+    height: 12px;
+    background: var(--color-bg-alt);
+    border-radius: var(--radius-full);
     overflow: hidden;
     border: 1px solid var(--color-border);
 }
 
 .promedio-barra-fill {
     height: 100%;
-    border-radius: 4px;
-    transition: width 0.6s ease;
+    border-radius: var(--radius-full);
+    transition: width 0.6s ease, background 0.3s ease;
 }
 
-/* Stats mini */
-.clase-stats-mini {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--color-border);
-}
-
-.mini-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.mini-stat-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--color-text-muted);
-    font-weight: 600;
-}
-
-.mini-stat-value {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--color-primary);
-}
-
-/* Botón ver detalle */
+/* ============================================================
+   BOTÓN VER DETALLE
+   ============================================================ */
 .btn-ver-detalle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     background: transparent;
     color: var(--color-primary);
     border: 1px solid var(--color-primary);
-    padding: 9px 16px;
-    border-radius: var(--radius);
-    font-size: 13px;
-    font-weight: 500;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13.5px;
+    font-weight: 600;
     cursor: pointer;
     margin-top: 4px;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
     font-family: inherit;
+    width: 100%;
+}
+
+.btn-ver-detalle svg {
+    transition: transform var(--transition-fast);
 }
 
 .btn-ver-detalle:hover {
@@ -238,52 +220,32 @@
     color: #fff;
 }
 
+.btn-ver-detalle:hover svg {
+    transform: translateX(4px);
+}
+
 /* ============================================================
    BOTONES GENERALES
    ============================================================ */
 .btn-volver {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: var(--color-surface);
     color: var(--color-primary);
     border: 1px solid var(--color-border);
-    padding: 9px 18px;
-    border-radius: var(--radius);
+    padding: 9px 16px;
+    border-radius: var(--radius-md);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
     font-family: inherit;
 }
 
 .btn-volver:hover {
-    background: var(--color-bg);
+    background: var(--color-bg-alt);
     border-color: var(--color-primary);
-}
-
-/* ============================================================
-   PLACEHOLDER
-   ============================================================ */
-.placeholder-card {
-    background: var(--color-surface);
-    border: 2px dashed var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: 48px 32px;
-    text-align: center;
-}
-
-.placeholder-card h3 {
-    margin: 0 0 12px 0;
-    font-size: 18px;
-    color: var(--color-primary-dark);
-    font-weight: 600;
-}
-
-.placeholder-card p {
-    margin: 0;
-    font-size: 14px;
-    color: var(--color-text-muted);
-    max-width: 480px;
-    margin: 0 auto;
-    line-height: 1.6;
 }
 
 /* ============================================================
@@ -292,10 +254,10 @@
 .empty-message {
     background: var(--color-surface);
     border: 1px dashed var(--color-border);
-    border-radius: var(--radius);
+    border-radius: var(--radius-md);
     padding: 32px;
     text-align: center;
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
     font-size: 14px;
 }
 
@@ -309,7 +271,7 @@
 }
 
 .loading-inline p {
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
     font-size: 14px;
     margin: 0;
 }
@@ -330,15 +292,6 @@
 /* ============================================================
    HEADER DE SECCIÓN
    ============================================================ */
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 24px;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
 .section-header-simple {
     margin-bottom: 24px;
 }
@@ -346,26 +299,65 @@
 .section h2 {
     margin: 0 0 4px 0;
     font-size: 24px;
-    font-weight: 600;
-    color: var(--color-primary-dark);
+    font-weight: 700;
+    color: var(--color-ink);
 }
 
 .section-subtitle {
     margin: 0;
     font-size: 14px;
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
 }
 
 /* ============================================================
    RESPONSIVE
    ============================================================ */
+
+/* Tablet y móvil grande */
 @media (max-width: 700px) {
     .clases-rendimiento-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
 
     .rubrica-leyenda {
         flex-direction: column;
         align-items: flex-start;
+        padding: 10px 14px;
+    }
+
+    .rubrica-titulo {
+        margin-bottom: 4px;
+    }
+}
+
+/* Móvil chico */
+@media (max-width: 480px) {
+    .clase-rendimiento-card {
+        padding: 18px;
+        gap: 12px;
+        border-top-width: 4px;
+    }
+
+    .clase-nombre {
+        font-size: 16px;
+    }
+
+    .promedio-valor {
+        font-size: 22px;
+    }
+
+    .promedio-barra {
+        height: 10px;
+    }
+
+    .rubrica-chip {
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+
+    .btn-ver-detalle {
+        padding: 9px 14px;
+        font-size: 13px;
     }
 }
