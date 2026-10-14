@@ -72,7 +72,6 @@ function ModuleTiles({ onModuleClick }) {
         <section id="modulos" className="tiles">
             <div className="tiles__head">
                 <span className="tiles__badge">Módulos</span>
-                <h2>Todo lo que necesitas en un solo lugar</h2>
                 <p>
                     Diseñado para estudiantes, docentes y directivos de
                     instituciones educativas.

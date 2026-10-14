@@ -1096,6 +1096,247 @@
   }
 }
 
+/* ==== Subdirector: Tablas ==== */
+.tabla-buscador {
+    margin: 16px 0;
+    display: flex;
+    gap: 10px;
+}
+.tabla-buscador input,
+.tabla-buscador select {
+    padding: 10px 12px;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    font-size: 14px;
+    min-width: 220px;
+}
+.tabla-buscador--multi {
+    flex-wrap: wrap;
+}
+
+.tabla-wrapper {
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.tabla-datos {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 640px;
+}
+.tabla-datos th,
+.tabla-datos td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #eaecf0;
+    font-size: 14px;
+}
+.tabla-datos th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #344054;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+.tabla-datos tr:hover td {
+    background: #f9fafb;
+}
+.tabla-datos .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ==== Paginación ==== */
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin: 20px 0;
+}
+.btn-pag {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #d0d5dd;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+}
+.btn-pag:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.pag-info {
+    font-size: 14px;
+    color: #475467;
+}
+
+/* ==== Reporte: cards ==== */
+.reporte-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.reporte-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-top: 4px solid #7c3aed;
+}
+.reporte-card__label {
+    font-size: 12px;
+    color: #667085;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.reporte-card__valor {
+    font-size: 28px;
+    font-weight: 700;
+    color: #101828;
+}
+
+/* ==== Tipos de UE ==== */
+.tipos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.tipo-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+.tipo-nombre { font-weight: 500; color: #344054; }
+.tipo-cantidad { font-weight: 700; color: #7c3aed; }
+
+/* ==== Responsive tablas ==== */
+@media (max-width: 768px) {
+    .tabla-buscador {
+        flex-direction: column;
+    }
+    .tabla-buscador input,
+    .tabla-buscador select {
+        width: 100%;
+        min-width: 0;
+    }
+    .reporte-card__valor {
+        font-size: 22px;
+    }
+}
+
+/* ==== Subdirector: Mi Perfil ==== */
+.depto-card {
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+    border-left: 4px solid #7c3aed;
+}
+
+.depto-header {
+    margin-bottom: 16px;
+}
+
+.depto-label {
+    font-size: 12px;
+    color: #6d28d9;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 600;
+}
+
+.depto-nombre {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e1b4b;
+    margin: 6px 0 0 0;
+}
+
+.depto-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 8px;
+}
+
+/* ==== Contadores como cards ==== */
+.contadores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+}
+
+.contador-card {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border: 1px solid #eaecf0;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.contador-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+    border-color: #c4b5fd;
+}
+
+.contador-valor {
+    font-size: 26px;
+    font-weight: 700;
+    color: #7c3aed;
+    line-height: 1.1;
+}
+
+.contador-label {
+    font-size: 12px;
+    color: #667085;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .depto-nombre {
+        font-size: 22px;
+    }
+    .contador-valor {
+        font-size: 22px;
+    }
+}
+
+/* ==== section-header con badge a la derecha ==== */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.section-header-simple {
+    flex: 1;
+}
+
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .section-header .gestion-badge {
+        align-self: flex-end;
+    }
+}
+
 /* Móvil muy chico (iPhone SE viejo, Android 320px) */
 @media (max-width: 380px) {
   .dashboard-header__brand-text {

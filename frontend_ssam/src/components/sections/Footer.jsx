@@ -46,12 +46,12 @@ function Footer({ config, logoFallback, systemName }) {
                 <div className="footer__col">
                     <h4 className="footer__title">Recursos</h4>
                     <ul className="footer__links">
-                        <li>
+                        {/*<li>
                             <a href={config?.url_manual_usuario || '#'}>
                                 <BookOpen size={14} />
                                 Manual de Usuario
                             </a>
-                        </li>
+                        </li>*/}
                         <li>
                             <a href="#modulos">Módulos del sistema</a>
                         </li>
@@ -70,25 +70,6 @@ function Footer({ config, logoFallback, systemName }) {
                     <ul className="footer__links footer__links--plain">
                         <li>Dirección Departamental de Educación</li>
                         <li>La Paz, Bolivia</li>
-                    </ul>
-                </div>
-
-                {/* ---------- Columna 4: Contacto ---------- */}
-                <div className="footer__col">
-                    <h4 className="footer__title">Contacto</h4>
-                    <ul className="footer__links footer__links--plain">
-                        <li>
-                            <Mail size={14} />
-                            <a href="mailto:contacto@ssra.edu">contacto@ssra.edu</a>
-                        </li>
-                        <li>
-                            <Phone size={14} />
-                            <a href="tel:+5910000000">+591 000 0000</a>
-                        </li>
-                        <li>
-                            <MapPin size={14} />
-                            Av. Ejemplo #000, La Paz
-                        </li>
                     </ul>
                 </div>
 

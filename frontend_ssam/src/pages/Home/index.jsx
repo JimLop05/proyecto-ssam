@@ -156,7 +156,7 @@ function Home() {
                         </div>
                         <h3 className="role-card__title">Maestro</h3>
                         <p className="role-card__desc">
-                            Planifica clases, gestiona evaluaciones y realiza seguimiento académico de tus estudiantes.
+                            Planifica clases, gestiona evaluaciones y realiza seguimiento de tus estudiantes.
                         </p>
                         <span className="role-card__cta">
                             Registrarme como Maestro

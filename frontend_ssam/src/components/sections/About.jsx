@@ -40,7 +40,7 @@ function About({ vision, mision, systemName = 'SSRA' }) {
                     <span className="about__badge">Quiénes somos</span>
 
                     <h2 className="about__title">
-                        {systemName} — Educación con datos, no con suposiciones
+                        {systemName} — Educación con datos 
                     </h2>
 
                     <p className="about__lead">
@@ -51,20 +51,6 @@ function About({ vision, mision, systemName = 'SSRA' }) {
                         {mision || 'Nuestro sistema integra planificación docente, evaluaciones en línea, seguimiento personalizado y reportes institucionales en una sola plataforma accesible para todos los roles.'}
                     </p>
 
-                    <div className="about__stats">
-                        <div className="about__stat">
-                            <strong>+5</strong>
-                            <span>Roles del sistema</span>
-                        </div>
-                        <div className="about__stat">
-                            <strong>100%</strong>
-                            <span>En línea</span>
-                        </div>
-                        <div className="about__stat">
-                            <strong>24/7</strong>
-                            <span>Disponibilidad</span>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Columna derecha: valores */}

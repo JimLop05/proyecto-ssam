@@ -1,7 +1,7 @@
 /* frontend_ssam/src/pages/DashboardSubDirDep/index.jsx */
 // ============================================================
 // DASHBOARD SUBDIRECTOR DEPARTAMENTAL
-// Secciones: Mi Perfil | Estadísticas | Docentes | Departamentos
+// Secciones: Mi Perfil | Distritos | Unidades Educativas | Reporte
 // ============================================================
 
 import { useState, useEffect } from 'react';
@@ -9,90 +9,15 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import './DashboardSubDirDep.css';
 import {
-    Menu, X, User, BarChart3, Users, Building2, LogOut
+    Menu, X, User, MapPin, School, FileBarChart
 } from 'lucide-react';
 import { useIsMobile } from '../../hooks/useIsMobile';
 
-// ============================================================
-// SECCIONES (placeholders — a definir)
-// ============================================================
-function MiPerfil({ user }) {
-    const inicial = (user?.username || '?')[0].toUpperCase();
-    return (
-        <div className="section">
-            <div className="perfil-identidad-card">
-                <div className="perfil-avatar">{inicial}</div>
-                <div className="perfil-identidad-info">
-                    <h3 className="perfil-username">{user?.username}</h3>
-                    <p className="perfil-email">{user?.email}</p>
-                    <div className="perfil-badges">
-                        <span className="perfil-badge rol">{user?.rol}</span>
-                        <span className="perfil-badge estado">{user?.estado}</span>
-                    </div>
-                </div>
-            </div>
+import MiPerfilSubDir from './MiPerfilSubDir';
+import DistritosSubDir from './DistritosSubDir';
+import UnidadesEducativasSubDir from './UnidadesEducativasSubDir';
+import ReporteSubDir from './ReporteSubDir';
 
-            <div className="profile-card">
-                <h3 className="card-title">Información del Subdirector</h3>
-                <p className="empty-message">
-                    🚧 Sección en desarrollo. Aquí verás tus datos institucionales.
-                </p>
-            </div>
-        </div>
-    );
-}
-
-function Estadisticas() {
-    return (
-        <div className="section">
-            <div className="section-header">
-                <div className="section-header-simple">
-                    <h2>Estadísticas del Departamento</h2>
-                    <p className="section-subtitle">Métricas generales de tu departamento</p>
-                </div>
-            </div>
-            <p className="empty-message">
-                🚧 Sección en desarrollo. Aquí verás las estadísticas del departamento.
-            </p>
-        </div>
-    );
-}
-
-function Docentes() {
-    return (
-        <div className="section">
-            <div className="section-header">
-                <div className="section-header-simple">
-                    <h2>Docentes</h2>
-                    <p className="section-subtitle">Maestros asignados a tu departamento</p>
-                </div>
-            </div>
-            <p className="empty-message">
-                🚧 Sección en desarrollo. Aquí gestionarás los docentes.
-            </p>
-        </div>
-    );
-}
-
-function Departamentos() {
-    return (
-        <div className="section">
-            <div className="section-header">
-                <div className="section-header-simple">
-                    <h2>Departamentos</h2>
-                    <p className="section-subtitle">Departamentos que supervisas</p>
-                </div>
-            </div>
-            <p className="empty-message">
-                🚧 Sección en desarrollo. Aquí verás los departamentos.
-            </p>
-        </div>
-    );
-}
-
-// ============================================================
-// DASHBOARD PRINCIPAL
-// ============================================================
 function DashboardSubDirDep() {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
@@ -113,7 +38,6 @@ function DashboardSubDirDep() {
         setLoading(false);
     }, [navigate]);
 
-    // Auto-cerrar overlay móvil al pasar a desktop
     useEffect(() => {
         if (!isMobile) setSidebarOpenMobile(false);
     }, [isMobile]);
@@ -135,11 +59,11 @@ function DashboardSubDirDep() {
 
     const renderContent = () => {
         switch (activeSection) {
-            case 'perfil':         return <MiPerfil user={user} />;
-            case 'estadisticas':   return <Estadisticas />;
-            case 'docentes':       return <Docentes />;
-            case 'departamentos':  return <Departamentos />;
-            default:               return <MiPerfil user={user} />;
+            case 'perfil':     return <MiPerfilSubDir />;
+            case 'distritos':  return <DistritosSubDir />;
+            case 'ue':         return <UnidadesEducativasSubDir />;
+            case 'reporte':    return <ReporteSubDir />;
+            default:           return <MiPerfilSubDir />;
         }
     };
 
@@ -148,22 +72,17 @@ function DashboardSubDirDep() {
             <header className="dashboard-header">
                 <div className="dashboard-header__inner">
 
-                    {/* Botón hamburguesa */}
                     <button
                         className="dashboard-header__toggle"
                         onClick={() => {
-                            if (isMobile) {
-                                setSidebarOpenMobile(!sidebarOpenMobile);
-                            } else {
-                                setSidebarCollapsed(!sidebarCollapsed);
-                            }
+                            if (isMobile) setSidebarOpenMobile(!sidebarOpenMobile);
+                            else setSidebarCollapsed(!sidebarCollapsed);
                         }}
                         aria-label="Menú"
                     >
                         <Menu size={22} />
                     </button>
 
-                    {/* Logo + nombre sistema */}
                     <div className="dashboard-header__brand">
                         <img
                             src="/LogoSSAM.png"
@@ -177,12 +96,10 @@ function DashboardSubDirDep() {
                         </div>
                     </div>
 
-                    {/* Badge panel */}
                     <span className="dashboard-header__panel-badge">
                         Panel Subdirector
                     </span>
 
-                    {/* Derecha: user + logout */}
                     <div className="dashboard-header__right">
                         <div className="dashboard-header__user">
                             <span className="dashboard-header__user-name">
@@ -199,7 +116,6 @@ function DashboardSubDirDep() {
             </header>
 
             <div className="dashboard-body">
-                {/* Overlay para móvil */}
                 {sidebarOpenMobile && (
                     <div
                         className="sidebar-overlay"
@@ -221,10 +137,7 @@ function DashboardSubDirDep() {
                     <nav className="sidebar-nav">
                         <button
                             className={`sidebar-item ${activeSection === 'perfil' ? 'active' : ''}`}
-                            onClick={() => {
-                                setActiveSection('perfil');
-                                if (isMobile) setSidebarOpenMobile(false);
-                            }}
+                            onClick={() => { setActiveSection('perfil'); if (isMobile) setSidebarOpenMobile(false); }}
                             title="Mi Perfil"
                         >
                             <User size={20} />
@@ -232,39 +145,30 @@ function DashboardSubDirDep() {
                         </button>
 
                         <button
-                            className={`sidebar-item ${activeSection === 'estadisticas' ? 'active' : ''}`}
-                            onClick={() => {
-                                setActiveSection('estadisticas');
-                                if (isMobile) setSidebarOpenMobile(false);
-                            }}
-                            title="Estadísticas"
+                            className={`sidebar-item ${activeSection === 'distritos' ? 'active' : ''}`}
+                            onClick={() => { setActiveSection('distritos'); if (isMobile) setSidebarOpenMobile(false); }}
+                            title="Distritos"
                         >
-                            <BarChart3 size={20} />
-                            <span className="sidebar-item__label">Estadísticas</span>
+                            <MapPin size={20} />
+                            <span className="sidebar-item__label">Distritos</span>
                         </button>
 
                         <button
-                            className={`sidebar-item ${activeSection === 'docentes' ? 'active' : ''}`}
-                            onClick={() => {
-                                setActiveSection('docentes');
-                                if (isMobile) setSidebarOpenMobile(false);
-                            }}
-                            title="Docentes"
+                            className={`sidebar-item ${activeSection === 'ue' ? 'active' : ''}`}
+                            onClick={() => { setActiveSection('ue'); if (isMobile) setSidebarOpenMobile(false); }}
+                            title="Unidades Educativas"
                         >
-                            <Users size={20} />
-                            <span className="sidebar-item__label">Docentes</span>
+                            <School size={20} />
+                            <span className="sidebar-item__label">Unidades Educativas</span>
                         </button>
 
                         <button
-                            className={`sidebar-item ${activeSection === 'departamentos' ? 'active' : ''}`}
-                            onClick={() => {
-                                setActiveSection('departamentos');
-                                if (isMobile) setSidebarOpenMobile(false);
-                            }}
-                            title="Departamentos"
+                            className={`sidebar-item ${activeSection === 'reporte' ? 'active' : ''}`}
+                            onClick={() => { setActiveSection('reporte'); if (isMobile) setSidebarOpenMobile(false); }}
+                            title="Reporte"
                         >
-                            <Building2 size={20} />
-                            <span className="sidebar-item__label">Departamentos</span>
+                            <FileBarChart size={20} />
+                            <span className="sidebar-item__label">Reporte</span>
                         </button>
                     </nav>
                 </aside>
