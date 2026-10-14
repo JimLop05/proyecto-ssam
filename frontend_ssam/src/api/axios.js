@@ -1,17 +1,17 @@
 // Ruta: src/api/axios.js
 // ============================================================
 // CONFIGURACIÓN DE AXIOS
-// Detecta automáticamente el host: funciona en localhost,
-// en red local (celular) y en producción sin cambiar código.
+// Usa VITE_API_URL en producción (Vercel) y detección dinámica
+// en desarrollo (localhost o red local).
 // ============================================================
 
 import axios from 'axios';
 
-// window.location.hostname devuelve:
-//   - "localhost"       → cuando abres desde tu PC
-//   - "192.168.X.X"     → cuando abres desde el celular
-// Usamos el mismo host pero puerto 5000 (backend)
-const API_URL = `http://${window.location.hostname}:5000/api`;
+// Si existe VITE_API_URL (producción en Vercel), se usa esa.
+// Si no, se detecta el host dinámicamente (desarrollo local/celular).
+const API_URL = import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api`
+    : `http://${window.location.hostname}:5000/api`;
 
 const api = axios.create({
     baseURL: API_URL,
