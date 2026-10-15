@@ -15,9 +15,6 @@ import {
     CheckCircle2,
     AlertCircle,
     Loader2,
-    Calendar,
-    Mars,
-    Venus,
 } from 'lucide-react';
 import api from '../../api/axios';
 import './RegistroEstudiante.css';
@@ -33,7 +30,6 @@ function RegistroEstudiante() {
         password: '',
         confirmPassword: '',
         sexo: '',
-        fecha_nacimiento: '',
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -86,7 +82,6 @@ function RegistroEstudiante() {
                 password: formData.password,
                 rol: 'ESTUDIANTE',
                 sexo: formData.sexo,
-                fecha_nacimiento: formData.fecha_nacimiento || null,
                 tipo_estudiante: 'PUBLICO',
             };
 
@@ -288,45 +283,30 @@ function RegistroEstudiante() {
                         <label className="re-label">
                             Sexo <span className="re-required">*</span>
                         </label>
-                        <div className="re-sexo-group">
-                            <button
-                                type="button"
-                                className={`re-sexo-btn ${formData.sexo === 'M' ? 'is-active' : ''}`}
-                                onClick={() => handleSexo('M')}
-                            >
-                                <Mars size={20} />
+                        <div className="re-radio-group">
+                            <label className={`re-radio ${formData.sexo === 'M' ? 'is-active' : ''}`}>
+                                <input
+                                    type="radio"
+                                    name="sexo"
+                                    value="M"
+                                    checked={formData.sexo === 'M'}
+                                    onChange={handleChange}
+                                />
                                 <span>Masculino</span>
-                            </button>
-                            <button
-                                type="button"
-                                className={`re-sexo-btn ${formData.sexo === 'F' ? 'is-active' : ''}`}
-                                onClick={() => handleSexo('F')}
-                            >
-                                <Venus size={20} />
+                            </label>
+                            <label className={`re-radio ${formData.sexo === 'F' ? 'is-active' : ''}`}>
+                                <input
+                                    type="radio"
+                                    name="sexo"
+                                    value="F"
+                                    checked={formData.sexo === 'F'}
+                                    onChange={handleChange}
+                                />
                                 <span>Femenino</span>
-                            </button>
+                            </label>
                         </div>
                     </div>
-
-                    {/* Fecha de nacimiento (opcional) */}
-                    <div className="re-field">
-                        <label htmlFor="fecha_nacimiento" className="re-label">
-                            Fecha de Nacimiento (opcional)
-                        </label>
-                        <div className="re-input-wrapper">
-                            <Calendar className="re-input-icon" size={18} />
-                            <input
-                                id="fecha_nacimiento"
-                                type="date"
-                                name="fecha_nacimiento"
-                                value={formData.fecha_nacimiento}
-                                onChange={handleChange}
-                                className="re-input"
-                                max={new Date().toISOString().split('T')[0]}
-                            />
-                        </div>
-                    </div>
-
+                    
                     {/* Password + Confirm */}
                     <div className="re-row">
                         <div className="re-field">
